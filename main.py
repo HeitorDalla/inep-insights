@@ -1,5 +1,6 @@
 from modules.data import dados_tratados
+from modules.database import inicializar_database
 
 dados = dados_tratados()
 
-print(dados)
+conn, cursor = inicializar_database()

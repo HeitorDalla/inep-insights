@@ -1,14 +1,16 @@
 import pandas as pd
+from unidecode import unidecode
+import chardet
 
+# Identificando as colunas importantes para nossa persona e projeto
 colunas_uteis = [
     # Identificação e Contexto Geográfica
     'NO_REGIAO',  # Nome da região geográfica (Norte, Nordeste, etc.)
     'NO_UF',  # Nome da Unidade Federativa (estado)
     'NO_MUNICIPIO',  # Nome do município onde a escola está localizada
+    'NO_ENTIDADE', # Nome da escola
     'TP_LOCALIZACAO',  # Tipo de localização (1-Urbana, 2-Rural)
-    'TP_LOCALIZACAO_DIFERENCIADA',  # Localização em áreas específicas (1-Área de assentamento, 2-Terra indígena, etc.)
     'TP_SITUACAO_FUNCIONAMENTO',  # Situação de funcionamento (1-Em atividade, 2-Paralisada, etc.)
-    'TP_DEPENDENCIA',  # Dependência administrativa (1-Federal, 2-Estadual, 3-Municipal, 4-Privada)
 
     # Infraestrutura Básica
     'IN_AGUA_POTAVEL',  # Possui água potável (Sim/Não)
@@ -73,11 +75,10 @@ colunas_uteis = [
     'IN_MATERIAL_PED_DESPORTIVA',  # Possui material pedagógico esportivo (Sim/Não)
 
     # Transporte escolar (crítico para zona rural)
-    'QT_TRANSP_PUBLICO',  # Quantidade de transportes públicos escolares
-    'QT_TRANSP_RESP_EST',  # Quantidade de transportes escolares responsabilidade do estado
-    'QT_TRANSP_RESP_MUN',  # Quantidade de transportes escolares responsabilidade do município
+    'QT_TRANSP_PUBLICO'  # Quantidade de transportes públicos escolares
 ]
 
+# Função para tratar os dados e retorna-los tratados
 def dados_tratados():
     df = pd.read_csv("csv/dados.csv",
                     delimiter=";",
@@ -85,9 +86,19 @@ def dados_tratados():
                     usecols=colunas_uteis,
                     low_memory=False)
     
-    # Agora leia apenas com as colunas disponíveis
-    novo_arquivo = "csv/dados_inteiros.csv"
+    # Tratamento dos valores ausentes
+    df = df.dropna()
+
+    # Tratamentos dos caracteres especiais
+    for coluna in df.select_dtypes(include=['object']):
+        df[coluna] = df[coluna].apply(lambda x: unidecode(x) if isinstance(x, str) else x) # Aplica o unidecode apenas à strings, se não for, retorna o próprio resultado
+
+    # Tratamento dos outliers
+    colunas_numéricas = df.select_dtypes(include=['int64', 'float64']).columns
+    print(colunas_numéricas)
     
+    # Ler penas as colunas disponíveis
+    novo_arquivo = "csv/dados_inteiros.csv"
     df.to_csv(novo_arquivo, sep=",", index=False, encoding="utf-8-sig")
     
     return df
