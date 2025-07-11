@@ -79,14 +79,15 @@ colunas_uteis = [
 ]
 
 def dados_tratados():
-        
-    # Agora leia apenas com as colunas disponíveis
     df = pd.read_csv("csv/dados.csv",
                     delimiter=";",
                     encoding="latin-1",
                     usecols=colunas_uteis,
                     low_memory=False)
     
-    df.to_csv("dados/dados_inteiros.csv", sep=",", index=False, encoding="utf-8-sig")
-
+    # Agora leia apenas com as colunas disponíveis
+    novo_arquivo = "csv/dados_inteiros.csv"
+    
+    df.to_csv(novo_arquivo, sep=",", index=False, encoding="utf-8-sig")
+    
     return df
