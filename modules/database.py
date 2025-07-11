@@ -5,8 +5,8 @@ def getConnection():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='m!070368M',
-        database='escola_db'
+        password='12345678',
+        database='database_projeto_tcs'
     )
     cursor = conn.cursor(dictionary=True)
 
@@ -18,9 +18,6 @@ def createDatabase (conn, cursor):
     """
     Executa todos os comandos DDL para criar o banco e as tabelas normalizadas.
     """
-
-    cursor.execute("CREATE DATABASE IF NOT EXISTS escola_db;")
-    cursor.execute("USE escola_db;")
 
     # Tabela de regiões (ex: Sul, Norte, Nordeste, etc.)
     cursor.execute("""
