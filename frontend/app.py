@@ -1,5 +1,26 @@
 import streamlit as st
 from streamlit_option_menu import option_menu
+import pandas as pd
+import mysql.connector
+
+def get_connection():
+    conn = mysql.connector.connect(
+        host="localhost",
+        user="root",
+        password="m!070368M", # editar senha
+        database="database_projeto_tcs"
+    )
+    return conn
+
+# Cria conexão com o banco de dados MySQL
+conn = get_connection()
+cursor = conn.cursor()
+
+# Exemplo de query
+df = pd.read_sql("SELECT * FROM regiao", conn)
+st.dataframe(df)
+
+conn.close() # fecha conexão com o banco de dados
 
 st.set_page_config(
     page_title="editar",
