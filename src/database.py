@@ -216,17 +216,9 @@ def createDatabase (conn, cursor):
 # Função para popular as tabelas
 def populateDatabase (conn, cursor):
     # Selecionar todas as tabelas do banco de dados
-    tabelas = [
-        "regiao", "uf", "municipio", "tipo_localizacao", "tipo_situacao",
-        "escola", "saneamento_basico", "infraestrutura", "conectividade",
-        "corpo_docente", "matriculas", "insumos", "transporte"
-    ]
-
-    # Verificar algum dado ja existente
-    for tabela in tabelas:
-        cursor.execute(f'SELECT COUNT(*) FROM {tabela}')
-        if list(cursor.fetchone().values())[0] > 0:
-            return
+    if dados_ja_existem(cursor):
+        print("Banco de dados ja populado!")
+        return
         
     # Dados tratados
     df = dados_tratados()
@@ -244,11 +236,21 @@ def populateDatabase (conn, cursor):
 
     # 3. Dimensão UFs
     for uf, reg in df[['NO_UF','NO_REGIAO']].drop_duplicates().values:
+        reg = reg.strip()
+        uf = uf.strip()
+        
+        if reg not in reg_map:
+            print(f"Região '{reg}' não encontrada!")
+            continue  # evita erro
+
         reg_id = reg_map[reg]
+
         cursor.execute(
             "INSERT IGNORE INTO uf (NO_UF, regiao_id) VALUES (%s, %s)",
-            (uf.strip(), reg_id)
+            (uf, reg_id)
         )
+
+        print(f"Inserindo UF '{uf}' com regiao_id {reg_id}")
 
     conn.commit()
     cursor.execute("SELECT id, NO_UF FROM uf")
@@ -424,3 +426,21 @@ def inicializar_database ():
     populateDatabase(conn, cursor)
 
     return conn, cursor
+
+# Função que verifica a existência de dados
+def dados_ja_existem(cursor):
+    tabelas = [
+        "regiao", "uf", "municipio", "tipo_localizacao", "tipo_situacao",
+        "escola", "saneamento_basico", "infraestrutura", "conectividade",
+        "corpo_docente", "matriculas", "insumos", "transporte"
+    ]
+
+    todas_tem_dados = True
+    for tabela in tabelas:
+        cursor.execute(f"SELECT COUNT(*) as total FROM {tabela}")
+        total = cursor.fetchone()["total"]
+        if total == 0:
+            todas_tem_dados = False
+        print(f"Tabela {tabela} tem {total} registros.")
+    
+    return todas_tem_dados

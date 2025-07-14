@@ -1,6 +1,7 @@
 import pandas as pd
 from unidecode import unidecode
 import chardet
+import os
 
 # Identificando as colunas importantes para nossa persona e projeto
 colunas_uteis = [
