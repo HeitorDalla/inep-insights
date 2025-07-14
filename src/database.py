@@ -1,4 +1,5 @@
 import mysql.connector
+from src.data import dados_tratados
 
 # Função para fazer a conexão com o banco de dados
 def getConnection():
@@ -210,11 +211,211 @@ def createDatabase (conn, cursor):
     """
     )
 
-    pass
+    conn.commit()
 
 # Função para popular as tabelas
 def populateDatabase (conn, cursor):
-    pass
+    # Selecionar todas as tabelas do banco de dados
+    tabelas = [
+        "regiao", "uf", "municipio", "tipo_localizacao", "tipo_situacao",
+        "escola", "saneamento_basico", "infraestrutura", "conectividade",
+        "corpo_docente", "matriculas", "insumos", "transporte"
+    ]
+
+    # Verificar algum dado ja existente
+    for tabela in tabelas:
+        cursor.execute(f'SELECT COUNT(*) FROM {tabela}')
+        if list(cursor.fetchone().values())[0] > 0:
+            return
+        
+    # Dados tratados
+    df = dados_tratados()
+
+    # 2. Dimensão Regiões
+    for regiao in df['NO_REGIAO'].unique():
+        cursor.execute(
+            "INSERT IGNORE INTO regiao (NO_REGIAO) VALUES (%s)", # o IGNORE evita duplicatas
+            (regiao.strip(),)
+        )
+
+    conn.commit()
+    cursor.execute("SELECT id, NO_REGIAO FROM regiao")
+    reg_map = {nome: id_ for id_, nome in cursor.fetchall()}
+
+    # 3. Dimensão UFs
+    for uf, reg in df[['NO_UF','NO_REGIAO']].drop_duplicates().values:
+        reg_id = reg_map[reg]
+        cursor.execute(
+            "INSERT IGNORE INTO uf (NO_UF, regiao_id) VALUES (%s, %s)",
+            (uf.strip(), reg_id)
+        )
+
+    conn.commit()
+    cursor.execute("SELECT id, NO_UF FROM uf")
+    uf_map = {nome: id_ for id_, nome in cursor.fetchall()}
+
+    # 4. Dimensão Municípios
+    for muni, uf in df[['NO_MUNICIPIO','NO_UF']].drop_duplicates().values:
+        uf_id = uf_map[uf]
+        cursor.execute(
+            "INSERT IGNORE INTO municipio (NO_MUNICIPIO, uf_id) VALUES (%s, %s)",
+            (muni, uf_id)
+        )
+
+    conn.commit()
+    cursor.execute("SELECT id, NO_MUNICIPIO FROM municipio")
+    muni_map = {nome: id_ for id_, nome in cursor.fetchall()}
+
+    # 5. Mapas estáticos para localização e situação
+    cursor.execute("SELECT id, TP_LOCALIZACAO FROM tipo_localizacao")
+    loc_map = {tp: id_ for id_, tp in cursor.fetchall()}
+
+    cursor.execute("SELECT id, TP_SITUACAO_FUNCIONAMENTO FROM tipo_situacao")
+    sit_map = {tp: id_ for id_, tp in cursor.fetchall()}
+
+    # 6. Inserir registros em escola e tabelas filhas
+    for _, row in df.iterrows():
+        # 6.1 escola
+        cursor.execute(
+            """INSERT INTO escola
+               (NO_ENTIDADE, municipio_id, tp_localizacao_id, tp_situacao_id)
+               VALUES (%s, %s, %s, %s)""",
+            (
+                row['NO_ENTIDADE'],
+                muni_map[row['NO_MUNICIPIO']],
+                loc_map[int(row['TP_LOCALIZACAO'])],
+                sit_map[int(row['TP_SITUACAO_FUNCIONAMENTO'])]
+            )
+        )
+        escola_id = cursor.lastrowid
+        conn.commit()
+
+        # 6.2 saneamento_basico
+        cursor.execute(
+            """INSERT INTO saneamento_basico
+               (escola_id, IN_AGUA_POTAVEL, IN_AGUA_REDE_PUBLICA, IN_AGUA_POCO_ARTESIANO,
+                IN_AGUA_INEXISTENTE, IN_ENERGIA_REDE_PUBLICA, IN_ENERGIA_INEXISTENTE,
+                IN_ESGOTO_REDE_PUBLICA, IN_ESGOTO_INEXISTENTE, IN_LIXO_SERVICO_COLETA)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                escola_id,
+                bool(row['IN_AGUA_POTAVEL']),
+                bool(row['IN_AGUA_REDE_PUBLICA']),
+                bool(row['IN_AGUA_POCO_ARTESIANO']),
+                bool(row['IN_AGUA_INEXISTENTE']),
+                bool(row['IN_ENERGIA_REDE_PUBLICA']),
+                bool(row['IN_ENERGIA_INEXISTENTE']),
+                bool(row['IN_ESGOTO_REDE_PUBLICA']),
+                bool(row['IN_ESGOTO_INEXISTENTE']),
+                bool(row['IN_LIXO_SERVICO_COLETA'])
+            )
+        )
+
+        # 6.3 infraestrutura
+        cursor.execute(
+            """INSERT INTO infraestrutura
+               (escola_id, IN_ALMOXARIFADO, IN_BIBLIOTECA, IN_COZINHA,
+                IN_LABORATORIO_CIENCIAS, IN_LABORATORIO_INFORMATICA,
+                IN_PATIO_COBERTO, IN_PARQUE_INFANTIL, IN_QUADRA_ESPORTES,
+                IN_REFEITORIO, IN_SALA_PROFESSOR)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                escola_id,
+                bool(row['IN_ALMOXARIFADO']),
+                bool(row['IN_BIBLIOTECA']),
+                bool(row['IN_COZINHA']),
+                bool(row['IN_LABORATORIO_CIENCIAS']),
+                bool(row['IN_LABORATORIO_INFORMATICA']),
+                bool(row['IN_PATIO_COBERTO']),
+                bool(row['IN_PARQUE_INFANTIL']),
+                bool(row['IN_QUADRA_ESPORTES']),
+                bool(row['IN_REFEITORIO']),
+                bool(row['IN_SALA_PROFESSOR'])
+            )
+        )
+
+        # 6.4 conectividade
+        cursor.execute(
+            """INSERT INTO conectividade
+               (escola_id, IN_INTERNET, IN_EQUIP_TV, QT_EQUIP_MULTIMIDIA)
+               VALUES (%s, %s, %s, %s)""",
+            (
+                escola_id,
+                bool(row['IN_INTERNET']),
+                int(row['IN_EQUIP_TV']),
+                int(row['QT_EQUIP_MULTIMIDIA'])
+            )
+        )
+
+        # 6.5 corpo_docente
+        cursor.execute(
+            """INSERT INTO corpo_docente
+               (escola_id, QT_PROF_BIBLIOTECARIO, QT_PROF_PEDAGOGIA, QT_PROF_SAUDE,
+                QT_PROF_PSICOLOGO, QT_PROF_ADMINISTRATIVOS, QT_PROF_SERVICOS_GERAIS,
+                QT_PROF_SEGURANCA, QT_PROF_GESTAO, QT_PROF_ASSIST_SOCIAL, QT_PROF_NUTRICIONISTA)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                escola_id,
+                int(row['QT_PROF_BIBLIOTECARIO']),
+                int(row['QT_PROF_PEDAGOGIA']),
+                int(row['QT_PROF_SAUDE']),
+                int(row['QT_PROF_PSICOLOGO']),
+                int(row['QT_PROF_ADMINISTRATIVOS']),
+                int(row['QT_PROF_SERVICOS_GERAIS']),
+                int(row['QT_PROF_SEGURANCA']),
+                int(row['QT_PROF_GESTAO']),
+                int(row['QT_PROF_ASSIST_SOCIAL']),
+                int(row['QT_PROF_NUTRICIONISTA'])
+            )
+        )
+
+        # 6.6 matriculas
+        cursor.execute(
+            """INSERT INTO matriculas
+               (escola_id, QT_MAT_INF, QT_MAT_FUND, QT_MAT_MED, QT_MAT_EJA,
+                QT_MAT_ESP, QT_MAT_BAS_FEM, QT_MAT_BAS_MASC, QT_MAT_BAS_BRANCA,
+                QT_MAT_BAS_PRETA, QT_MAT_BAS_PARDA, QT_MAT_BAS_AMARELA,
+                QT_MAT_BAS_INDIGENA)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (
+                escola_id,
+                int(row['QT_MAT_INF']),
+                int(row['QT_MAT_FUND']),
+                int(row['QT_MAT_MED']),
+                int(row['QT_MAT_EJA']),
+                int(row['QT_MAT_ESP']),
+                int(row['QT_MAT_BAS_FEM']),
+                int(row['QT_MAT_BAS_MASC']),
+                int(row['QT_MAT_BAS_BRANCA']),
+                int(row['QT_MAT_BAS_PRETA']),
+                int(row['QT_MAT_BAS_PARDA']),
+                int(row['QT_MAT_BAS_AMARELA']),
+                int(row['QT_MAT_BAS_INDIGENA'])
+            )
+        )
+
+        # 6.7 insumos
+        cursor.execute(
+            """INSERT INTO insumos
+               (escola_id, IN_ALIMENTACAO, IN_MATERIAL_PED_CIENTIFICO,
+                IN_MATERIAL_PED_ARTISTICAS, IN_MATERIAL_PED_DESPORTIVA)
+               VALUES (%s, %s, %s, %s, %s)""",
+            (
+                escola_id,
+                bool(row['IN_ALIMENTACAO']),
+                bool(row['IN_MATERIAL_PED_CIENTIFICO']),
+                bool(row['IN_MATERIAL_PED_ARTISTICAS']),
+                bool(row['IN_MATERIAL_PED_DESPORTIVA'])
+            )
+        )
+
+        # 6.8 transporte
+        cursor.execute(
+            "INSERT INTO transporte (escola_id, QT_TRANSP_PUBLICO) VALUES (%s, %s)",
+            (escola_id, int(row['QT_TRANSP_PUBLICO']))
+        )
+
+    conn.commit()
 
 # Função para inicializar o banco de dados
 def inicializar_database ():
