@@ -39,8 +39,6 @@ colunas_uteis = [
     'IN_INTERNET',  # Possui acesso à internet (Sim/Não)
     'IN_EQUIP_TV',  # Possui televisores (Sim/Não)
     'QT_EQUIP_MULTIMIDIA',
-    'QT_DESKTOP_ALUNO',
-    'QT_TABLET_ALUNO',
 
     # Recursos humanos (qualificação do ensino)
     'QT_PROF_BIBLIOTECARIO',
@@ -94,11 +92,10 @@ def dados_tratados():
         df[coluna] = df[coluna].apply(lambda x: unidecode(x) if isinstance(x, str) else x) # Aplica o unidecode apenas à strings, se não for, retorna o próprio resultado
 
     # Tratamento dos outliers
-    colunas_numéricas = df.select_dtypes(include=['int64', 'float64']).columns
-    print(colunas_numéricas)
+    df_filtrado = df[~df.isin([88888.0]).any(axis=1)]
     
     # Ler penas as colunas disponíveis
     novo_arquivo = "csv/dados_inteiros.csv"
-    df.to_csv(novo_arquivo, sep=",", index=False, encoding="utf-8-sig")
+    df_filtrado.to_csv(novo_arquivo, sep=",", index=False, encoding="utf-8-sig")
     
-    return df
+    return df_filtrado

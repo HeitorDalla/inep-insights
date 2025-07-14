@@ -1,5 +1,5 @@
-from modules.data import dados_tratados
-from modules.database import inicializar_database
+from src.data import dados_tratados
+from src.database import inicializar_database
 
 dados = dados_tratados()
 

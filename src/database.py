@@ -5,7 +5,7 @@ def getConnection():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='m!070368M',
+        password='12345678',
         database='database_projeto_tcs'
     )
     cursor = conn.cursor(dictionary=True)
@@ -66,15 +66,6 @@ def createDatabase (conn, cursor):
     """
     )
 
-    # cursor.execute("""
-    #     CREATE TABLE IF NOT EXISTS tipo_localizacao_diferenciada (
-    #         id INT AUTO_INCREMENT PRIMARY KEY,
-    #         codigo INT,
-    #         descricao VARCHAR(100)
-    #     );
-    # """
-    # )
-
     # Tabela de Localização (1- Ativa | 2- Inativa | 3 ou 4 - Extinta)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tipo_situacao (
@@ -91,15 +82,6 @@ def createDatabase (conn, cursor):
         );
     """
     )
-
-    # cursor.execute("""
-    #     CREATE TABLE IF NOT EXISTS tipo_dependencia (
-    #         id INT AUTO_INCREMENT PRIMARY KEY,
-    #         codigo INT,
-    #         descricao VARCHAR(50)
-    #     );
-    # """
-    # )
 
     # Tabela principal: Escola (união de todas as outras entidades/tabelas) 
     cursor.execute("""
@@ -160,8 +142,6 @@ def createDatabase (conn, cursor):
             IN_INTERNET BOOL NOT NULL,
             IN_EQUIP_TV INT NOT NULL,
             QT_EQUIP_MULTIMIDIA INT NOT NULL,
-            QT_DESKTOP_ALUNO INT NOT NULL,
-            QT_TABLET_ALUNO INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
     """
