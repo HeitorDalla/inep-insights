@@ -1,7 +1,7 @@
-import mysql.connector
+import pandas as pd
 from src.data import dados_tratados
+import mysql.connector
 
-# Função para fazer a conexão com o banco de dados
 def getConnection():
     conn = mysql.connector.connect(
         host='localhost',
@@ -13,45 +13,42 @@ def getConnection():
 
     return conn, cursor
 
-# Função para criar as tabelas do banco de dados
-def createDatabase (conn, cursor): 
-
+def createDatabase(conn, cursor):
     """
     Executa todos os comandos DDL para criar o banco e as tabelas normalizadas.
     """
-
-    # Tabela de regiões (ex: Sul, Norte, Nordeste, etc.)
+    # 1. Tabela de regiões
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS regiao (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-            NO_REGIAO VARCHAR(50) NOT NULL
+            NO_REGIAO VARCHAR(50) NOT NULL,
+            UNIQUE KEY uq_regiao (NO_REGIAO)
         );
-    """
-    )
+    """)
 
-    # Tabela de UFs
+    # 2. Tabela de UFs
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS uf (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
             NO_UF VARCHAR(50) NOT NULL,
             regiao_id INT NOT NULL,
-            FOREIGN KEY (regiao_id) REFERENCES regiao(id)
+            FOREIGN KEY (regiao_id) REFERENCES regiao(id),
+            UNIQUE KEY uq_uf (NO_UF, regiao_id)
         );
-    """
-    )
+    """)
 
-    # Tabela de Municípios
+    # 3. Tabela de Municípios
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS municipio (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
             NO_MUNICIPIO VARCHAR(100) NOT NULL,
             uf_id INT NOT NULL,
-            FOREIGN KEY (uf_id) REFERENCES uf(id)
+            FOREIGN KEY (uf_id) REFERENCES uf(id),
+            UNIQUE KEY uq_municipio (NO_MUNICIPIO, uf_id)
         );
-    """
-    )
+    """)
 
-    # Tabela de Localização (1 - Urbana | 2 - Rural)
+    # 4. Tabela de Localização (1 - Urbana | 2 - Rural)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tipo_localizacao (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -60,14 +57,14 @@ def createDatabase (conn, cursor):
                 CASE
                     WHEN TP_LOCALIZACAO = 1 THEN 'Urbana'
                     WHEN TP_LOCALIZACAO = 2 THEN 'Rural'
-                ELSE 'Desconhecido'
+                    ELSE 'Desconhecido'
                 END
-            ) STORED NOT NULL
+            ) STORED NOT NULL,
+            UNIQUE KEY uq_tipo_localizacao (TP_LOCALIZACAO)
         );
-    """
-    )
+    """)
 
-    # Tabela de Localização (1- Ativa | 2- Inativa | 3 ou 4 - Extinta)
+    # 5. Tabela de Situação (1- Ativa | 2- Inativa | 3 ou 4 - Extinta)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tipo_situacao (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -79,12 +76,12 @@ def createDatabase (conn, cursor):
                     WHEN TP_SITUACAO_FUNCIONAMENTO IN (3,4) THEN 'Extinta'
                     ELSE 'Desconhecido'
                 END
-                ) STORED NOT NULL
+            ) STORED NOT NULL,
+            UNIQUE KEY uq_tipo_situacao (TP_SITUACAO_FUNCIONAMENTO)
         );
-    """
-    )
+    """)
 
-    # Tabela principal: Escola (união de todas as outras entidades/tabelas) 
+    # 6. Tabela principal: Escola
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS escola (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -96,10 +93,9 @@ def createDatabase (conn, cursor):
             FOREIGN KEY (tp_localizacao_id) REFERENCES tipo_localizacao(id),
             FOREIGN KEY (tp_situacao_id) REFERENCES tipo_situacao(id)
         );
-    """
-    )
+    """)
 
-    # Tabelas de Saneamento Básico
+    # 7–13. Tabelas filhas (saneamento_basico, infraestrutura, conectividade, corpo_docente, matriculas, insumos, transporte)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS saneamento_basico (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -114,10 +110,8 @@ def createDatabase (conn, cursor):
             IN_ESGOTO_REDE_PUBLICA BOOL NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
+    """)
 
-    # Tabelas de Infraestrutura
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS infraestrutura (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -133,10 +127,8 @@ def createDatabase (conn, cursor):
             IN_ALMOXARIFADO BOOL NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
+    """)
 
-    # Tabelas de Conectividade (materiais tecnológicos)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS conectividade (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -145,10 +137,8 @@ def createDatabase (conn, cursor):
             QT_EQUIP_MULTIMIDIA INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
+    """)
 
-    # Tabelas do Corpo-docente
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS corpo_docente (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -164,10 +154,8 @@ def createDatabase (conn, cursor):
             QT_PROF_NUTRICIONISTA INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
+    """)
 
-    # Tabelas das Matrículas
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS matriculas (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -185,10 +173,8 @@ def createDatabase (conn, cursor):
             QT_MAT_BAS_INDIGENA INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
+    """)
 
-    # Tabelas dos Insumos (alimentação e materiais pedagógicos)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS insumos (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -198,86 +184,125 @@ def createDatabase (conn, cursor):
             IN_MATERIAL_PED_DESPORTIVA BOOL NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
+    """)
 
-    # Tabela da Quantidade de Transporte Público (geral)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS transporte (
             escola_id INT PRIMARY KEY NOT NULL,
             QT_TRANSP_PUBLICO INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
-    """
-    )
-
+    """)
     conn.commit()
 
-# Função para popular as tabelas
-def populateDatabase (conn, cursor):
-    # Selecionar todas as tabelas do banco de dados
-    if dados_ja_existem(cursor):
-        print("Banco de dados ja populado!")
-        return
-        
-    # Dados tratados
+
+def populateDatabase(conn, cursor):
+    """
+    Popula todas as tabelas a partir de um CSV.
+    
+    Passos:
+    1. Lê o CSV com pandas.
+    2. 'Sementeia' (seed) as tabelas de dimensão evitando duplicatas:
+       - regiao, uf, municipio, tipo_localizacao, tipo_situacao
+    3. Constrói dicionários de mapeamento (valor → id).
+    4. Insere cada escola e suas tabelas filhas:
+       saneamento_basico, infraestrutura, conectividade,
+       corpo_docente, matriculas, insumos e transporte.
+    """
+    # 1. Carrega CSV
     df = dados_tratados()
 
-    # 2. Dimensão Regiões
-    for regiao in df['NO_REGIAO'].unique():
-        cursor.execute(
-            "INSERT IGNORE INTO regiao (NO_REGIAO) VALUES (%s)", # o IGNORE evita duplicatas
-            (regiao.strip(),)
-        )
-
+    # 2a. Seed 'regiao'
+    for reg in df['NO_REGIAO'].unique():
+        cursor.execute("SELECT id FROM regiao WHERE NO_REGIAO = %s", (reg,))
+        if cursor.fetchone() is None:
+            cursor.execute("INSERT INTO regiao (NO_REGIAO) VALUES (%s)", (reg,))
     conn.commit()
+
+    # 2b. Seed 'uf'
+    # precisa do regiao_id
     cursor.execute("SELECT id, NO_REGIAO FROM regiao")
-    reg_map = {nome: id_ for id_, nome in cursor.fetchall()}
+    reg_map = { r['NO_REGIAO']: r['id'] for r in cursor.fetchall() }
 
-    # 3. Dimensão UFs
     for uf, reg in df[['NO_UF','NO_REGIAO']].drop_duplicates().values:
-        reg = reg.strip()
-        uf = uf.strip()
-        
-        if reg not in reg_map:
-            print(f"Região '{reg}' não encontrada!")
-            continue  # evita erro
-
         reg_id = reg_map[reg]
-
         cursor.execute(
-            "INSERT IGNORE INTO uf (NO_UF, regiao_id) VALUES (%s, %s)",
+            "SELECT id FROM uf WHERE NO_UF = %s AND regiao_id = %s",
             (uf, reg_id)
         )
-
-        print(f"Inserindo UF '{uf}' com regiao_id {reg_id}")
-
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "INSERT INTO uf (NO_UF, regiao_id) VALUES (%s, %s)",
+                (uf, reg_id)
+            )
     conn.commit()
-    cursor.execute("SELECT id, NO_UF FROM uf")
-    uf_map = {nome: id_ for id_, nome in cursor.fetchall()}
 
-    # 4. Dimensão Municípios
+    # 2c. Seed 'municipio'
+    cursor.execute("SELECT id, NO_UF FROM uf")
+    uf_map = { r['NO_UF']: r['id'] for r in cursor.fetchall() }
+
     for muni, uf in df[['NO_MUNICIPIO','NO_UF']].drop_duplicates().values:
         uf_id = uf_map[uf]
         cursor.execute(
-            "INSERT IGNORE INTO municipio (NO_MUNICIPIO, uf_id) VALUES (%s, %s)",
+            "SELECT id FROM municipio WHERE NO_MUNICIPIO = %s AND uf_id = %s",
             (muni, uf_id)
         )
-
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "INSERT INTO municipio (NO_MUNICIPIO, uf_id) VALUES (%s, %s)",
+                (muni, uf_id)
+            )
     conn.commit()
-    cursor.execute("SELECT id, NO_MUNICIPIO FROM municipio")
-    muni_map = {nome: id_ for id_, nome in cursor.fetchall()}
 
-    # 5. Mapas estáticos para localização e situação
+    # 2d. Seed 'tipo_localizacao'
+    for tp in df['TP_LOCALIZACAO'].unique():
+        cursor.execute(
+            "SELECT id FROM tipo_localizacao WHERE TP_LOCALIZACAO = %s",
+            (int(tp),)
+        )
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "INSERT INTO tipo_localizacao (TP_LOCALIZACAO) VALUES (%s)",
+                (int(tp),)
+            )
+    conn.commit()
+
+    # 2. Seed 'tipo_situacao'
+    for tp in df['TP_SITUACAO_FUNCIONAMENTO'].unique():
+        cursor.execute(
+            "SELECT id FROM tipo_situacao WHERE TP_SITUACAO_FUNCIONAMENTO = %s",
+            (int(tp),)
+        )
+        if cursor.fetchone() is None:
+            cursor.execute(
+                "INSERT INTO tipo_situacao (TP_SITUACAO_FUNCIONAMENTO) VALUES (%s)",
+                (int(tp),)
+            )
+    conn.commit()
+
+    # Reconstrói o map de situação 
+    cursor.execute("SELECT id, TP_SITUACAO_FUNCIONAMENTO FROM tipo_situacao")
+    sit_map = { row['TP_SITUACAO_FUNCIONAMENTO']: row['id'] for row in cursor.fetchall() }
+
+    # 3. Reconstrói todos os maps
+    cursor.execute("SELECT id, NO_REGIAO FROM regiao")
+    reg_map = { r['NO_REGIAO']: r['id'] for r in cursor.fetchall() }
+
+    cursor.execute("SELECT id, NO_UF FROM uf")
+    uf_map = { r['NO_UF']: r['id'] for r in cursor.fetchall() }
+
+    cursor.execute("SELECT id, NO_MUNICIPIO FROM municipio")
+    muni_map = { r['NO_MUNICIPIO']: r['id'] for r in cursor.fetchall() }
+
     cursor.execute("SELECT id, TP_LOCALIZACAO FROM tipo_localizacao")
-    loc_map = {tp: id_ for id_, tp in cursor.fetchall()}
+    loc_map = { r['TP_LOCALIZACAO']: r['id'] for r in cursor.fetchall() }
 
     cursor.execute("SELECT id, TP_SITUACAO_FUNCIONAMENTO FROM tipo_situacao")
-    sit_map = {tp: id_ for id_, tp in cursor.fetchall()}
+    sit_map = { r['TP_SITUACAO_FUNCIONAMENTO']: r['id'] for r in cursor.fetchall() }
 
-    # 6. Inserir registros em escola e tabelas filhas
+    # 4. Insere cada escola e suas tabelas filhas
     for _, row in df.iterrows():
-        # 6.1 escola
+        # 4a. escola
         cursor.execute(
             """INSERT INTO escola
                (NO_ENTIDADE, municipio_id, tp_localizacao_id, tp_situacao_id)
@@ -290,9 +315,8 @@ def populateDatabase (conn, cursor):
             )
         )
         escola_id = cursor.lastrowid
-        conn.commit()
 
-        # 6.2 saneamento_basico
+        # 4b. saneamento_basico
         cursor.execute(
             """INSERT INTO saneamento_basico
                (escola_id, IN_AGUA_POTAVEL, IN_AGUA_REDE_PUBLICA, IN_AGUA_POCO_ARTESIANO,
@@ -313,7 +337,7 @@ def populateDatabase (conn, cursor):
             )
         )
 
-        # 6.3 infraestrutura
+        # 4c. infraestrutura
         cursor.execute(
             """INSERT INTO infraestrutura
                (escola_id, IN_ALMOXARIFADO, IN_BIBLIOTECA, IN_COZINHA,
@@ -336,7 +360,7 @@ def populateDatabase (conn, cursor):
             )
         )
 
-        # 6.4 conectividade
+        # 4d. conectividade
         cursor.execute(
             """INSERT INTO conectividade
                (escola_id, IN_INTERNET, IN_EQUIP_TV, QT_EQUIP_MULTIMIDIA)
@@ -349,7 +373,7 @@ def populateDatabase (conn, cursor):
             )
         )
 
-        # 6.5 corpo_docente
+        # 4e. corpo_docente
         cursor.execute(
             """INSERT INTO corpo_docente
                (escola_id, QT_PROF_BIBLIOTECARIO, QT_PROF_PEDAGOGIA, QT_PROF_SAUDE,
@@ -371,7 +395,7 @@ def populateDatabase (conn, cursor):
             )
         )
 
-        # 6.6 matriculas
+        # 4f. matriculas
         cursor.execute(
             """INSERT INTO matriculas
                (escola_id, QT_MAT_INF, QT_MAT_FUND, QT_MAT_MED, QT_MAT_EJA,
@@ -396,7 +420,7 @@ def populateDatabase (conn, cursor):
             )
         )
 
-        # 6.7 insumos
+        # 4g. insumos
         cursor.execute(
             """INSERT INTO insumos
                (escola_id, IN_ALIMENTACAO, IN_MATERIAL_PED_CIENTIFICO,
@@ -411,36 +435,18 @@ def populateDatabase (conn, cursor):
             )
         )
 
-        # 6.8 transporte
+        # 4h. transporte
         cursor.execute(
             "INSERT INTO transporte (escola_id, QT_TRANSP_PUBLICO) VALUES (%s, %s)",
             (escola_id, int(row['QT_TRANSP_PUBLICO']))
         )
 
+    # Grava todas as inserções
     conn.commit()
 
-# Função para inicializar o banco de dados
 def inicializar_database ():
     conn, cursor = getConnection()
     createDatabase(conn, cursor)
     populateDatabase(conn, cursor)
 
     return conn, cursor
-
-# Função que verifica a existência de dados
-def dados_ja_existem(cursor):
-    tabelas = [
-        "regiao", "uf", "municipio", "tipo_localizacao", "tipo_situacao",
-        "escola", "saneamento_basico", "infraestrutura", "conectividade",
-        "corpo_docente", "matriculas", "insumos", "transporte"
-    ]
-
-    todas_tem_dados = True
-    for tabela in tabelas:
-        cursor.execute(f"SELECT COUNT(*) as total FROM {tabela}")
-        total = cursor.fetchone()["total"]
-        if total == 0:
-            todas_tem_dados = False
-        print(f"Tabela {tabela} tem {total} registros.")
-    
-    return todas_tem_dados
