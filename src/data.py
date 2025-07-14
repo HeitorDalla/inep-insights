@@ -2,6 +2,7 @@ import pandas as pd
 from unidecode import unidecode
 import chardet
 import os
+import streamlit as st
 
 # Identificando as colunas importantes para nossa persona e projeto
 colunas_uteis = [
@@ -78,6 +79,7 @@ colunas_uteis = [
 ]
 
 # Função para tratar os dados e retorna-los tratados
+@st.cache_data
 def dados_tratados():
     df = pd.read_csv("csv/dados.csv",
                     delimiter=";",
@@ -85,18 +87,16 @@ def dados_tratados():
                     usecols=colunas_uteis,
                     low_memory=False)
     
-    # Tratamento dos valores ausentes
-    df = df.dropna()
+    # Remove os valores ausentes
+    df.dropna(inplace=True)
 
-    # Tratamentos dos caracteres especiais
-    for coluna in df.select_dtypes(include=['object']):
-        df[coluna] = df[coluna].apply(lambda x: unidecode(x) if isinstance(x, str) else x) # Aplica o unidecode apenas à strings, se não for, retorna o próprio resultado
+    # Remove os outliers
+    df = df[~df.isin([88888.0]).any(axis=1)]
 
-    # Tratamento dos outliers
-    df_filtrado = df[~df.isin([88888.0]).any(axis=1)]
+    # Normalizar as colunas de texto
+    colunas_para_normalizar = ['NO_REGIAO', 'NO_UF', 'NO_MUNICIPIO', 'NO_ENTIDADE']
+    for coluna in colunas_para_normalizar:
+        if coluna in df.columns:
+            df[coluna] = df[coluna].astype(str).apply(unidecode)
     
-    # Ler penas as colunas disponíveis
-    novo_arquivo = "csv/dados_inteiros.csv"
-    df_filtrado.to_csv(novo_arquivo, sep=",", index=False, encoding="utf-8-sig")
-    
-    return df_filtrado
+    return df
