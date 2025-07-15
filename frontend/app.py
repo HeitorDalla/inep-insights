@@ -1,21 +1,17 @@
+import sys
+import os
+
+# Garante que a raiz do projeto esteja no sys.path
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
 import streamlit as st
 from streamlit_option_menu import option_menu
 import pandas as pd
-import mysql.connector
+from src.database import get_connection
 
-def get_connection():
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="m!070368M", # editar senha
-        database="database_projeto_tcs"
-    )
-    return conn
-
-# Cria conexão com o banco de dados MySQL
-conn = get_connection()
-cursor = conn.cursor()
-
+# Configuração da página
 st.set_page_config(
     page_title="editar",
     page_icon="📊",
@@ -27,6 +23,9 @@ st.set_page_config(
         'About': "Aplicativo desenvolvido por Matheus V. Nellessen, Flávia ... e Heitor Villa"
     }
 )
+
+# Cria conexão com o banco de dados MySQL
+conn, cursor = get_connection()
 
 # Configurações de estilo (CSS)
 st.markdown("""
@@ -74,12 +73,10 @@ st.markdown("""
 unsafe_allow_html=True)
 
 # Configurações da imagem do Sidebar
-
 col1, col2, col3 = st.sidebar.columns([1, 2, 1])
 
 with col2:
     st.image("frontend/img/logo.png") # adiciona logo ao sidebar
-
 
 # Configuração do menu de navegação
 
@@ -94,20 +91,12 @@ selected = option_menu(
 )
 
 if (selected == "Home"):
-    # Configuração dos filtros da página "home"
-    # Título 1 do sidebar
-    # st.sidebar.markdown("""
-    #     <h1 class="h1-sidebar-home">Selecione os filtros</h1>
-    # """,
-    # unsafe_allow_html=True)
-
     # SQL Query p/ ler as regiões
     regiao_unique = pd.read_sql("""
         SELECT DISTINCT NO_REGIAO
         FROM regiao
         ORDER BY NO_REGIAO ASC
-    """,
-    conn)
+    """, conn)
     
     # Selectbox das regiões
     regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_unique)
@@ -120,9 +109,7 @@ if (selected == "Home"):
             ON uf.regiao_id = regiao.id
         WHERE regiao.NO_REGIAO = %s
         ORDER BY uf.NO_UF ASC
-    """,
-    conn,
-    params=(regiao_selecionada,))
+    """, conn, params=(regiao_selecionada,))
 
     # Selectbox das UFs
     uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_unique)
@@ -135,9 +122,7 @@ if (selected == "Home"):
             ON m.uf_id = u.id
         WHERE u.NO_UF = %s
         ORDER BY m.NO_MUNICIPIO ASC
-    """,
-    conn,
-    params=(uf_selecionada,))
+    """, conn, params=(uf_selecionada,))
 
     # Selectbox dos municípios
     municipio_selecionado = st.sidebar.selectbox("Selecione o município:", municipio_unique)
@@ -216,31 +201,22 @@ if (selected == "Home"):
 
     # Quebra de página visual
     st.markdown("""
-            <hr/>
-        """,
-        unsafe_allow_html=True)
+        <hr/>
+    """, unsafe_allow_html=True)
 
     # Texto de apresentação do "Home"
     with st.expander("Clique para visualizar a persona.", ):
         st.markdown("""
             <p align="justify"><b>Marta Oliveira</b>, é diretora de uma escola rural, com mais de 20 anos de experiência e especialização em Gestão Escolar. Ao criar o dashboard, ela busca usar dados do Censo Escolar e do INEP para mostrar de forma clara como a falta de infraestrutura impacta negativamente o desempenho dos alunos, comparando sua escola às unidades urbanas e fortalecendo seu argumento por mais investimentos e políticas educacionais justas.</p>
-        """,
-        unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
 if (selected == "Anal. Específica"):
-    # st.sidebar.markdown(
-    # """
-    # <h1 class="h1-sidebar-home">Selecione os filtros abaixo</h1>
-    # """,
-    # unsafe_allow_html=True)
-
     # SQL Query p/ ler as regiões únicas
     regiao_df = pd.read_sql("""
         SELECT DISTINCT NO_REGIAO 
         FROM regiao 
         ORDER BY NO_REGIAO ASC
-        """,
-        conn)
+        """, conn)
     
     # Selectbox com as regiões únicas
     regiao_selecionada = st.sidebar.selectbox(
@@ -256,9 +232,7 @@ if (selected == "Anal. Específica"):
         JOIN regiao ON uf.regiao_id = regiao.id
         WHERE regiao.NO_REGIAO = %s
         ORDER BY uf.NO_UF ASC
-        """,
-        conn,
-        params=(regiao_selecionada,)
+        """, conn, params=(regiao_selecionada,)
     )
 
     # Selectbox com as UFs únicas
@@ -275,9 +249,7 @@ if (selected == "Anal. Específica"):
         JOIN uf ON municipio.uf_id = uf.id
         WHERE uf.NO_UF = %s
         ORDER BY municipio.NO_MUNICIPIO ASC
-        """,
-        conn,
-        params=(uf_selecionada,)
+        """, conn, params=(uf_selecionada,)
     )
 
     # Selectbox com os municípios únicos
@@ -291,9 +263,7 @@ if (selected == "Anal. Específica"):
         SELECT id, descricao 
         FROM tipo_localizacao 
         ORDER BY descricao ASC
-    """,
-        conn
-    )
+    """, conn)
 
     tipo_localizacao_list = tipo_localizacao_df["descricao"].tolist()
     tipo_localizacao_selecionada = st.sidebar.multiselect(
@@ -332,7 +302,6 @@ if (selected == "Anal. Específica"):
         
         # ORDER BY: ordena o resultado pelo nome da escola em ordem alfabética
 
-
         params = [regiao_selecionada, uf_selecionada, municipio_selecionado] + tipo_localizacao_selecionada
         # Construção da lista de parâmetros que serão passados para o pd.read_sql: Começa com os valores fixos %s correspondentes a Região, UF e Município. Depois concatena a lista de tipos de localização selecionados, para preencher cada %s dentro do IN
 
@@ -367,7 +336,6 @@ if (selected == "Anal. Específica"):
         escola_selecionada = None
         escola_id = None
 
-
     st.markdown("""
         <style>
             div[role="tablist"] {
@@ -380,11 +348,11 @@ if (selected == "Anal. Específica"):
 
     # Configuração do menu de navegação interno
     tab_saneamento_basico, tab_infraestrutura, tab_material, tab_corpo_docente, tab_matricula = st.tabs([
-    "💦 Saneamento Básico",
-    "🏫 Infraestrutura",
-    "📒 Material",
-    "👩🏻 Corpo Docente",
-    "🧑🏻‍🎓 Matricula"
+        "💦 Saneamento Básico",
+        "🏫 Infraestrutura",
+        "📒 Material",
+        "👩🏻 Corpo Docente",
+        "🧑🏻‍🎓 Matricula"
     ])
 
     # Conteúdo da aba "Saneamento Básico"

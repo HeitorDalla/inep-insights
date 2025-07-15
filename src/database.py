@@ -3,11 +3,11 @@ from src.data import dados_tratados
 import mysql.connector
 
 # Função para fazer a conexão com o banco de dados
-def getConnection():
+def get_connection():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='m!070368M',
+        password='12345678',
         database='database_projeto_tcs'
     )
     cursor = conn.cursor(dictionary=True)
@@ -15,7 +15,7 @@ def getConnection():
     return conn, cursor
 
 # Função para a criação do banco de dados
-def createDatabase(conn, cursor):
+def create_database(conn, cursor):
     """
     Executa todos os comandos DDL para criar o banco e as tabelas normalizadas.
     """
@@ -165,7 +165,7 @@ def createDatabase(conn, cursor):
     conn.commit()
 
 # Função para popular o banco de dados
-def populateDatabase(conn, cursor):
+def populate_database(conn, cursor):
     # 1. Carrega CSV
     df = dados_tratados()
 
@@ -367,8 +367,8 @@ def populateDatabase(conn, cursor):
 
 # Função para inicializar o banco de dados
 def inicializar_database ():
-    conn, cursor = getConnection()
-    createDatabase(conn, cursor)
-    populateDatabase(conn, cursor)
+    conn, cursor = get_connection()
+    create_database(conn, cursor)
+    populate_database(conn, cursor)
 
     return conn, cursor
