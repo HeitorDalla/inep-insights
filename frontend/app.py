@@ -35,10 +35,6 @@ st.markdown("""
             text-align: center;
         }
         
-        .h1-sidebar-home:hover::after {
-            content: "👇";
-        }
-        
         .kpi-card {
             background-color: #fff;
             margin: 20px; padding: 15px;
@@ -90,8 +86,8 @@ with col2:
 # Streamlit Option Menu
 selected = option_menu(
     menu_title=None,
-    options=["Home", "Anal. Geral", "Anal. Específica", "Outrem"],
-    icons=["house", "bar-chart", "bar-chart", "bar-chart"],
+    options=["Home", "Anal. Geral", "Anal. Específica"],
+    icons=["house", "bar-chart", "bar-chart"],
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
@@ -100,10 +96,10 @@ selected = option_menu(
 if (selected == "Home"):
     # Configuração dos filtros da página "home"
     # Título 1 do sidebar
-    st.sidebar.markdown("""
-        <h1 class="h1-sidebar-home">Selecione os filtros</h1>
-    """,
-    unsafe_allow_html=True)
+    # st.sidebar.markdown("""
+    #     <h1 class="h1-sidebar-home">Selecione os filtros</h1>
+    # """,
+    # unsafe_allow_html=True)
 
     # SQL Query p/ ler as regiões
     regiao_unique = pd.read_sql("""
@@ -145,12 +141,6 @@ if (selected == "Home"):
 
     # Selectbox dos municípios
     municipio_selecionado = st.sidebar.selectbox("Selecione o município:", municipio_unique)
-    
-    # # Texto dos KPIs
-    # st.markdown("""
-    #     <p class="p-home"></p>
-    # """,
-    # unsafe_allow_html=True)
 
     # Configuração dos KPIs
 
@@ -224,12 +214,25 @@ if (selected == "Home"):
         """,
         unsafe_allow_html=True)
 
+    # Quebra de página visual
+    st.markdown("""
+            <hr/>
+        """,
+        unsafe_allow_html=True)
+
+    # Texto de apresentação do "Home"
+    with st.expander("Clique para visualizar."):
+        st.markdown("""
+            <p class="p-home">Lorem ipsum...</p>
+        """,
+        unsafe_allow_html=True)
+
 if (selected == "Anal. Específica"):
-    st.sidebar.markdown(
-    """
-    <h1 class="h1-sidebar-home">Selecione os filtros abaixo</h1>
-    """,
-    unsafe_allow_html=True)
+    # st.sidebar.markdown(
+    # """
+    # <h1 class="h1-sidebar-home">Selecione os filtros abaixo</h1>
+    # """,
+    # unsafe_allow_html=True)
 
     # SQL Query p/ ler as regiões únicas
     regiao_df = pd.read_sql("""
@@ -364,3 +367,42 @@ if (selected == "Anal. Específica"):
         escola_selecionada = None
         escola_id = None
 
+
+    st.markdown("""
+        <style>
+            div[role="tablist"] {
+                display: flex !important;
+                justify-content: space-around !important; 
+            }
+        </style>
+    """,
+    unsafe_allow_html=True)
+
+    # Configuração do menu de navegação interno
+    tab_saneamento_basico, tab_infraestrutura, tab_material, tab_corpo_docente, tab_matricula = st.tabs([
+    "💦 Saneamento Básico",
+    "🏫 Infraestrutura",
+    "📒 Material",
+    "👩🏻 Corpo Docente",
+    "🧑🏻‍🎓 Matricula"
+    ])
+
+    # Conteúdo da aba "Saneamento Básico"
+    with tab_saneamento_basico:
+        st.header("Saneamento Básico")
+
+    # Conteúdo da aba "Infraestrutura"
+    with tab_infraestrutura:
+        st.header("Infraestrutura")
+
+    # Conteúdo da aba "Material"
+    with tab_material:
+        st.header("Material")
+
+    # Conteúdo da aba "Corpo Docente"
+    with tab_corpo_docente:
+        st.header("Corpo Docente")
+
+    # Conteúdo da aba "Matrícula"
+    with tab_matricula:
+        st.header("Matrícula")
