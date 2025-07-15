@@ -7,7 +7,7 @@ def getConnection():
     conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='m!070368M',
+        password='12345678',
         database='database_projeto_tcs'
     )
     cursor = conn.cursor(dictionary=True)
@@ -66,23 +66,6 @@ def createDatabase(conn, cursor):
         );
     """)
 
-    # 5. Tabela de Situação (1- Ativa | 2- Inativa | 3 ou 4 - Extinta)
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tipo_situacao (
-            id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
-            TP_SITUACAO_FUNCIONAMENTO INT NOT NULL,
-            descricao VARCHAR(50) AS (
-                CASE
-                    WHEN TP_SITUACAO_FUNCIONAMENTO = 1 THEN 'Ativa'
-                    WHEN TP_SITUACAO_FUNCIONAMENTO = 2 THEN 'Inativa'
-                    WHEN TP_SITUACAO_FUNCIONAMENTO IN (3,4) THEN 'Extinta'
-                    ELSE 'Desconhecido'
-                END
-            ) STORED NOT NULL,
-            UNIQUE KEY uq_tipo_situacao (TP_SITUACAO_FUNCIONAMENTO)
-        );
-    """)
-
     # 6. Tabela principal: Escola
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS escola (
@@ -90,14 +73,12 @@ def createDatabase(conn, cursor):
             NO_ENTIDADE VARCHAR(200) NOT NULL,
             municipio_id INT NOT NULL,
             tp_localizacao_id INT NOT NULL,
-            tp_situacao_id INT NOT NULL,
             FOREIGN KEY (municipio_id) REFERENCES municipio(id),
-            FOREIGN KEY (tp_localizacao_id) REFERENCES tipo_localizacao(id),
-            FOREIGN KEY (tp_situacao_id) REFERENCES tipo_situacao(id)
+            FOREIGN KEY (tp_localizacao_id) REFERENCES tipo_localizacao(id)
         );
     """)
 
-    # 7–13. Tabelas filhas (saneamento_basico, infraestrutura, conectividade, corpo_docente, matriculas, insumos, transporte)
+    # 7–13. Tabelas filhas (saneamento_basico, infraestrutura, corpo_docente, matriculas, insumos)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS saneamento_basico (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -127,16 +108,8 @@ def createDatabase(conn, cursor):
             IN_COZINHA BOOL NOT NULL,
             IN_REFEITORIO BOOL NOT NULL,
             IN_ALMOXARIFADO BOOL NOT NULL,
-            FOREIGN KEY (escola_id) REFERENCES escola(id)
-        );
-    """)
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS conectividade (
-            escola_id INT PRIMARY KEY NOT NULL,
-            IN_INTERNET BOOL NOT NULL,
-            IN_EQUIP_TV INT NOT NULL,
-            QT_EQUIP_MULTIMIDIA INT NOT NULL,
+            IN_ALIMENTACAO BOOL NOT NULL,
+            QT_TRANSP_PUBLICO INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
     """)
@@ -178,20 +151,13 @@ def createDatabase(conn, cursor):
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS insumos (
+        CREATE TABLE IF NOT EXISTS materiais (
             escola_id INT PRIMARY KEY NOT NULL,
-            IN_ALIMENTACAO BOOL NOT NULL,
             IN_MATERIAL_PED_CIENTIFICO BOOL NOT NULL,
             IN_MATERIAL_PED_ARTISTICAS BOOL NOT NULL,
             IN_MATERIAL_PED_DESPORTIVA BOOL NOT NULL,
-            FOREIGN KEY (escola_id) REFERENCES escola(id)
-        );
-    """)
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS transporte (
-            escola_id INT PRIMARY KEY NOT NULL,
-            QT_TRANSP_PUBLICO INT NOT NULL,
+            IN_INTERNET BOOL NOT NULL,
+            QT_EQUIP_MULTIMIDIA INT NOT NULL,
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
     """)
@@ -255,22 +221,7 @@ def populateDatabase(conn, cursor):
                     (int(tp),)
                 )
 
-        # 2. Seed 'tipo_situacao'
-        for tp in df['TP_SITUACAO_FUNCIONAMENTO'].unique():
-            cursor.execute(
-                "SELECT id FROM tipo_situacao WHERE TP_SITUACAO_FUNCIONAMENTO = %s",
-                (int(tp),)
-            )
-            if cursor.fetchone() is None:
-                cursor.execute(
-                    "INSERT INTO tipo_situacao (TP_SITUACAO_FUNCIONAMENTO) VALUES (%s)",
-                    (int(tp),)
-                )
-
         # Reconstrói o map de situação 
-        cursor.execute("SELECT id, TP_SITUACAO_FUNCIONAMENTO FROM tipo_situacao")
-        sit_map = { row['TP_SITUACAO_FUNCIONAMENTO']: row['id'] for row in cursor.fetchall() }
-
         # 3. Reconstrói todos os maps
         cursor.execute("SELECT id, NO_REGIAO FROM regiao")
         reg_map = { r['NO_REGIAO']: r['id'] for r in cursor.fetchall() }
@@ -284,21 +235,17 @@ def populateDatabase(conn, cursor):
         cursor.execute("SELECT id, TP_LOCALIZACAO FROM tipo_localizacao")
         loc_map = { r['TP_LOCALIZACAO']: r['id'] for r in cursor.fetchall() }
 
-        cursor.execute("SELECT id, TP_SITUACAO_FUNCIONAMENTO FROM tipo_situacao")
-        sit_map = { r['TP_SITUACAO_FUNCIONAMENTO']: r['id'] for r in cursor.fetchall() }
-
         # 4. Insere cada escola e suas tabelas filhas
         for row in df.itertuples(index=False):
             # 4a. escola
             cursor.execute(
                 """INSERT INTO escola
-                (NO_ENTIDADE, municipio_id, tp_localizacao_id, tp_situacao_id)
-                VALUES (%s, %s, %s, %s)""",
+                (NO_ENTIDADE, municipio_id, tp_localizacao_id)
+                VALUES (%s, %s, %s)""",
                 (
                     row.NO_ENTIDADE,
                     muni_map[row.NO_MUNICIPIO],
-                    loc_map[int(row.TP_LOCALIZACAO)],
-                    sit_map[int(row.TP_SITUACAO_FUNCIONAMENTO)]
+                    loc_map[int(row.TP_LOCALIZACAO)]
                 )
             )
             escola_id = cursor.lastrowid
@@ -327,13 +274,15 @@ def populateDatabase(conn, cursor):
             # 4c. infraestrutura
             cursor.execute(
                 """INSERT INTO infraestrutura
-                (escola_id, IN_ALMOXARIFADO, IN_BIBLIOTECA, IN_COZINHA,
+                (escola_id, IN_ALIMENTACAO, QT_TRANSP_PUBLICO, IN_ALMOXARIFADO, IN_BIBLIOTECA, IN_COZINHA,
                     IN_LABORATORIO_CIENCIAS, IN_LABORATORIO_INFORMATICA,
                     IN_PATIO_COBERTO, IN_PARQUE_INFANTIL, IN_QUADRA_ESPORTES,
                     IN_REFEITORIO, IN_SALA_PROFESSOR)
-                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
                 (
                     escola_id,
+                    bool(row.IN_ALIMENTACAO),
+                    int(row.QT_TRANSP_PUBLICO),
                     bool(row.IN_ALMOXARIFADO),
                     bool(row.IN_BIBLIOTECA),
                     bool(row.IN_COZINHA),
@@ -344,19 +293,6 @@ def populateDatabase(conn, cursor):
                     bool(row.IN_QUADRA_ESPORTES),
                     bool(row.IN_REFEITORIO),
                     bool(row.IN_SALA_PROFESSOR)
-                )
-            )
-
-            # 4d. conectividade
-            cursor.execute(
-                """INSERT INTO conectividade
-                (escola_id, IN_INTERNET, IN_EQUIP_TV, QT_EQUIP_MULTIMIDIA)
-                VALUES (%s, %s, %s, %s)""",
-                (
-                    escola_id,
-                    bool(row.IN_INTERNET),
-                    int(row.IN_EQUIP_TV),
-                    int(row.QT_EQUIP_MULTIMIDIA)
                 )
             )
 
@@ -407,25 +343,20 @@ def populateDatabase(conn, cursor):
                 )
             )
 
-            # 4g. insumos
+            # 4g. materiais
             cursor.execute(
-                """INSERT INTO insumos
-                (escola_id, IN_ALIMENTACAO, IN_MATERIAL_PED_CIENTIFICO,
-                    IN_MATERIAL_PED_ARTISTICAS, IN_MATERIAL_PED_DESPORTIVA)
-                VALUES (%s, %s, %s, %s, %s)""",
+                """INSERT INTO materiais
+                (escola_id, IN_MATERIAL_PED_CIENTIFICO,
+                    IN_MATERIAL_PED_ARTISTICAS, IN_MATERIAL_PED_DESPORTIVA, IN_INTERNET, QT_EQUIP_MULTIMIDIA)
+                VALUES (%s, %s, %s, %s, %s, %s)""",
                 (
                     escola_id,
-                    bool(row.IN_ALIMENTACAO),
                     bool(row.IN_MATERIAL_PED_CIENTIFICO),
                     bool(row.IN_MATERIAL_PED_ARTISTICAS),
-                    bool(row.IN_MATERIAL_PED_DESPORTIVA)
+                    bool(row.IN_MATERIAL_PED_DESPORTIVA),
+                    bool(row.IN_INTERNET),
+                    int(row.QT_EQUIP_MULTIMIDIA)
                 )
-            )
-
-            # 4h. transporte
-            cursor.execute(
-                "INSERT INTO transporte (escola_id, QT_TRANSP_PUBLICO) VALUES (%s, %s)",
-                (escola_id, int(row.QT_TRANSP_PUBLICO))
             )
 
         # Grava todas as inserções
@@ -434,7 +365,7 @@ def populateDatabase(conn, cursor):
         conn.rollback()
         raise e
 
-# Função para 
+# Função para inicializar o banco de dados
 def inicializar_database ():
     conn, cursor = getConnection()
     createDatabase(conn, cursor)
