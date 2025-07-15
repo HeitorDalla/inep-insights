@@ -16,12 +16,6 @@ def get_connection():
 conn = get_connection()
 cursor = conn.cursor()
 
-# Exemplo de query
-df = pd.read_sql("SELECT * FROM regiao", conn)
-st.dataframe(df)
-
-conn.close() # fecha conexão com o banco de dados
-
 st.set_page_config(
     page_title="editar",
     page_icon="📊",
@@ -107,18 +101,56 @@ if (selected == "Home"):
     # Configuração dos filtros da página "home"
     # Título 1 do sidebar
     st.sidebar.markdown("""
-        <h1 class="h1-sidebar-home">Selecione...</h1>
+        <h1 class="h1-sidebar-home">Selecione os filtros</h1>
     """,
     unsafe_allow_html=True)
 
-    fo = ["teste"]
-    st.sidebar.selectbox("", fo)
-
-    # Texto dos KPIs
-    st.markdown("""
-        <p class="p-home">Teste</p>
+    # SQL Query p/ ler as regiões
+    regiao_unique = pd.read_sql("""
+        SELECT DISTINCT NO_REGIAO
+        FROM regiao
+        ORDER BY NO_REGIAO ASC
     """,
-    unsafe_allow_html=True)
+    conn)
+    
+    # Selectbox das regiões
+    regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_unique)
+
+    # SQL Query p/ ler as UFs
+    uf_unique = pd.read_sql("""
+        SELECT DISTINCT uf.NO_UF
+        FROM uf
+        JOIN regiao
+            ON uf.regiao_id = regiao.id
+        WHERE regiao.NO_REGIAO = %s
+        ORDER BY uf.NO_UF ASC
+    """,
+    conn,
+    params=(regiao_selecionada,))
+
+    # Selectbox das UFs
+    uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_unique)
+
+    # SQL Query p/ ler os municípios
+    municipio_unique = pd.read_sql_query("""
+        SELECT DISTINCT m.NO_MUNICIPIO
+        FROM municipio AS m
+        JOIN uf AS u
+            ON m.uf_id = u.id
+        WHERE u.NO_UF = %s
+        ORDER BY m.NO_MUNICIPIO ASC
+    """,
+    conn,
+    params=(uf_selecionada,))
+
+    # Selectbox dos municípios
+    municipio_selecionado = st.sidebar.selectbox("Selecione o município:", municipio_unique)
+    
+    # # Texto dos KPIs
+    # st.markdown("""
+    #     <p class="p-home"></p>
+    # """,
+    # unsafe_allow_html=True)
 
     # Configuração dos KPIs
 
@@ -127,10 +159,10 @@ if (selected == "Home"):
     with col1:
         st.markdown("""
             <div class="kpi-card">
-                <div class="kpi-title">Placeholder</div>
-                <div class="kpi-value">88888</div>
-                <div class="kpi-delta">↑ 10%</div>
-                <div class="kpi-info">ⓘ Informação</div>
+                <div class="kpi-title"></div>
+                <div class="kpi-value"></div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info"></div>
             </div>
         """,
         unsafe_allow_html=True)
@@ -191,3 +223,144 @@ if (selected == "Home"):
             </div>
         """,
         unsafe_allow_html=True)
+
+if (selected == "Anal. Específica"):
+    st.sidebar.markdown(
+    """
+    <h1 class="h1-sidebar-home">Selecione os filtros abaixo</h1>
+    """,
+    unsafe_allow_html=True)
+
+    # SQL Query p/ ler as regiões únicas
+    regiao_df = pd.read_sql("""
+        SELECT DISTINCT NO_REGIAO 
+        FROM regiao 
+        ORDER BY NO_REGIAO ASC
+        """,
+        conn)
+    
+    # Selectbox com as regiões únicas
+    regiao_selecionada = st.sidebar.selectbox(
+        "Selecione a região:",
+        options=regiao_df["NO_REGIAO"]
+    )
+
+    # SQL Query p/ ler as UFs únicas
+    uf_df = pd.read_sql(
+        """
+        SELECT DISTINCT uf.NO_UF
+        FROM uf
+        JOIN regiao ON uf.regiao_id = regiao.id
+        WHERE regiao.NO_REGIAO = %s
+        ORDER BY uf.NO_UF ASC
+        """,
+        conn,
+        params=(regiao_selecionada,)
+    )
+
+    # Selectbox com as UFs únicas
+    uf_selecionada = st.sidebar.selectbox(
+        "Selecione a UF:",
+        options=uf_df["NO_UF"]
+    )
+
+    # SQL Query p/ ler os municípios únicos
+    municipio_df = pd.read_sql(
+        """
+        SELECT DISTINCT municipio.NO_MUNICIPIO
+        FROM municipio
+        JOIN uf ON municipio.uf_id = uf.id
+        WHERE uf.NO_UF = %s
+        ORDER BY municipio.NO_MUNICIPIO ASC
+        """,
+        conn,
+        params=(uf_selecionada,)
+    )
+
+    # Selectbox com os municípios únicos
+    municipio_selecionado = st.sidebar.selectbox(
+        "Selecione o município:",
+        options=municipio_df["NO_MUNICIPIO"]
+    )
+
+    # Multiselect dos tipos de localização (Urbana e Rural)
+    tipo_localizacao_df = pd.read_sql("""
+        SELECT id, descricao 
+        FROM tipo_localizacao 
+        ORDER BY descricao ASC
+    """,
+        conn
+    )
+
+    tipo_localizacao_list = tipo_localizacao_df["descricao"].tolist()
+    tipo_localizacao_selecionada = st.sidebar.multiselect(
+        "Selecione o(s) tipo(s) de localização:",
+        options=tipo_localizacao_list,
+        default=tipo_localizacao_list
+    )
+
+    # SQL Query p/ buscar escolas conforme todos os filtros
+    # Verifica se o usuário escolheu ao menos um tipo de localização no multiselect. Caso contrário, segue-se para o "else"
+    if tipo_localizacao_selecionada:
+        # Se o usuário escolheu Urbana e Rural = ["%s"] * 2 = ["%s", "%s"]; e o join resulta em "%s, %s
+        placeholders = ", ".join(["%s"] * len(tipo_localizacao_selecionada))
+
+        sql = f"""
+            SELECT
+                e.id               AS escola_id,
+                e.NO_ENTIDADE      AS escola_nome,
+                tl.descricao       AS localizacao
+            FROM escola e
+            JOIN municipio m           ON e.municipio_id       = m.id
+            JOIN uf u                  ON m.uf_id              = u.id
+            JOIN regiao r              ON u.regiao_id          = r.id
+            JOIN tipo_localizacao tl   ON e.tp_localizacao_id  = tl.id
+            WHERE r.NO_REGIAO    = %s
+            AND u.NO_UF         = %s
+            AND m.NO_MUNICIPIO  = %s
+            AND tl.descricao    IN ({placeholders})
+            ORDER BY e.NO_ENTIDADE ASC
+        """
+        # SELECT ... AS: renomeia colunas para facilitar o uso
+
+        # JOIN: liga as tabelas escola → município → uf → região e a tabela tipo_localizacao
+        
+        # WHERE: filtra por região, UF, município e tipo de localização, usando uma lista dinâmica dentro de IN (…)
+        
+        # ORDER BY: ordena o resultado pelo nome da escola em ordem alfabética
+
+
+        params = [regiao_selecionada, uf_selecionada, municipio_selecionado] + tipo_localizacao_selecionada
+        # Construção da lista de parâmetros que serão passados para o pd.read_sql: Começa com os valores fixos %s correspondentes a Região, UF e Município. Depois concatena a lista de tipos de localização selecionados, para preencher cada %s dentro do IN
+
+        df_escolas = pd.read_sql(sql, conn, params=params)
+        # Executa a consulta no banco de dados via Pandas, retornando um DataFrame com as colunas escola_id, escola_nome e localizacao
+    else:
+        df_escolas = pd.DataFrame(columns=["escola_id", "escola_nome", "localizacao"])
+        # Caso não haja nenhum tipo de localização selecionado, cria um DataFrame vazio com as mesmas colunas, evitando erros mais adiante
+
+    # A condição testa se o DataFrame não está vazio
+    if not df_escolas.empty:
+        # Extrai a coluna de nomes em uma lista de strings, usada no selectbox.
+        escolas_nomes = df_escolas["escola_nome"].tolist()
+
+        # Exibe o selectbox na sidebar com todas as escolas encontradas, permitindo ao usuário escolher uma
+        escola_selecionada = st.sidebar.selectbox(
+            "Selecione a escola:",
+            options=escolas_nomes
+        )
+
+        # Recupera o id correspondente ao nome escolhido:
+        escola_id = int(
+            df_escolas.loc[
+                df_escolas["escola_nome"] == escola_selecionada,
+                "escola_id"
+            ].iloc[0]
+        )
+
+    else:
+        # Se o DataFrame estiver vazio, mostra uma mensagem de alerta e define `escola_selecionada` e `escola_id` como `None`, para que você saiba, no resto do código, que não há seleção válida
+        st.sidebar.write("Nenhuma escola encontrada com os filtros selecionados! Por favor, selecione ao menos um tipo de localização.")
+        escola_selecionada = None
+        escola_id = None
+
