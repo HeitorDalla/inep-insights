@@ -1,17 +1,3 @@
-import sys
-import os
-
-# Garante que a raiz do projeto esteja no sys.path
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-
-from src.database.get_connection import get_connection
-import pandas as pd
-from streamlit_option_menu import option_menu
-from frontend.views.home import show_home_page
-from frontend.views.analise_geral import show_analise_geral_page
-from frontend.views.analise_especifica import show_analise_especifica_page
 import streamlit as st
 
 # Configuração da página
@@ -26,6 +12,22 @@ st.set_page_config(
         'About': "Aplicativo desenvolvido por Matheus V. Nellessen, Flávia ... e Heitor Villa"
     }
 )
+
+import sys
+import os
+
+# Garante que a raiz do projeto esteja no sys.path
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+from src.database.get_connection import get_connection
+import pandas as pd
+from streamlit_option_menu import option_menu
+from frontend.views.home import show_home_page
+from frontend.views.analise_geral import show_analise_geral_page
+from frontend.views.analise_especifica import show_analise_especifica_page
+
 
 # Cria conexão com o banco de dados MySQL
 conn, cursor = get_connection()
