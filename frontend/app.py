@@ -7,12 +7,12 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from src.database.get_connection import get_connection
-import streamlit as st
 import pandas as pd
 from streamlit_option_menu import option_menu
 from frontend.views.home import show_home_page
 from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
+import streamlit as st
 
 # Configuração da página
 st.set_page_config(

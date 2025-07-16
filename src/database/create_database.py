@@ -55,6 +55,7 @@ def create_database(conn, cursor):
         CREATE TABLE IF NOT EXISTS escola (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
             NO_ENTIDADE VARCHAR(200) NOT NULL,
+            DS_ENDERECO VARCHAR(200) NOT NULL,
             municipio_id INT NOT NULL,
             tp_localizacao_id INT NOT NULL,
             FOREIGN KEY (municipio_id) REFERENCES municipio(id),
