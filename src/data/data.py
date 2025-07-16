@@ -9,6 +9,7 @@ colunas_uteis = [
     'NO_MUNICIPIO',  # Nome do município onde a escola está localizada
     'NO_ENTIDADE', # Nome da escola
     'TP_LOCALIZACAO',  # Tipo de localização (1-Urbana, 2-Rural)
+    'DS_ENDERECO', # Endereço da escola
 
     # Saneamento
     'IN_AGUA_POTAVEL',  # Possui água potável (Sim/Não)

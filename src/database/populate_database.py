@@ -76,10 +76,11 @@ def populate_database(conn, cursor):
             # 4a. escola
             cursor.execute(
                 """INSERT INTO escola
-                (NO_ENTIDADE, municipio_id, tp_localizacao_id)
-                VALUES (%s, %s, %s)""",
+                (NO_ENTIDADE, DS_ENDERECO, municipio_id, tp_localizacao_id)
+                VALUES (%s, %s, %s, %s)""",
                 (
                     row.NO_ENTIDADE,
+                    row.DS_ENDERECO,
                     muni_map[row.NO_MUNICIPIO],
                     loc_map[int(row.TP_LOCALIZACAO)]
                 )
