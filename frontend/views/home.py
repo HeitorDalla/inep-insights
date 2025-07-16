@@ -13,6 +13,20 @@ def load_municipios_data():
 
 df_coordenadas = load_municipios_data()
 
+# Mapeia código numérico da UF para o nome
+codigo_uf_para_nome = {
+    12: "Acre", 27: "Alagoas", 16: "Amapá", 13: "Amazonas", 29: "Bahia",
+    23: "Ceará", 53: "Distrito Federal", 32: "Espírito Santo", 52: "Goiás",
+    21: "Maranhão", 51: "Mato Grosso", 50: "Mato Grosso do Sul", 31: "Minas Gerais",
+    15: "Pará", 25: "Paraíba", 41: "Paraná", 26: "Pernambuco", 22: "Piauí",
+    33: "Rio de Janeiro", 24: "Rio Grande do Norte", 43: "Rio Grande do Sul",
+    11: "Rondônia", 14: "Roraima", 42: "Santa Catarina", 35: "São Paulo",
+    28: "Sergipe", 17: "Tocantins"
+}
+
+# Cria nova coluna 'NO_UF' no df_coordenadas
+df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
+
 # Função para mostrar a página home
 def show_home_page (conn):
     # Regiões
@@ -228,3 +242,77 @@ def show_home_page (conn):
     """, unsafe_allow_html=True)
 
 
+    # Mapa para representar as Escolas que possuem Infraestrutura
+    with st.expander("Clique para visualizar o mapa.", ):
+        # Query para dados das escolas
+        escolas_query = f'''
+            SELECT
+                e.NO_ENTIDADE AS escola,
+                mun.NO_MUNICIPIO AS municipio,
+                u.NO_UF AS uf,
+                e.DS_ENDERECO AS endereco,
+                sb.IN_AGUA_POTAVEL AS agua_potavel,
+                mat.IN_INTERNET AS internet
+            FROM escola e
+            INNER JOIN municipio AS mun ON e.municipio_id = mun.id
+            INNER JOIN uf AS u ON mun.uf_id = u.id
+            INNER JOIN regiao AS r ON u.regiao_id = r.id
+            LEFT JOIN saneamento_basico AS sb ON sb.escola_id = e.id
+            LEFT JOIN materiais AS mat ON mat.escola_id = e.id
+            {where_consulta}
+        '''
+        
+        df_escolas = pd.read_sql(escolas_query, conn, params=params)
+        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True)
+        
+        if not df_escolas.empty:
+            # Padroniza nomes para o merge
+            df_escolas['municipio_upper'] = df_escolas['municipio'].str.upper().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
+            df_coordenadas['nome_upper'] = df_coordenadas['nome'].str.upper().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
+            
+            # Merge com coordenadas
+            df_mapa = pd.merge(
+                df_escolas,
+                df_coordenadas,
+                left_on=['municipio_upper', 'NO_UF'],
+                right_on=['nome_upper', 'NO_UF'],
+                how='left'
+            ).dropna(subset=['latitude', 'longitude'])
+            
+            if not df_mapa.empty:
+                # Agrupa por município para evitar sobreposição
+                df_agrupado = df_mapa.groupby(['municipio', 'latitude', 'longitude', 'NO_UF']).agg({
+                    'escola': 'count',
+                    'agua_potavel': 'mean',
+                    'internet': 'mean'
+                }).reset_index()
+                
+                # Cria o mapa
+                fig = px.scatter_mapbox(
+                    df_agrupado,
+                    lat="latitude",
+                    lon="longitude",
+                    size="escola",
+                    color="NO_UF",
+                    hover_name="municipio",
+                    hover_data={
+                        "NO_UF": True,
+                        "escola": True,
+                        "agua_potavel": True,
+                        "internet": True
+                    },
+                    zoom=4,
+                    height=600
+                )
+                
+                fig.update_layout(
+                    mapbox_style="open-street-map",
+                    margin={"r":0,"t":0,"l":0,"b":0},
+                    legend=dict(orientation="h", yanchor="bottom", y=1.02)
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+            else:
+                st.warning("Nenhuma correspondência encontrada entre seus municípios e a base de coordenadas.")
+        else:
+            st.warning("Nenhuma escola encontrada com os filtros selecionados.")
