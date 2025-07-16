@@ -118,6 +118,6 @@ def show_home_page (conn):
 
     # Texto de apresentação do "Home"
     with st.expander("Clique para visualizar.", ):
-        st.code("""
-            print("hello world")
-        """, language="python")
+        st.markdown("""
+            <p align="justify"><b>Marta Oliveira</b>, é diretora de uma escola rural, com mais de 20 anos de experiência e especialização em Gestão Escolar. Ao criar o dashboard, ela busca usar dados do Censo Escolar e do INEP para mostrar de forma clara como a falta de infraestrutura impacta negativamente o desempenho dos alunos, comparando sua escola às unidades urbanas e fortalecendo seu argumento por mais investimentos e políticas educacionais justas.</p>
+        """, unsafe_allow_html=True)
