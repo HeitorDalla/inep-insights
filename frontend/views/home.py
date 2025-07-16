@@ -1,8 +1,13 @@
+# Importar Bibliotecas
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 from io import StringIO
 import requests
+
+
+# API
 
 # Carrega coordenadas dos municípios (executa apenas uma vez)
 @st.cache_data
@@ -26,6 +31,9 @@ codigo_uf_para_nome = {
 
 # Cria nova coluna 'NO_UF' no df_coordenadas
 df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
+
+
+# Visualização
 
 # Função para mostrar a página home
 def show_home_page (conn):
@@ -172,41 +180,36 @@ def show_home_page (conn):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.metric(label="Total de escolas", value=total_escolas, border=True)
-
-        # st.markdown(f"""
-        #     <div class="kpi-card">
-        #         <div class="kpi-title">Total de Escolas</div>
-        #         <div class="kpi-value">{total_escolas}</div>
-        #         <div class="kpi-delta"></div>
-        #         <div class="kpi-info">Escolas na Seleção</div>
-        #     </div>
-        # """, unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Total de Escolas</div>
+                <div class="kpi-value">{total_escolas}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">Escolas na Seleção</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     with col2:
         percentual_agua = f"{(com_agua / total_escolas) * 100:.1f}%" if total_escolas else '0%'
-        st.metric(label="Água potável", value=com_agua, border=True)
-        st.caption(f"<b>{percentual_agua}</b> do total de escolas", unsafe_allow_html=True)
-        # st.markdown(f"""
-        #     <div class="kpi-card">
-        #         <div class="kpi-title">Água Potável</div>
-        #         <div class="kpi-value">{com_agua}</div>
-        #         <div class="kpi-delta"></div>
-        #         <div class="kpi-info">{percentual_agua} das Escolas</div>
-        #     </div>
-        # """, unsafe_allow_html=True)
 
-    with col3:
-        st.metric(label="Média de professoras", value=f"{media_professores:.2f}", border=True)
-        
-        # st.markdown(f"""
-        #     <div class="kpi-card">
-        #         <div class="kpi-title">Média de Professores</div>
-        #         <div class="kpi-value">{media_professores:.1f}</div>
-        #         <div class="kpi-delta"></div>
-        #         <div class="kpi-info">por escola</div>
-        #     </div>
-        # """, unsafe_allow_html=True)
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Água Potável</div>
+                <div class="kpi-value">{com_agua}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">{percentual_agua} das Escolas</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col3:     
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Média de Professores</div>
+                <div class="kpi-value">{media_professores:.1f}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">por escola</div>
+            </div>
+        """, unsafe_allow_html=True)
     
     col4, col5, col6 = st.columns(3)
 
@@ -222,6 +225,7 @@ def show_home_page (conn):
 
     with col5:
         percentual_internet = f"{(com_internet / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Com Internet</div>
@@ -233,6 +237,7 @@ def show_home_page (conn):
 
     with col6:
         percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
+
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Possui alimentação</div>
@@ -246,6 +251,9 @@ def show_home_page (conn):
     st.markdown("""
         <hr/>
     """, unsafe_allow_html=True)
+
+
+    # API do Github para o Mapa dos Municípios
     
     # Mapa para representar as Escolas que possuem Infraestrutura
     with st.expander("Clique para visualizar o mapa.", ):
