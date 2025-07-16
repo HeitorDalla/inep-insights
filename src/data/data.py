@@ -1,7 +1,4 @@
 import pandas as pd
-from unidecode import unidecode
-import chardet
-import os
 import streamlit as st
 
 # Identificando as colunas importantes para nossa persona e projeto
@@ -72,25 +69,13 @@ colunas_uteis = [
     'QT_EQUIP_MULTIMIDIA'
 ]
 
-# Função para tratar os dados e retorna-los tratados
+# Função para ler os dados
 @st.cache_data
-def dados_tratados():
+def dados():
     df = pd.read_csv("csv/dados.csv",
                     delimiter=";",
                     encoding="latin-1",
                     usecols=colunas_uteis,
                     low_memory=False)
-    
-    # Remove os valores ausentes
-    df.dropna(inplace=True)
-
-    # Remove os outliers
-    df = df[~df.isin([88888.0]).any(axis=1)]
-
-    # Normalizar as colunas de texto
-    colunas_para_normalizar = ['NO_REGIAO', 'NO_UF', 'NO_MUNICIPIO', 'NO_ENTIDADE']
-    for coluna in colunas_para_normalizar:
-        if coluna in df.columns:
-            df[coluna] = df[coluna].astype(str).apply(unidecode)
     
     return df

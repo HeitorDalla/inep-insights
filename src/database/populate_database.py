@@ -1,4 +1,4 @@
-from src.data.data import dados_tratados
+from src.data.dados_tratados import dados_tratados
 
 # Função para popular o banco de dados
 def populate_database(conn, cursor):
