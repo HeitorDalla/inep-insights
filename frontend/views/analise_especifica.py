@@ -320,7 +320,7 @@ def show_analise_especifica_page (conn):
 
         # 5.2 Coluna da escola de Marta
         with col1:
-            st.subheader("🏫 Escola de Marta")
+            st.subheader(f"Escola de Marta\n\n{nome_escola_marta}")
             st.metric("Água Potável",             f"{em_agua_potavel_pct:.0f}%", border=True)
             st.metric("Água Rede Pública",        f"{em_agua_rede_publica_pct:.0f}%", border=True)
             st.metric("Poço Artesiano",           f"{em_agua_poco_artesiano_pct:.0f}%", border=True)
@@ -332,7 +332,7 @@ def show_analise_especifica_page (conn):
 
         # 5.3 Coluna da escola selecionada
         with col2:
-            st.subheader("🏫 Escola Selecionada")
+            st.subheader(f"Escola Selecionada\n\n{escola_selecionada}")
             if escola_selecionada:
                 st.metric("Água Potável",         f"{es_agua_potavel_pct:.0f}%", border=True)
                 st.metric("Água Rede Pública",    f"{es_agua_rede_publica_pct:.0f}%", border=True)

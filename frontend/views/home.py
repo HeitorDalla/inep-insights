@@ -158,35 +158,41 @@ def show_home_page (conn):
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Total de Escolas</div>
-                <div class="kpi-value">{total_escolas}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">Escolas na Seleção</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Total de escolas", value=total_escolas, border=True)
+
+        # st.markdown(f"""
+        #     <div class="kpi-card">
+        #         <div class="kpi-title">Total de Escolas</div>
+        #         <div class="kpi-value">{total_escolas}</div>
+        #         <div class="kpi-delta"></div>
+        #         <div class="kpi-info">Escolas na Seleção</div>
+        #     </div>
+        # """, unsafe_allow_html=True)
 
     with col2:
         percentual_agua = f"{(com_agua / total_escolas) * 100:.1f}%" if total_escolas else '0%'
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Água Potável</div>
-                <div class="kpi-value">{com_agua}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_agua} das Escolas</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Água potável", value=com_agua, border=True)
+        st.caption(f"<b>{percentual_agua}</b> do total de escolas", unsafe_allow_html=True)
+        # st.markdown(f"""
+        #     <div class="kpi-card">
+        #         <div class="kpi-title">Água Potável</div>
+        #         <div class="kpi-value">{com_agua}</div>
+        #         <div class="kpi-delta"></div>
+        #         <div class="kpi-info">{percentual_agua} das Escolas</div>
+        #     </div>
+        # """, unsafe_allow_html=True)
 
     with col3:
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Média de Professores</div>
-                <div class="kpi-value">{media_professores:.1f}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">por escola</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Média de professoras", value=f"{media_professores:.2f}", border=True)
+        
+        # st.markdown(f"""
+        #     <div class="kpi-card">
+        #         <div class="kpi-title">Média de Professores</div>
+        #         <div class="kpi-value">{media_professores:.1f}</div>
+        #         <div class="kpi-delta"></div>
+        #         <div class="kpi-info">por escola</div>
+        #     </div>
+        # """, unsafe_allow_html=True)
     
     col4, col5, col6 = st.columns(3)
 
