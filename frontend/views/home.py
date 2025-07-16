@@ -1,7 +1,6 @@
-# Importar Bibliotecas
-
-import streamlit as st
+# Requirements
 import pandas as pd
+import streamlit as st
 import plotly.express as px
 from io import StringIO
 import requests
@@ -32,8 +31,6 @@ codigo_uf_para_nome = {
 # Cria nova coluna 'NO_UF' no df_coordenadas
 df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
-
-# Visualização
 
 # Função para mostrar a página home
 def show_home_page (conn):
@@ -176,81 +173,43 @@ def show_home_page (conn):
 
     media_professores = total_professores / total_escolas if total_escolas else 0
     
-    # Mostrar KPIs estilizados
+    # Cria um layout de três colunas no Streamlit, atribuídas às variáveis col1 e col4 (esquerda), col2 e col5 (centro) e col3 e col6 (direita) 
     col1, col2, col3 = st.columns(3)
+    col4, col5, col6 = st.columns(3)
 
     with col1:
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Total de Escolas</div>
-                <div class="kpi-value">{total_escolas}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">Escolas na Seleção</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Total de escolas",value=f"{total_escolas:,.0f}", border=True)
 
     with col2:
         percentual_agua = f"{(com_agua / total_escolas) * 100:.1f}%" if total_escolas else '0%'
 
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Água Potável</div>
-                <div class="kpi-value">{com_agua}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_agua} das Escolas</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Água potável",value=f"{com_agua:,.0f}", border=True)
+        st.caption(f"<b>{percentual_agua}</b> total das escolas", unsafe_allow_html=True)
+        
 
     with col3:     
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Média de Professores</div>
-                <div class="kpi-value">{media_professores:.1f}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">por escola</div>
-            </div>
-        """, unsafe_allow_html=True)
-    
-    col4, col5, col6 = st.columns(3)
-
+        st.metric(label="Média de professores",value=f"{media_professores:.2f}", border=True)
+        
     with col4:
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Mátriculas Básicas</div>
-                <div class="kpi-value">{total_matriculas_basicas}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">total somado</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Matrículas totais",value=f"{total_matriculas_basicas:,.0f}", border=True, help="Explicar esse valor, sua somatória?")
+        
 
     with col5:
         percentual_internet = f"{(com_internet / total_escolas) * 100:.1f}%" if total_escolas else '0%'
 
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Com Internet</div>
-                <div class="kpi-value">{int(df_kpi['com_internet'][0])}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_internet} das Escolas</div>
-            </div>
-        """, unsafe_allow_html=True)
+        aux = int(df_kpi["com_internet"][0])
+
+        st.metric(label="Cobertura de internet",value=f"{aux:,.0f}", border=True, help="Escolas que possuem acesso a internet.")
+        st.caption(f"<b>{percentual_internet}</b> do total das escolas", unsafe_allow_html=True)
 
     with col6:
         percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
 
-        st.markdown(f"""
-            <div class="kpi-card">
-                <div class="kpi-title">Possui alimentação</div>
-                <div class="kpi-value">{tem_alimentacao}</div>
-                <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_alimentacao:.1f}% tem alimentação</div>
-            </div>
-        """, unsafe_allow_html=True)
+        st.metric(label="Cobertura de alimentação",value=f"{tem_alimentacao:,.0f}", border=True, help="Escolas que fornecem alimentação (merenda) aos alunos.")
+        st.caption(f"<b>{percentual_alimentacao:.2f}%</b> do total das escolas")
 
-    # Quebra de página visual
-    st.markdown("""
-        <hr/>
-    """, unsafe_allow_html=True)
+    # Linha horizontal: quebra de página visual
+    st.markdown("<hr/>", unsafe_allow_html=True)
 
 
     # API do Github para o Mapa dos Municípios
