@@ -148,6 +148,7 @@ def show_analise_especifica_page (conn):
         "🧑🏻‍🎓 Matricula"
     ])
 
+
     # Conteúdo da aba "Saneamento Básico"
     with tab_saneamento_basico:
         # Declara uma variável que armazena o nome da escola de Marta (persona). Essa variável será usada como filtro nas consultas ao banco de dados
@@ -298,6 +299,7 @@ def show_analise_especifica_page (conn):
                 st.metric("Coleta de Lixo",       f"{es_lixo_servico_coleta_pct:.0f}%", border=True)
             else:
                 st.write("Por favor, selecione uma escola válida.")
+
 
     # Conteúdo da aba "Infraestrutura"
     with tab_infraestrutura:

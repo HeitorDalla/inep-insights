@@ -186,10 +186,6 @@ def show_home_page (conn):
     tem_alimentacao = int(df_kpi['tem_alimentacao'][0]) if df_kpi['tem_alimentacao'][0] else 0
 
     # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
-    percentual_agua_potavel = f"{(tem_agua_potavel / total_escolas) * 100:,.2f}%" if total_escolas else '0%'
-    percentual_internet = f"{(tem_internet / total_escolas) * 100:.1f}%" if total_escolas else '0%'
-    percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
-
     media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
 
     # Exibição de KPI cards
@@ -201,61 +197,69 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Total de Escolas</div>
-                <div class="kpi-value">{total_escolas:.2f}</div>
+                <div class="kpi-value">{total_escolas}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">Escolas no total</div>
+                <div class="kpi-info">Escolas na Seleção</div>
             </div>
         """, unsafe_allow_html=True)
 
     with col2:
+        percentual_agua = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Água Potável</div>
-                <div class="kpi-value">{tem_agua_potavel:.2f}</div>
+                <div class="kpi-value">{tem_agua_potavel}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_agua_potavel} das Escolas</div>
+                <div class="kpi-info">{percentual_agua} das Escolas</div>
             </div>
         """, unsafe_allow_html=True)
-        
-    with col3: 
+
+    with col3:     
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Equipe Escolar</div>
-                <div class="kpi-value">{media_equipe_escolar:.2f}</div>
+                <div class="kpi-title">Média de Professores</div>
+                <div class="kpi-value">{media_equipe_escolar:.1f}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">Média por escola</div>
+                <div class="kpi-info">por escola</div>
             </div>
         """, unsafe_allow_html=True)
-        
+    
+    col4, col5, col6 = st.columns(3)
+
     with col4:
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Matrículas Totais</div>
-                <div class="kpi-value">{total_matriculas:.2f}</div>
+                <div class="kpi-title">Mátriculas Básicas</div>
+                <div class="kpi-value">{total_matriculas}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">Total de alunos</div>
+                <div class="kpi-info">total somado</div>
             </div>
         """, unsafe_allow_html=True)
-        
+
     with col5:
+        percentual_internet = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Com Internet</div>
-                <div class="kpi-value">{tem_internet:.2f}</div>
+                <div class="kpi-value">{int(df_kpi['tem_internet'][0])}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">{percentual_internet} das Escolas</div>
             </div>
         """, unsafe_allow_html=True)
 
     with col6:
+        percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
+
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Com Alimentação</div>
-                <div class="kpi-value">{tem_alimentacao:.2f}</div>
+                <div class="kpi-title">Possui alimentação</div>
+                <div class="kpi-value">{tem_alimentacao}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_alimentacao:.2f}% das Escolas</div>
+                <div class="kpi-info">{percentual_alimentacao:.1f}% tem alimentação</div>
             </div>
-        """, unsafe_allow_html=True)   
+        """, unsafe_allow_html=True)
 
     # Linha de separação visual
     st.markdown("<hr/>", unsafe_allow_html=True)
