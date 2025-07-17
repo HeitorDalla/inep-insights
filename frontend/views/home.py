@@ -1,4 +1,4 @@
-# Requirements
+# Importações de bibliotecas
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -6,18 +6,21 @@ from io import StringIO
 import requests
 
 
-# API
+# API externa: carregamento de coordenadas dos municípios
 
-# Carrega coordenadas dos municípios (executa apenas uma vez)
-@st.cache_data
+@st.cache_data # memoiza o resultado para não recarregar a cada interação
 def load_municipios_data():
+    # Busca CSV remoto com coordenadas geográficas dos municípios e retorna um DataFrame
     url = "https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/main/csv/municipios.csv"
-    response = requests.get(url)
-    return pd.read_csv(StringIO(response.text))
 
+    response = requests.get(url) # realiza requisição HTTP
+
+    return pd.read_csv(StringIO(response.text)) # lê texto CSV em DataFrame
+
+# Executa o carregamento uma única vez e armazena no df_coordenadas
 df_coordenadas = load_municipios_data()
 
-# Mapeia código numérico da UF para o nome
+# Mapeamento de código UF para um nome legível
 codigo_uf_para_nome = {
     12: "Acre", 27: "Alagoas", 16: "Amapá", 13: "Amazonas", 29: "Bahia",
     23: "Ceará", 53: "Distrito Federal", 32: "Espírito Santo", 52: "Goiás",
@@ -28,38 +31,35 @@ codigo_uf_para_nome = {
     28: "Sergipe", 17: "Tocantins"
 }
 
-# Cria nova coluna 'NO_UF' no df_coordenadas
+# Cria coluna "NO_UF" a partir do mapeamento de código
 df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
 
-# Função para mostrar a página home
+# Função principal: renderiza a página Home
 def show_home_page (conn):
-    # Regiões
+    # Exibe a página inicial com filtros, KPIs e mapa
 
-    # SQL Query p/ ler as regiões
+    # SQL Query p/ ler as regiões únicas e ordena
     regiao_unique = pd.read_sql("""
         SELECT DISTINCT NO_REGIAO
         FROM regiao
         ORDER BY NO_REGIAO ASC
     """, conn)
 
-    # Inserindo a opção todos no início
+    # Adiciona opção 'Todos' para seleção ampla
     regiao_options = ['Todos'] + regiao_unique['NO_REGIAO'].tolist()
     regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_options)
 
-
-    # UFs
-
     # SQL Query p/ ler as UFs
     if regiao_selecionada == 'Todos':
-        # Pega todas as UFs
+        # Busca todas as UFs se não foi filtrada por região
         uf_unique = pd.read_sql("""
             SELECT DISTINCT NO_UF
             FROM uf
             ORDER BY NO_UF ASC
         """, conn)
     else:
-        # Pegar as UFs que faz parte da região escolhida
+        # Busca apenas UFs da região selecionada
         uf_unique = pd.read_sql("""
             SELECT DISTINCT uf.NO_UF
             FROM uf
@@ -69,15 +69,14 @@ def show_home_page (conn):
             ORDER BY uf.NO_UF ASC
         """, conn, params=(regiao_selecionada,))
 
-    # Inserindo a opção 'Todas' nas UFs
+    # Adiciona opção 'Todos' para seleção ampla
     uf_options = ['Todos'] + uf_unique['NO_UF'].tolist()
     uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_options)
 
 
-    # Municípios
-
-    # SQL Query p/ ler os municípios
+    # SQL Query p/ ler os municípios 
     if uf_selecionada == 'Todos':
+        # Se nenhum filtro aplicado .: pega todos os municípios
         if regiao_selecionada == 'Todos':
             municipio_unique = pd.read_sql_query("""
                 SELECT DISTINCT NO_MUNICIPIO
@@ -85,6 +84,7 @@ def show_home_page (conn):
                 ORDER BY NO_MUNICIPIO ASC
             """, conn)
         else:
+            # Filtra município por região
             municipio_unique = pd.read_sql_query("""
                 SELECT DISTINCT m.NO_MUNICIPIO
                 FROM municipio AS m
@@ -94,6 +94,7 @@ def show_home_page (conn):
                 ORDER BY m.NO_MUNICIPIO ASC
             """, conn, params=(regiao_selecionada,))
     else:
+        # Filtra município por UF
         municipio_unique = pd.read_sql_query("""
                 SELECT DISTINCT m.NO_MUNICIPIO
                 FROM municipio AS m
@@ -103,146 +104,185 @@ def show_home_page (conn):
                 ORDER BY m.NO_MUNICIPIO ASC
             """, conn, params=(uf_selecionada,))
 
-    # Adicionando a opção 'todos' nos municípios
+    # Adiciona opção 'Todos' para seleção ampla
     municipios_options = ['Todos'] + municipio_unique['NO_MUNICIPIO'].tolist()
     municipio_selecionado = st.sidebar.selectbox("Selecione o município:", municipios_options)
 
 
-    # Where dinâmico
-    where = []
-    params = []
+    # Montagem dinâmica do WHERE
+    where = [] # lista de cláusulas
+    params = [] # parâmetros correspondentes
 
-    # Consulta caso esteja relacionado a todas as regiões
+    # Consulta se estiver selecionando TODAS as regiões
     if regiao_selecionada != 'Todos':
         where.append('r.NO_REGIAO = %s')
         params.append(regiao_selecionada)
 
-    # Consulta caso esteja selecionado todas as UFs
+    # Consulta se estiver selecionando TODAS as UFs
     if uf_selecionada != 'Todos':
         where.append('u.NO_UF = %s')
         params.append(uf_selecionada)
 
-    # Consulta caso esteja selecionado todos os municípios
+    # Consulta se estiver selecionando TODAS os municípios
     if municipio_selecionado != 'Todos':
         where.append('mun.NO_MUNICIPIO = %s')
         params.append(municipio_selecionado)
 
-    # Juntar diferentes filtros de where
+    # Junta != filtros de WHERE
     where_consulta = 'WHERE ' + ' AND '.join(where) if where else ''
 
-
-    # Configuração dos KPIs
-
-    # Número total de escolas
-    # Porcentagem das escolas com água potável
-    # Médias de professores por escola (total dividido)
-    # Total de matrículas básicas
-    # Quantas possuem internet
-    # 
-
+    # Consulta de KPIs agregados
     kpi_query = f'''
         SELECT
-            COUNT(DISTINCT e.id) AS total_escolas,
-            SUM(sb.IN_AGUA_POTAVEL) AS com_agua,
-            SUM(cd.QT_PROF_BIBLIOTECARIO + cd.QT_PROF_PEDAGOGIA + cd.QT_PROF_SAUDE +
-                cd.QT_PROF_PSICOLOGO + cd.QT_PROF_ADMINISTRATIVOS + cd.QT_PROF_SERVICOS_GERAIS +
-                cd.QT_PROF_SEGURANCA + cd.QT_PROF_GESTAO + cd.QT_PROF_ASSIST_SOCIAL +
-                cd.QT_PROF_NUTRICIONISTA) AS total_professores,
-            SUM(mt.QT_MAT_INF + mt.QT_MAT_FUND + mt.QT_MAT_MED + mt.QT_MAT_EJA + mt.QT_MAT_ESP) AS total_matriculas_basicas,
-            SUM(mat.IN_INTERNET) AS com_internet,
-            SUM(inf.IN_ALIMENTACAO) AS tem_alimentacao
+            COUNT(DISTINCT e.id)            AS total_escolas,
+            SUM(sb.IN_AGUA_POTAVEL)         AS tem_agua_potavel,
+            SUM(cd.QT_PROF_BIBLIOTECARIO + 
+            cd.QT_PROF_PEDAGOGIA + 
+            cd.QT_PROF_SAUDE +
+            cd.QT_PROF_PSICOLOGO + 
+            cd.QT_PROF_ADMINISTRATIVOS + 
+            cd.QT_PROF_SERVICOS_GERAIS +
+            cd.QT_PROF_SEGURANCA + 
+            cd.QT_PROF_GESTAO + 
+            cd.QT_PROF_ASSIST_SOCIAL +
+            cd.QT_PROF_NUTRICIONISTA)       AS total_equipe_escolar,
+            SUM(mt.QT_MAT_INF + 
+            mt.QT_MAT_FUND + 
+            mt.QT_MAT_MED + 
+            mt.QT_MAT_EJA + 
+            mt.QT_MAT_ESP)                  AS total_matriculas,
+            SUM(mat.IN_INTERNET)            AS tem_internet,
+            SUM(inf.IN_ALIMENTACAO)         AS tem_alimentacao
         FROM escola e
-        INNER JOIN municipio AS mun ON e.municipio_id = mun.id
-        INNER JOIN uf AS u ON mun.uf_id = u.id
-        INNER JOIN regiao AS r ON u.regiao_id = r.id
-        LEFT JOIN saneamento_basico AS sb ON sb.escola_id = e.id
-        LEFT JOIN corpo_docente AS cd ON cd.escola_id = e.id
-        LEFT JOIN matriculas AS mt ON mt.escola_id = e.id
-        LEFT JOIN materiais AS mat ON mat.escola_id = e.id
-        LEFT JOIN infraestrutura AS inf ON inf.escola_id = e.id
+        INNER JOIN municipio mun 
+            ON e.municipio_id           = mun.id
+        INNER JOIN uf u 
+            ON mun.uf_id                = u.id
+        INNER JOIN regiao r 
+            ON u.regiao_id              = r.id
+        LEFT JOIN saneamento_basico sb 
+            ON sb.escola_id             = e.id
+        LEFT JOIN corpo_docente cd 
+            ON cd.escola_id             = e.id
+        LEFT JOIN matriculas mt 
+            ON mt.escola_id             = e.id
+        LEFT JOIN materiais mat 
+            ON mat.escola_id            = e.id
+        LEFT JOIN infraestrutura inf 
+            ON inf.escola_id            = e.id
         {where_consulta}
     '''
     df_kpi = pd.read_sql(kpi_query, conn, params=params)
 
+    # Extrai valores individuais e trata None
     total_escolas = int(df_kpi['total_escolas'][0])
-    com_agua = int(df_kpi['com_agua'][0]) if df_kpi['com_agua'][0] else 0
-    total_professores = int(df_kpi['total_professores'][0]) or 0
-    total_matriculas_basicas = int(df_kpi['total_matriculas_basicas'][0]) or 0
-    com_internet = int(df_kpi['com_internet'][0]) if df_kpi['com_internet'][0] else 0
+
+    tem_agua_potavel = int(df_kpi['tem_agua_potavel'][0]) if df_kpi['tem_agua_potavel'][0] else 0
+
+    total_equipe_escolar = int(df_kpi['total_equipe_escolar'][0]) or 0
+
+    total_matriculas = int(df_kpi['total_matriculas'][0]) or 0
+    
+    tem_internet = int(df_kpi['tem_internet'][0]) if df_kpi['tem_internet'][0] else 0
+
     tem_alimentacao = int(df_kpi['tem_alimentacao'][0]) if df_kpi['tem_alimentacao'][0] else 0
 
-    media_professores = total_professores / total_escolas if total_escolas else 0
+    # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
+    percentual_agua_potavel = f"{(tem_agua_potavel / total_escolas) * 100:,.2f}%" if total_escolas else '0%'
+
+    media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
+
+
+    percentual_internet = f"{(tem_internet / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+    cobertura_internet = int(df_kpi["tem_internet"][0])
+
+    percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
     
     # Cria um layout de três colunas no Streamlit, atribuídas às variáveis col1 e col4 (esquerda), col2 e col5 (centro) e col3 e col6 (direita) 
     col1, col2, col3 = st.columns(3)
     col4, col5, col6 = st.columns(3)
 
+    # Exibição de KPI cards
     with col1:
+        # Mostra total de escolas
         st.metric(label="Total de escolas",value=f"{total_escolas:,.0f}", border=True)
 
     with col2:
-        percentual_agua = f"{(com_agua / total_escolas) * 100:.1f}%" if total_escolas else '0%'
-
-        st.metric(label="Água potável",value=f"{com_agua:,.0f}", border=True)
-        st.caption(f"<b>{percentual_agua}</b> total das escolas", unsafe_allow_html=True)
+        # Mostra número e porcentagem de escolas com água potável
+        st.metric(label="Água potável",value=f"{tem_agua_potavel:,.0f}", border=True)
+        st.caption(f"<b>{percentual_agua_potavel}</b> total das escolas", unsafe_allow_html=True)
         
-
-    with col3:     
-        st.metric(label="Média de professores",value=f"{media_professores:.2f}", border=True)
+    with col3: 
+        # Mostra a média de professores por escola    
+        st.metric(label="Média de equipe escolar",value=f"{media_equipe_escolar:.2f}", border=True, help="Média de pessoas que trabalham nas escolas, desde professores à zeladores.")
         
     with col4:
-        st.metric(label="Matrículas totais",value=f"{total_matriculas_basicas:,.0f}", border=True, help="Explicar esse valor, sua somatória?")
+        # Mostra o total de matrículas totais
+        st.metric(label="Matrículas totais",value=f"{total_matriculas:,.0f}", border=True, help="?")
         
-
     with col5:
-        percentual_internet = f"{(com_internet / total_escolas) * 100:.1f}%" if total_escolas else '0%'
-
-        aux = int(df_kpi["com_internet"][0])
-
-        st.metric(label="Cobertura de internet",value=f"{aux:,.0f}", border=True, help="Escolas que possuem acesso a internet.")
+        # Mostra a cobertura de internet
+        st.metric(label="Cobertura de internet",value=f"{cobertura_internet:,.0f}", border=True, help="Escolas que possuem acesso a internet.")
         st.caption(f"<b>{percentual_internet}</b> do total das escolas", unsafe_allow_html=True)
 
     with col6:
-        percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
-
+        # Mostra a cobertura de alimentação
         st.metric(label="Cobertura de alimentação",value=f"{tem_alimentacao:,.0f}", border=True, help="Escolas que fornecem alimentação (merenda) aos alunos.")
         st.caption(f"<b>{percentual_alimentacao:.2f}%</b> do total das escolas")
 
-    # Linha horizontal: quebra de página visual
+    # Linha de separação visual
     st.markdown("<hr/>", unsafe_allow_html=True)
 
 
-    # API do Github para o Mapa dos Municípios
+    # Seção de mapa interativo dentro de expander
     
     # Mapa para representar as Escolas que possuem Infraestrutura
     with st.expander("Clique para visualizar o mapa.", ):
-        # Query para dados das escolas
+        # Consulta detalhada para scatter_mapbox
         escolas_query = f'''
             SELECT
-                e.NO_ENTIDADE AS escola,
-                mun.NO_MUNICIPIO AS municipio,
-                u.NO_UF AS uf,
-                e.DS_ENDERECO AS endereco,
-                sb.IN_AGUA_POTAVEL AS agua_potavel,
-                mat.IN_INTERNET AS internet
+                e.NO_ENTIDADE           AS escola,
+                mun.NO_MUNICIPIO        AS municipio,
+                u.NO_UF                 AS uf,
+                e.DS_ENDERECO           AS endereco,
+                sb.IN_AGUA_POTAVEL      AS agua_potavel,
+                mat.IN_INTERNET         AS internet
             FROM escola e
-            INNER JOIN municipio AS mun ON e.municipio_id = mun.id
-            INNER JOIN uf AS u ON mun.uf_id = u.id
-            INNER JOIN regiao AS r ON u.regiao_id = r.id
-            LEFT JOIN saneamento_basico AS sb ON sb.escola_id = e.id
-            LEFT JOIN materiais AS mat ON mat.escola_id = e.id
+            INNER JOIN municipio mun 
+                ON e.municipio_id = mun.id
+            INNER JOIN uf u 
+                ON mun.uf_id = u.id
+            INNER JOIN regiao r 
+                ON u.regiao_id = r.id
+            LEFT JOIN saneamento_basico sb 
+                ON sb.escola_id = e.id
+            LEFT JOIN materiais mat 
+                ON mat.escola_id = e.id
             {where_consulta}
         '''
         
         df_escolas = pd.read_sql(escolas_query, conn, params=params)
-        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True)
+        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True) # renomeia coluna para merge com coordenadas
         
         if not df_escolas.empty:
-            # Padroniza nomes para o merge
-            df_escolas['municipio_upper'] = df_escolas['municipio'].str.upper().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
-            df_coordenadas['nome_upper'] = df_coordenadas['nome'].str.upper().str.normalize('NFKD').str.encode('ascii', errors='ignore').str.decode('utf-8')
+            # padroniza texto para maiúsculas sem acento para merge posterior
+            df_escolas['municipio_upper'] = (
+                df_escolas['municipio']
+                .str.upper()
+                .str.normalize('NFKD')
+                .str.encode('ascii', errors='ignore')
+                .str.decode('utf-8')
+            )
+
+            df_coordenadas['nome_upper'] = (
+                df_coordenadas['nome']
+                .str.upper()
+                .str.normalize('NFKD')
+                .str.encode('ascii', errors='ignore')
+                .str.decode('utf-8')
+            )
             
-            # Merge com coordenadas
+            # Faz merge para obter latitude/longitude
             df_mapa = pd.merge(
                 df_escolas,
                 df_coordenadas,
@@ -252,14 +292,15 @@ def show_home_page (conn):
             ).dropna(subset=['latitude', 'longitude'])
             
             if not df_mapa.empty:
-                # Agrupa por município para evitar sobreposição
-                df_agrupado = df_mapa.groupby(['municipio', 'latitude', 'longitude', 'NO_UF']).agg({
-                    'escola': 'count',
-                    'agua_potavel': 'mean',
-                    'internet': 'mean'
-                }).reset_index()
+                # Agrupa para evitar pontos sobrepostos
+                df_agrupado = (
+                    df_mapa
+                    .groupby(['municipio', 'latitude', 'longitude', 'NO_UF'])
+                    .agg({'escola': 'count','agua_potavel': 'mean','internet': 'mean'})
+                    .reset_index()
+                )
                 
-                # Cria o mapa
+                # Plota scatter_mapbox com Plotly Express
                 fig = px.scatter_mapbox(
                     df_agrupado,
                     lat="latitude",
