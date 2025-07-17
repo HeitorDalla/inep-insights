@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page (conn):
@@ -271,7 +272,7 @@ def show_analise_especifica_page (conn):
             unsafe_allow_html=True)
             st.metric("Água Potável",             f"{em_agua_potavel_pct:.0f}%", border=True)
             st.metric("Água Rede Pública",        f"{em_agua_rede_publica_pct:.0f}%", border=True)
-            st.metric("Poço Artesiano",           f"{em_agua_poco_artesiano_pct:.0f}%", border=True)
+            # st.metric("Poço Artesiano",           f"{em_agua_poco_artesiano_pct:.0f}%", border=True)
             st.metric("Esgoto Disponível",        f"{em_esgoto_inexistente_pct:.0f}%", border=True)
             st.metric("Esgoto Rede Pública",      f"{em_esgoto_rede_publica_pct:.0f}%", border=True)
             st.metric("Energia Disponível",       f"{em_energia_inexistente_pct:.0f}%", border=True)
@@ -290,7 +291,7 @@ def show_analise_especifica_page (conn):
             if escola_selecionada:
                 st.metric("Água Potável",         f"{es_agua_potavel_pct:.0f}%", border=True)
                 st.metric("Água Rede Pública",    f"{es_agua_rede_publica_pct:.0f}%", border=True)
-                st.metric("Poço Artesiano",       f"{es_agua_poco_artesiano_pct:.0f}%", border=True)
+                # st.metric("Poço Artesiano",       f"{es_agua_poco_artesiano_pct:.0f}%", border=True)
                 st.metric("Esgoto Disponível",    f"{es_esgoto_inexistente_pct:.0f}%", border=True)
                 st.metric("Esgoto Rede Pública",  f"{es_esgoto_rede_publica_pct:.0f}%", border=True)
                 st.metric("Energia Disponível",   f"{es_energia_inexistente_pct:.0f}%", border=True)
@@ -365,17 +366,17 @@ def show_analise_especifica_page (conn):
         # Calcula a porcentagem (100%: possui; 0%: não possui) das colunas (infraestruturas) da escola de Marta
         if not em_inf_df.empty:
             # Busca a primeira linha (índice 0) e converte o valor (booleano) em porcentagem (pct)
-            em_patio_coberto_pct           = bool_to_pct(em_inf_df.loc[0, "patio_coberto"])
-            em_biblioteca_pct              = bool_to_pct(em_inf_df.loc[0, "biblioteca"])
-            em_laboratorio_ciencias_pct    = bool_to_pct(em_inf_df.loc[0, "laboratorio_ciencias"])
+            # em_patio_coberto_pct           = bool_to_pct(em_inf_df.loc[0, "patio_coberto"])
             em_laboratorio_informatica_pct = bool_to_pct(em_inf_df.loc[0, "laboratorio_informatica"])
-            em_quadra_esportes_pct         = bool_to_pct(em_inf_df.loc[0, "quadra_esportes"])
+            em_laboratorio_ciencias_pct    = bool_to_pct(em_inf_df.loc[0, "laboratorio_ciencias"])
+            em_biblioteca_pct              = bool_to_pct(em_inf_df.loc[0, "biblioteca"])
             em_parque_infantil_pct         = bool_to_pct(em_inf_df.loc[0, "parque_infantil"])
-            em_sala_professor_pct          = bool_to_pct(em_inf_df.loc[0, "sala_professor"])
+            em_quadra_esportes_pct         = bool_to_pct(em_inf_df.loc[0, "quadra_esportes"])
+            # em_sala_professor_pct          = bool_to_pct(em_inf_df.loc[0, "sala_professor"])
             em_cozinha_pct                 = bool_to_pct(em_inf_df.loc[0, "cozinha"])
             em_refeitorio_pct              = bool_to_pct(em_inf_df.loc[0, "refeitório"])
-            em_almoxarifado_pct            = bool_to_pct(em_inf_df.loc[0, "almoxarifado"])
-            em_alimentacao_pct             = bool_to_pct(em_inf_df.loc[0, "alimentacao"])
+            # em_almoxarifado_pct            = bool_to_pct(em_inf_df.loc[0, "almoxarifado"])
+            # em_alimentacao_pct             = bool_to_pct(em_inf_df.loc[0, "alimentacao"])
         else:
             # Se DataFrame estiver vazio, define todos como 0.0
             em_patio_coberto_pct = em_biblioteca_pct = em_laboratorio_ciencias_pct = 0.0
@@ -385,17 +386,17 @@ def show_analise_especifica_page (conn):
         # Calcula a porcentagem (100%: possui; 0%: não possui) das colunas (infraestruturas) da escola selecionada
         if not es_inf_df.empty:
             # Busca a primeira linha (índice 0) e converte o valor (booleano) em porcentagem (pct)
-            es_patio_coberto_pct           = bool_to_pct(es_inf_df.loc[0, "patio_coberto"])
-            es_biblioteca_pct              = bool_to_pct(es_inf_df.loc[0, "biblioteca"])
-            es_laboratorio_ciencias_pct    = bool_to_pct(es_inf_df.loc[0, "laboratorio_ciencias"])
+            # es_patio_coberto_pct           = bool_to_pct(es_inf_df.loc[0, "patio_coberto"])
             es_laboratorio_informatica_pct = bool_to_pct(es_inf_df.loc[0, "laboratorio_informatica"])
-            es_quadra_esportes_pct         = bool_to_pct(es_inf_df.loc[0, "quadra_esportes"])
+            es_laboratorio_ciencias_pct    = bool_to_pct(es_inf_df.loc[0, "laboratorio_ciencias"])
+            es_biblioteca_pct              = bool_to_pct(es_inf_df.loc[0, "biblioteca"])
             es_parque_infantil_pct         = bool_to_pct(es_inf_df.loc[0, "parque_infantil"])
-            es_sala_professor_pct          = bool_to_pct(es_inf_df.loc[0, "sala_professor"])
+            es_quadra_esportes_pct         = bool_to_pct(es_inf_df.loc[0, "quadra_esportes"])
+            # es_sala_professor_pct          = bool_to_pct(es_inf_df.loc[0, "sala_professor"])
             es_cozinha_pct                 = bool_to_pct(es_inf_df.loc[0, "cozinha"])
             es_refeitorio_pct              = bool_to_pct(es_inf_df.loc[0, "refeitório"])
-            es_almoxarifado_pct            = bool_to_pct(es_inf_df.loc[0, "almoxarifado"])
-            es_alimentacao_pct             = bool_to_pct(es_inf_df.loc[0, "alimentacao"])
+            # es_almoxarifado_pct            = bool_to_pct(es_inf_df.loc[0, "almoxarifado"])
+            # es_alimentacao_pct             = bool_to_pct(es_inf_df.loc[0, "alimentacao"])
         else:
             # Se não houver seleção, define todos como 0.0
             es_patio_coberto_pct = es_biblioteca_pct = es_laboratorio_ciencias_pct = 0.0
@@ -416,17 +417,17 @@ def show_analise_especifica_page (conn):
             unsafe_allow_html=True)
 
             # Exibe cada KPI como um cartão métrico
-            st.metric("Pátio Coberto",       f"{em_patio_coberto_pct:.0f}%", border=True)
+            # st.metric("Pátio Coberto",       f"{em_patio_coberto_pct:.0f}%", border=True)
+            st.metric("Laboratório de informática",    f"{em_laboratorio_informatica_pct:.0f}%", border=True)
+            st.metric("Laboratório de ciências",       f"{em_laboratorio_ciencias_pct:.0f}%", border=True)
             st.metric("Biblioteca",          f"{em_biblioteca_pct:.0f}%", border=True)
-            st.metric("Lab. Ciências",       f"{em_laboratorio_ciencias_pct:.0f}%", border=True)
-            st.metric("Lab. Informática",    f"{em_laboratorio_informatica_pct:.0f}%", border=True)
-            st.metric("Quadra de Esportes",  f"{em_quadra_esportes_pct:.0f}%", border=True)
-            st.metric("Parque Infantil",     f"{em_parque_infantil_pct:.0f}%", border=True)
-            st.metric("Sala dos Professores",f"{em_sala_professor_pct:.0f}%", border=True)
+            st.metric("Parque infantil",     f"{em_parque_infantil_pct:.0f}%", border=True)
+            st.metric("Quadra de esportes",  f"{em_quadra_esportes_pct:.0f}%", border=True)
+            # st.metric("Sala dos Professores",f"{em_sala_professor_pct:.0f}%", border=True)
             st.metric("Cozinha",             f"{em_cozinha_pct:.0f}%", border=True)
             st.metric("Refeitório",          f"{em_refeitorio_pct:.0f}%", border=True)
-            st.metric("Almoxarifado",        f"{em_almoxarifado_pct:.0f}%", border=True)
-            st.metric("Alimentação",         f"{em_alimentacao_pct:.0f}%", border=True)
+            # st.metric("Almoxarifado",        f"{em_almoxarifado_pct:.0f}%", border=True)
+            # st.metric("Alimentação",         f"{em_alimentacao_pct:.0f}%", border=True)
 
         with col2:
             st.markdown("""
@@ -439,20 +440,66 @@ def show_analise_especifica_page (conn):
             unsafe_allow_html=True)
             if escola_selecionada:
                 # Exibe KPIs para a escola escolhida
-                st.metric("Pátio Coberto",       f"{es_patio_coberto_pct:.0f}%", border=True)
+                # st.metric("Pátio Coberto",       f"{es_patio_coberto_pct:.0f}%", border=True)
+                st.metric("Laboratório de informática",    f"{es_laboratorio_informatica_pct:.0f}%", border=True)
+                st.metric("Laboratório de ciências",       f"{es_laboratorio_ciencias_pct:.0f}%", border=True)
                 st.metric("Biblioteca",          f"{es_biblioteca_pct:.0f}%", border=True)
-                st.metric("Lab. Ciências",       f"{es_laboratorio_ciencias_pct:.0f}%", border=True)
-                st.metric("Lab. Informática",    f"{es_laboratorio_informatica_pct:.0f}%", border=True)
-                st.metric("Quadra de Esportes",  f"{es_quadra_esportes_pct:.0f}%", border=True)
-                st.metric("Parque Infantil",     f"{es_parque_infantil_pct:.0f}%", border=True)
-                st.metric("Sala dos Professores",f"{es_sala_professor_pct:.0f}%", border=True)
+                st.metric("Parque infantil",     f"{es_parque_infantil_pct:.0f}%", border=True)
+                st.metric("Quadra de esportes",  f"{es_quadra_esportes_pct:.0f}%", border=True)
+                # st.metric("Sala dos Professores",f"{es_sala_professor_pct:.0f}%", border=True)
                 st.metric("Cozinha",             f"{es_cozinha_pct:.0f}%", border=True)
                 st.metric("Refeitório",          f"{es_refeitorio_pct:.0f}%", border=True)
-                st.metric("Almoxarifado",        f"{es_almoxarifado_pct:.0f}%", border=True)
-                st.metric("Alimentação",         f"{es_alimentacao_pct:.0f}%", border=True)
+                # st.metric("Almoxarifado",        f"{es_almoxarifado_pct:.0f}%", border=True)
+                # st.metric("Alimentação",         f"{es_alimentacao_pct:.0f}%", border=True)
             else:
                 # Caso não haja escola selecionada, exibe mensagem de orientação
                 st.write("Por favor, selecione uma escola válida para ver os KPIs.")
+
+        # SQL para Marta
+        em_qt_transporte_df = pd.read_sql("""
+        SELECT i.QT_TRANSP_PUBLICO AS transporte
+        FROM escola e
+        JOIN infraestrutura i
+            ON i.escola_id = e.id
+        WHERE e.NO_ENTIDADE = %s
+        """, conn, params=(nome_escola_marta,))
+
+        # SQL para escola selecionada
+        # es_qt_transporte_df = pd.DataFrame()
+        if escola_selecionada:
+            es_qt_tranporte_df = pd.read_sql("""
+                SELECT i.QT_TRANSP_PUBLICO AS transporte
+                FROM escola e
+                JOIN infraestrutura i 
+                    ON i.escola_id = e.id
+                WHERE e.NO_ENTIDADE = %s
+            """, conn, params=(escola_selecionada,))
+
+        em_qt_transporte = int(em_qt_transporte_df.loc[0, "transporte"]) if not em_qt_transporte_df.empty else 0
+        es_qt_transporte = int(es_qt_tranporte_df.loc[0, "transporte"]) if not es_qt_tranporte_df.empty else 0
+
+        df_bar = pd.DataFrame({
+            "escola":     [nome_escola_marta, escola_selecionada or "Nenhuma selecionada"],
+            "transporte": [em_qt_transporte,  es_qt_transporte]
+        })
+
+        fig = px.bar(
+            df_bar,
+            x="escola",
+            y="transporte",
+            text="transporte",
+            title="Comparativo entre escolas ─ Quantidade de transporte",
+            labels={"escola": "Escola", "transporte": "Qtd. Transporte"}
+        )
+
+        fig.update_yaxes(range=[0, 300])
+        fig.update_layout(
+            xaxis_title="Escola",
+            yaxis_title="Qtd. Transporte",
+            margin=dict(l=40, r=40, t=60, b=40)
+        )
+
+        st.plotly_chart(fig, use_container_width=True)
 
     # Conteúdo da aba "Material"
     with tab_material:
