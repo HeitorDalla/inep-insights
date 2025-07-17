@@ -1,8 +1,16 @@
-# Importa bibliotecas (dependências)
-import streamlit as st
-from streamlit_option_menu import option_menu
+# Importa dependências
 import sys
 import os
+
+# Determina o diretório raiz do projeto (um nível "atrás" deste arquivo)
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+# Insere o ROOT_DIR no início do sys.path se ainda não estiver presente
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+# Importa bibliotecas 
+import streamlit as st
+from streamlit_option_menu import option_menu
 
 # Importa módulos internos internos do projeto
 from src.database.get_connection import get_connection
@@ -23,11 +31,7 @@ st.set_page_config(
     }
 )
 
-# Determina o diretório raiz do projeto (um nível "atrás" deste arquivo)
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-# Insere o ROOT_DIR no início do sys.path se ainda não estiver presente
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
+
 
 # Cria conexão com o banco de dados MySQL: abre uma conexão e cursor para executar queries
 conn, cursor = get_connection()
