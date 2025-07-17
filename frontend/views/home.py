@@ -218,7 +218,7 @@ def show_home_page (conn):
         
     with col4:
         # Mostra o total de matrículas totais
-        st.metric(label="Matrículas totais",value=f"{total_matriculas:,.0f}", border=True, help="?")
+        st.metric(label="Matrículas totais",value=f"{total_matriculas:,.0f}", border=True)
         
     with col5:
         # Mostra a cobertura de internet
@@ -228,7 +228,7 @@ def show_home_page (conn):
     with col6:
         # Mostra a cobertura de alimentação
         st.metric(label="Cobertura de alimentação",value=f"{tem_alimentacao:,.0f}", border=True, help="Escolas que fornecem alimentação (merenda) aos alunos.")
-        st.caption(f"<b>{percentual_alimentacao:.2f}%</b> do total das escolas")
+        st.caption(f"<b>{percentual_alimentacao:.2f}%</b> do total das escolas", unsafe_allow_html=True)
 
     # Linha de separação visual
     st.markdown("<hr/>", unsafe_allow_html=True)
