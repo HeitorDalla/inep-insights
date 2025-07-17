@@ -37,7 +37,15 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
 # Função principal: renderiza a página Home
 def show_home_page (conn):
-    # Exibe a página inicial com filtros, KPIs e mapa
+
+    # Configuração inicial da sidebar com estilo moderno
+    st.sidebar.markdown("""
+        <div class="sidebar-title">
+            <span style="font-size:1.1em;"></span> Filtros de Pesquisa
+        </div>
+    """, unsafe_allow_html=True)
+        
+    # Regiões
 
     # SQL Query p/ ler as regiões únicas e ordena
     regiao_unique = pd.read_sql("""
@@ -49,6 +57,8 @@ def show_home_page (conn):
     # Adiciona opção 'Todos' para seleção ampla
     regiao_options = ['Todos'] + regiao_unique['NO_REGIAO'].tolist()
     regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_options)
+
+    # UFs
 
     # SQL Query p/ ler as UFs
     if regiao_selecionada == 'Todos':
@@ -73,6 +83,7 @@ def show_home_page (conn):
     uf_options = ['Todos'] + uf_unique['NO_UF'].tolist()
     uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_options)
 
+    # Municípios
 
     # SQL Query p/ ler os municípios 
     if uf_selecionada == 'Todos':
@@ -154,81 +165,101 @@ def show_home_page (conn):
             SUM(mat.IN_INTERNET)            AS tem_internet,
             SUM(inf.IN_ALIMENTACAO)         AS tem_alimentacao
         FROM escola e
-        INNER JOIN municipio mun 
-            ON e.municipio_id           = mun.id
-        INNER JOIN uf u 
-            ON mun.uf_id                = u.id
-        INNER JOIN regiao r 
-            ON u.regiao_id              = r.id
-        LEFT JOIN saneamento_basico sb 
-            ON sb.escola_id             = e.id
-        LEFT JOIN corpo_docente cd 
-            ON cd.escola_id             = e.id
-        LEFT JOIN matriculas mt 
-            ON mt.escola_id             = e.id
-        LEFT JOIN materiais mat 
-            ON mat.escola_id            = e.id
-        LEFT JOIN infraestrutura inf 
-            ON inf.escola_id            = e.id
+        INNER JOIN municipio mun ON e.municipio_id = mun.id
+        INNER JOIN uf u ON mun.uf_id = u.id
+        INNER JOIN regiao r ON u.regiao_id = r.id
+        LEFT JOIN saneamento_basico sb ON sb.escola_id = e.id
+        LEFT JOIN corpo_docente cd ON cd.escola_id = e.id
+        LEFT JOIN matriculas mt ON mt.escola_id = e.id
+        LEFT JOIN materiais mat ON mat.escola_id = e.id
+        LEFT JOIN infraestrutura inf ON inf.escola_id = e.id
         {where_consulta}
     '''
     df_kpi = pd.read_sql(kpi_query, conn, params=params)
 
     # Extrai valores individuais e trata None
     total_escolas = int(df_kpi['total_escolas'][0])
-
     tem_agua_potavel = int(df_kpi['tem_agua_potavel'][0]) if df_kpi['tem_agua_potavel'][0] else 0
-
     total_equipe_escolar = int(df_kpi['total_equipe_escolar'][0]) or 0
-
     total_matriculas = int(df_kpi['total_matriculas'][0]) or 0
-    
     tem_internet = int(df_kpi['tem_internet'][0]) if df_kpi['tem_internet'][0] else 0
-
     tem_alimentacao = int(df_kpi['tem_alimentacao'][0]) if df_kpi['tem_alimentacao'][0] else 0
 
     # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
-    percentual_agua_potavel = f"{(tem_agua_potavel / total_escolas) * 100:,.2f}%" if total_escolas else '0%'
-
     media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
 
+    # Exibição de KPI cards
 
-    percentual_internet = f"{(tem_internet / total_escolas) * 100:.1f}%" if total_escolas else '0%'
-    cobertura_internet = int(df_kpi["tem_internet"][0])
-
-    percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
-    
-    # Cria um layout de três colunas no Streamlit, atribuídas às variáveis col1 e col4 (esquerda), col2 e col5 (centro) e col3 e col6 (direita) 
     col1, col2, col3 = st.columns(3)
     col4, col5, col6 = st.columns(3)
-
-    # Exibição de KPI cards
+   
     with col1:
-        # Mostra total de escolas
-        st.metric(label="Total de escolas",value=f"{total_escolas:,.0f}", border=True)
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Total de Escolas</div>
+                <div class="kpi-value">{total_escolas}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">Escolas na Seleção</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     with col2:
-        # Mostra número e porcentagem de escolas com água potável
-        st.metric(label="Água potável",value=f"{tem_agua_potavel:,.0f}", border=True)
-        st.caption(f"<b>{percentual_agua_potavel}</b> total das escolas", unsafe_allow_html=True)
-        
-    with col3: 
-        # Mostra a média de professores por escola    
-        st.metric(label="Média de equipe escolar",value=f"{media_equipe_escolar:.2f}", border=True, help="Média de pessoas que trabalham nas escolas, desde professores à zeladores.")
-        
+        percentual_agua = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Água Potável</div>
+                <div class="kpi-value">{tem_agua_potavel}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">{percentual_agua} das Escolas</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    with col3:     
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Média de Professores</div>
+                <div class="kpi-value">{media_equipe_escolar:.1f}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">por escola</div>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    col4, col5, col6 = st.columns(3)
+
     with col4:
-        # Mostra o total de matrículas totais
-        st.metric(label="Matrículas totais",value=f"{total_matriculas:,.0f}", border=True)
-        
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Mátriculas Básicas</div>
+                <div class="kpi-value">{total_matriculas}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">total somado</div>
+            </div>
+        """, unsafe_allow_html=True)
+
     with col5:
-        # Mostra a cobertura de internet
-        st.metric(label="Cobertura de internet",value=f"{cobertura_internet:,.0f}", border=True, help="Escolas que possuem acesso a internet.")
-        st.caption(f"<b>{percentual_internet}</b> do total das escolas", unsafe_allow_html=True)
+        percentual_internet = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Com Internet</div>
+                <div class="kpi-value">{int(df_kpi['tem_internet'][0])}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">{percentual_internet} das Escolas</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     with col6:
-        # Mostra a cobertura de alimentação
-        st.metric(label="Cobertura de alimentação",value=f"{tem_alimentacao:,.0f}", border=True, help="Escolas que fornecem alimentação (merenda) aos alunos.")
-        st.caption(f"<b>{percentual_alimentacao:.2f}%</b> do total das escolas", unsafe_allow_html=True)
+        percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
+
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-title">Possui alimentação</div>
+                <div class="kpi-value">{tem_alimentacao}</div>
+                <div class="kpi-delta"></div>
+                <div class="kpi-info">{percentual_alimentacao:.1f}% tem alimentação</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     # Linha de separação visual
     st.markdown("<hr/>", unsafe_allow_html=True)
@@ -248,16 +279,11 @@ def show_home_page (conn):
                 sb.IN_AGUA_POTAVEL      AS agua_potavel,
                 mat.IN_INTERNET         AS internet
             FROM escola e
-            INNER JOIN municipio mun 
-                ON e.municipio_id = mun.id
-            INNER JOIN uf u 
-                ON mun.uf_id = u.id
-            INNER JOIN regiao r 
-                ON u.regiao_id = r.id
-            LEFT JOIN saneamento_basico sb 
-                ON sb.escola_id = e.id
-            LEFT JOIN materiais mat 
-                ON mat.escola_id = e.id
+            INNER JOIN municipio mun ON e.municipio_id = mun.id
+            INNER JOIN uf u ON mun.uf_id = u.id
+            INNER JOIN regiao r ON u.regiao_id = r.id
+            LEFT JOIN saneamento_basico sb ON sb.escola_id = e.id
+            LEFT JOIN materiais mat ON mat.escola_id = e.id
             {where_consulta}
         '''
         
