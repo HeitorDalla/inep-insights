@@ -201,7 +201,7 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Total de Escolas</div>
-                <div class="kpi-value">{total_escolas:.1f}</div>
+                <div class="kpi-value">{total_escolas:.2f}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">Escolas no total</div>
             </div>
@@ -211,7 +211,7 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Água Potável</div>
-                <div class="kpi-value">{tem_agua_potavel:.1f}</div>
+                <div class="kpi-value">{tem_agua_potavel:.2f}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">{percentual_agua_potavel} das Escolas</div>
             </div>
@@ -221,7 +221,7 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Equipe Escolar</div>
-                <div class="kpi-value">{media_equipe_escolar:.1f}</div>
+                <div class="kpi-value">{media_equipe_escolar:.2f}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">Média por escola</div>
             </div>
@@ -231,7 +231,7 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Matrículas Totais</div>
-                <div class="kpi-value">{total_matriculas:.1f}</div>
+                <div class="kpi-value">{total_matriculas:.2f}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">Total de alunos</div>
             </div>
@@ -241,7 +241,7 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Com Internet</div>
-                <div class="kpi-value">{tem_internet:.1f}</div>
+                <div class="kpi-value">{tem_internet:.2f}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">{percentual_internet} das Escolas</div>
             </div>
@@ -251,7 +251,7 @@ def show_home_page (conn):
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-title">Com Alimentação</div>
-                <div class="kpi-value">{tem_alimentacao:.1f}</div>
+                <div class="kpi-value">{tem_alimentacao:.2f}</div>
                 <div class="kpi-delta"></div>
                 <div class="kpi-info">{percentual_alimentacao:.2f}% das Escolas</div>
             </div>
