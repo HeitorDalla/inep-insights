@@ -1,5 +1,6 @@
 import pandas as pd
 import streamlit as st
+import plotly.express as px
 
 # Função para mostrar a tela de infraestrutura
 def infraestrutura (conn, nome_escola_marta, escola_selecionada):
@@ -155,3 +156,49 @@ def infraestrutura (conn, nome_escola_marta, escola_selecionada):
         else:
             # Caso não haja escola selecionada, exibe mensagem de orientação
             st.write("Por favor, selecione uma escola válida para ver os KPIs.")
+
+    # SQL para Marta
+    em_qt_transporte_df = pd.read_sql("""
+    SELECT i.QT_TRANSP_PUBLICO AS transporte
+    FROM escola e
+    JOIN infraestrutura i
+        ON i.escola_id = e.id
+    WHERE e.NO_ENTIDADE = %s
+    """, conn, params=(nome_escola_marta,))
+
+    # SQL para escola selecionada
+    # es_qt_transporte_df = pd.DataFrame()
+    if escola_selecionada:
+        es_qt_tranporte_df = pd.read_sql("""
+            SELECT i.QT_TRANSP_PUBLICO AS transporte
+            FROM escola e
+            JOIN infraestrutura i 
+                ON i.escola_id = e.id
+            WHERE e.NO_ENTIDADE = %s
+        """, conn, params=(escola_selecionada,))
+
+    em_qt_transporte = int(em_qt_transporte_df.loc[0, "transporte"]) if not em_qt_transporte_df.empty else 0
+    es_qt_transporte = int(es_qt_tranporte_df.loc[0, "transporte"]) if not es_qt_tranporte_df.empty else 0
+
+    df_bar = pd.DataFrame({
+        "escola":     [nome_escola_marta, escola_selecionada or "Nenhuma selecionada"],
+        "transporte": [em_qt_transporte,  es_qt_transporte]
+    })
+
+    fig = px.bar(
+        df_bar,
+        x="escola",
+        y="transporte",
+        text="transporte",
+        title="Comparativo entre escolas ─ Quantidade de transporte",
+        labels={"escola": "Escola", "transporte": "Qtd. Transporte"}
+    )
+
+    fig.update_yaxes(range=[0, 300])
+    fig.update_layout(
+        xaxis_title="Escola",
+        yaxis_title="Qtd. Transporte",
+        margin=dict(l=40, r=40, t=60, b=40)
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
