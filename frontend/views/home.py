@@ -41,7 +41,7 @@ def show_home_page (conn):
     # Configuração inicial da sidebar com estilo moderno
     st.sidebar.markdown("""
         <div class="sidebar-title">
-            <span style="font-size:1.1em;"></span> Filtros de Pesquisa
+            <span style="font-size:1.1em;">Filtros de Pesquisa</span> 
         </div>
     """, unsafe_allow_html=True)
         
@@ -190,74 +190,106 @@ def show_home_page (conn):
 
     # Exibição de KPI cards
 
+    # Função auxiliar para formatação de grandes números
+    def format_number(value: int) -> str:
+        if value >= 10000:
+            base = value / 1000
+            s = f"{base:,.0f}"
+            s = s.replace(",", "@").replace(".", ",").replace("@", ".")
+            return f"{s} mil"
+        elif value >= 1000:
+            base = value / 1000
+            s = f"{base:,.0f}"
+            s = s.replace(",", "@").replace(".", ",").replace("@", ".")
+            return f"{s} mil"
+        elif value >= 100:
+            s = f"{value:,.0f}"
+            return s.replace(",", "@").replace(".", ",").replace("@", ".")
+        elif value >= 10:
+            s = f"{value:,.0f}"
+            return s.replace(",", "@").replace(".", ",").replace("@", ".")
+        else:
+            return str(value)
+
     col1, col2, col3 = st.columns(3)
     col4, col5, col6 = st.columns(3)
-   
+
     with col1:
+        formatted_total_escolas = format_number(total_escolas)
+
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Total de Escolas</div>
-                <div class="kpi-value">{total_escolas}</div>
+                <div class="kpi-label">Total de Escolas</div>
+                <div class="kpi-value">{formatted_total_escolas}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">Escolas na Seleção</div>
+                <div class="kpi-caption"></div>
             </div>
         """, unsafe_allow_html=True)
 
     with col2:
-        percentual_agua = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+        pct_agua = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else "0%"
+        
+        formatted_agua_potavel = format_number(tem_agua_potavel)
 
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Água Potável</div>
-                <div class="kpi-value">{tem_agua_potavel}</div>
+                <div class="kpi-label">Água Potável</div>
+                <div class="kpi-value">{formatted_agua_potavel}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_agua} das Escolas</div>
+                <div class="kpi-caption"><b>{pct_agua}</b> do total das escolas</div>
             </div>
         """, unsafe_allow_html=True)
 
-    with col3:     
+    with col3:
+        formatted_equipe_escolar = f"{media_equipe_escolar:.1f}"
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Média de Professores</div>
-                <div class="kpi-value">{media_equipe_escolar:.1f}</div>
+                <div class="kpi-label">Média de equipe escolar</div>
+                <div class="kpi-value">{formatted_equipe_escolar}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">por escola</div>
+                <div class="kpi-caption">Média de profissionais que trabalham nas escolas</div>
             </div>
         """, unsafe_allow_html=True)
-    
-    col4, col5, col6 = st.columns(3)
 
     with col4:
+        formatted_matriculas = format_number(total_matriculas)
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Mátriculas Básicas</div>
-                <div class="kpi-value">{total_matriculas}</div>
+                <div class="kpi-label">Total de matrículas</div>
+                <div class="kpi-value">{formatted_matriculas}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">total somado</div>
+                <div class="kpi-caption"></div>
             </div>
         """, unsafe_allow_html=True)
 
     with col5:
-        percentual_internet = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else '0%'
+        tem_internet = int(df_kpi['tem_internet'][0] or 0)
+
+        pct_internet = f"{(tem_internet / total_escolas) * 100:.1f}%" if total_escolas else "0%"
+        
+        formatted_internet = format_number(tem_internet)
 
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Com Internet</div>
-                <div class="kpi-value">{int(df_kpi['tem_internet'][0])}</div>
+                <div class="kpi-label">Internet</div>
+                <div class="kpi-value">{formatted_internet}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_internet} das Escolas</div>
+                <div class="kpi-caption"><b>{pct_internet}</b> do total das escolas possuem internet</div>
             </div>
         """, unsafe_allow_html=True)
 
     with col6:
-        percentual_alimentacao = (tem_alimentacao / total_escolas) * 100 if total_escolas else 0
-
+        tem_alimentacao = int(df_kpi['tem_alimentacao'][0] or 0)
+        
+        pct_alimentacao = f"{(tem_alimentacao / total_escolas) * 100:.1f}%" if total_escolas else "0%"
+        
+        formatted_alimentacao = format_number(tem_alimentacao)
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-title">Possui alimentação</div>
-                <div class="kpi-value">{tem_alimentacao}</div>
+                <div class="kpi-label">Alimentação</div>
+                <div class="kpi-value">{formatted_alimentacao}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-info">{percentual_alimentacao:.1f}% tem alimentação</div>
+                <div class="kpi-caption">{pct_alimentacao} total das escolas que fornecem alimentação</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -268,7 +300,7 @@ def show_home_page (conn):
     # Seção de mapa interativo dentro de expander
     
     # Mapa para representar as Escolas que possuem Infraestrutura
-    with st.expander("Clique para visualizar o mapa.", ):
+    with st.expander("Clique para visualizar o mapa."):
         # Consulta detalhada para scatter_mapbox
         escolas_query = f'''
             SELECT

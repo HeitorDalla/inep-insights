@@ -28,6 +28,18 @@ from frontend.views.home import show_home_page
 from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
 
+# Configuração da página Streamlit + menu de contexto
+st.set_page_config(
+    page_title="Painel de Indicadores",     # Título da aba do navegador
+    page_icon="📊",                         # Ícone que aparece na aba e no header
+    layout="wide",                          # Usa todo o espaço horizontal
+    initial_sidebar_state="collapsed",      # Sidebar começa recolhida
+    menu_items={                            # Itens do menu de contexto (canto superior direito)
+        'Get help': 'https://github.com/HeitorDalla/projeto-final',
+        'Report a bug': 'https://github.com/HeitorDalla/projeto-final/issues',
+        'About': "Aplicativo desenvolvido por Matheus V. Nellessen, Flávia ... e Heitor Villa"
+    }
+)
 
 # Estilos
 
@@ -39,7 +51,6 @@ def load_css(caminho_arquivo):
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")
 
-
 # Sidebar
 
 # Cria três colunas proporcionais (1:2:1) no sidebar para centralizar a logo
@@ -47,8 +58,6 @@ col1, col2, col3 = st.sidebar.columns([1, 2, 1])
 with col2:
     # Exibe a imagem da logo no centro da segunda coluna
     st.image("frontend/assets/img/logo.png")
-
-
 
 # Cria conexão com o banco de dados MySQL
 conn, cursor = get_connection()
