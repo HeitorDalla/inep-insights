@@ -93,12 +93,6 @@ def material (conn, nome_escola_marta, escola_selecionada):
         </style>
     """, unsafe_allow_html=True)
 
-    # Título e introdução
-    st.markdown("""
-        <h1>Materiais Pedagógicos e Tecnológicos</h1>
-        <p>Comparativo de recursos disponíveis para ensino e aprendizagem</p>
-    """, unsafe_allow_html=True)
-
     # Layout de duas colunas
     col1, col2 = st.columns(2)
 
