@@ -1,5 +1,14 @@
+# Importar bibliotecas
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
+
+# Importando Páginas de visualização
+from frontend.views.analise_especifica_past.saneamento_basico import saneamento_basico
+from frontend.views.analise_especifica_past.corpo_docente import corpo_docente
+from frontend.views.analise_especifica_past.infraestrutura import infraestrutura
+from frontend.views.analise_especifica_past.material import material
+from frontend.views.analise_especifica_past.matricula import matricula
 
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page (conn):
@@ -148,322 +157,25 @@ def show_analise_especifica_page (conn):
         "🧑🏻‍🎓 Matricula"
     ])
 
+    # Declara uma variável que armazena o nome da escola de Marta (persona). Essa variável será usada como filtro nas consultas ao banco de dados
+    nome_escola_marta = "TRABALHO E SABER ESCOLA MUNICIPAL DO CAMPO"
 
     # Conteúdo da aba "Saneamento Básico"
     with tab_saneamento_basico:
-        # Declara uma variável que armazena o nome da escola de Marta (persona). Essa variável será usada como filtro nas consultas ao banco de dados
-        nome_escola_marta = "TRABALHO E SABER ESCOLA MUNICIPAL DO CAMPO"
-
-        # Executa uma query SQL e retorna um DataFrame
-        em_df = pd.read_sql("""
-            SELECT
-                sb.IN_AGUA_POTAVEL         AS agua_potavel,
-                sb.IN_AGUA_REDE_PUBLICA    AS agua_rede_publica,
-                sb.IN_AGUA_POCO_ARTESIANO  AS agua_poco_artesiano,
-                sb.IN_AGUA_INEXISTENTE     AS agua_inexistente,
-                sb.IN_ESGOTO_REDE_PUBLICA  AS esgoto_rede_publica,
-                sb.IN_ESGOTO_INEXISTENTE   AS esgoto_inexistente,
-                sb.IN_ENERGIA_REDE_PUBLICA AS energia_rede_publica,
-                sb.IN_ENERGIA_INEXISTENTE  AS energia_inexistente,
-                sb.IN_LIXO_SERVICO_COLETA  AS lixo_servico_coleta
-            FROM escola e
-            JOIN saneamento_basico sb 
-                ON sb.escola_id = e.id
-            WHERE e.NO_ENTIDADE = %s
-        """, conn, params=(nome_escola_marta,))
-        # SELECT: seleciona todos os indicadores booleanos de saneamento e renomeia cada coluna para algo mais legível 
-        
-        # JOIN: liga a tabela "escola" (e) à tabela saneamento_basico (sb) via escola.id
-
-        # WHERE … = %s: filtra apenas pela escola cujo nome é igual ao nome da variável "nome_escola_marta"
-
-        # params=(nome_escola_marta,): passa o nome da variável "nome_escola_marta" como parâmetro para a query SQL
-
-        if escola_selecionada:
-        # Se o usuário já tiver escolhido uma escola via sidebar, executa a mesma query acima, mas passando o nome da escola selecionada, e guarda o resultado em outro DataFrame.
-            es_df = pd.read_sql("""
-                SELECT
-                    sb.IN_AGUA_POTAVEL         AS agua_potavel,
-                    sb.IN_AGUA_REDE_PUBLICA    AS agua_rede_publica,
-                    sb.IN_AGUA_POCO_ARTESIANO  AS agua_poco_artesiano,
-                    sb.IN_AGUA_INEXISTENTE     AS agua_inexistente,
-                    sb.IN_ESGOTO_REDE_PUBLICA  AS esgoto_rede_publica,
-                    sb.IN_ESGOTO_INEXISTENTE   AS esgoto_inexistente,
-                    sb.IN_ENERGIA_REDE_PUBLICA AS energia_rede_publica,
-                    sb.IN_ENERGIA_INEXISTENTE  AS energia_inexistente,
-                    sb.IN_LIXO_SERVICO_COLETA  AS lixo_servico_coleta
-                FROM escola e
-                JOIN saneamento_basico sb 
-                    ON sb.escola_id = e.id
-                WHERE e.NO_ENTIDADE = %s
-            """, conn, params=(escola_selecionada,))
-        else:
-        # Caso contrário, cria um DataFrame vazio com as mesmas colunas, para evitar erros posteriores ao tentar acessar índices inexistentes.
-            es_df = pd.DataFrame(columns=[
-                "agua_potavel", "agua_rede_publica", "agua_poco_artesiano", "agua_inexistente",
-                "esgoto_rede_publica", "esgoto_inexistente",
-                "energia_rede_publica", "energia_inexistente",
-                "lixo_servico_coleta"
-            ])
-
-        # Função auxiliar que recebe um valor 0 ou 1 e devolve 0.0 ou 100.0 respectivamente
-        def bool_to_pct(flag: int) -> float:
-            # Primeiro converte para bool (0 → False; 1 → True), depois escolhe o percentual correspondente (True → 100.0; False → 0.0)
-            return 100.0 if bool(flag) else 0.0
-
-        if not em_df.empty:
-        # Verifica se "em_df" não está vazio): se não estiver, extrai cada um dos campos na primeira linha (loc[0, "..."])
-
-        # Para os indicadores de “inexistente” (água, esgoto e energia), inverte-se o valor com (1 - <flag>) para mostrar a disponibilidade
-
-        # Passa tudo pela função "bool_to_pct" para obter 0.0 ou 100.0
-            em_agua_potavel_pct        = bool_to_pct(em_df.loc[0, "agua_potavel"])
-            em_agua_rede_publica_pct   = bool_to_pct(em_df.loc[0, "agua_rede_publica"])
-            em_agua_poco_artesiano_pct = bool_to_pct(em_df.loc[0, "agua_poco_artesiano"])
-            em_agua_inexistente_pct    = bool_to_pct(1 - em_df.loc[0, "agua_inexistente"])
-            em_esgoto_rede_publica_pct = bool_to_pct(em_df.loc[0, "esgoto_rede_publica"])
-            em_esgoto_inexistente_pct  = bool_to_pct(1 - em_df.loc[0, "esgoto_inexistente"])
-            em_energia_rede_publica_pct= bool_to_pct(em_df.loc[0, "energia_rede_publica"])
-            em_energia_inexistente_pct = bool_to_pct(1 - em_df.loc[0, "energia_inexistente"])
-            em_lixo_servico_coleta_pct = bool_to_pct(em_df.loc[0, "lixo_servico_coleta"])
-        else:
-        # Se "em_df" estiver vazio, atribui 0.0 a todas as variáveis de percentuais de Marta
-            em_agua_potavel_pct = em_agua_rede_publica_pct = em_agua_poco_artesiano_pct = 0.0
-            em_agua_inexistente_pct = em_esgoto_rede_publica_pct = em_esgoto_inexistente_pct = 0.0
-            em_energia_rede_publica_pct = em_energia_inexistente_pct = em_lixo_servico_coleta_pct = 0.0
-        
-        # Idêntico ao bloco anterior, mas para a escola selecionada
-        if not es_df.empty:
-            es_agua_potavel_pct        = bool_to_pct(es_df.loc[0, "agua_potavel"])
-            es_agua_rede_publica_pct   = bool_to_pct(es_df.loc[0, "agua_rede_publica"])
-            es_agua_poco_artesiano_pct = bool_to_pct(es_df.loc[0, "agua_poco_artesiano"])
-            es_agua_inexistente_pct    = bool_to_pct(1 - es_df.loc[0, "agua_inexistente"])
-            es_esgoto_rede_publica_pct = bool_to_pct(es_df.loc[0, "esgoto_rede_publica"])
-            es_esgoto_inexistente_pct  = bool_to_pct(1 - es_df.loc[0, "esgoto_inexistente"])
-            es_energia_rede_publica_pct= bool_to_pct(es_df.loc[0, "energia_rede_publica"])
-            es_energia_inexistente_pct = bool_to_pct(1 - es_df.loc[0, "energia_inexistente"])
-            es_lixo_servico_coleta_pct = bool_to_pct(es_df.loc[0, "lixo_servico_coleta"])
-        else:
-            es_agua_potavel_pct = es_agua_rede_publica_pct = es_agua_poco_artesiano_pct = 0.0
-            es_agua_inexistente_pct = es_esgoto_rede_publica_pct = es_esgoto_inexistente_pct = 0.0
-            es_energia_rede_publica_pct = es_energia_inexistente_pct = es_lixo_servico_coleta_pct = 0.0
-
-        # Cria um layout de duas colunas iguais no Streamlit, atribuídas às variáveis col1 (esquerda) e col2 (direita)
-        col1, col2 = st.columns(2)
-
-        # Injeta CSS p/ centralizar <h1/> e <p/> (mover para assets/style.py)
-        st.markdown("""
-            <style>
-                h1, p {
-                    text-align: center;
-                }       
-            </style>
-        """, unsafe_allow_html=True)
-
-        # st.metric: para cada indicador, exibe um cartão com rótulo e valor formatado (:.0f)
-        with col1:
-            st.markdown("""
-                <h1>Escola de Marta</h1>
-            """,
-            unsafe_allow_html=True)
-            st.markdown(f"""
-                <p>{nome_escola_marta}</p>
-            """,
-            unsafe_allow_html=True)
-            st.metric("Água Potável",             f"{em_agua_potavel_pct:.0f}%", border=True)
-            st.metric("Água Rede Pública",        f"{em_agua_rede_publica_pct:.0f}%", border=True)
-            st.metric("Poço Artesiano",           f"{em_agua_poco_artesiano_pct:.0f}%", border=True)
-            st.metric("Esgoto Disponível",        f"{em_esgoto_inexistente_pct:.0f}%", border=True)
-            st.metric("Esgoto Rede Pública",      f"{em_esgoto_rede_publica_pct:.0f}%", border=True)
-            st.metric("Energia Disponível",       f"{em_energia_inexistente_pct:.0f}%", border=True)
-            st.metric("Energia Rede Pública",     f"{em_energia_rede_publica_pct:.0f}%", border=True)
-            st.metric("Coleta de Lixo",           f"{em_lixo_servico_coleta_pct:.0f}%", border=True)
-
-        with col2:
-            st.markdown("""
-                <h1>Escola selecionada</h1>
-            """,
-            unsafe_allow_html=True)
-            st.markdown(f"""
-                <p>{escola_selecionada}</p>
-            """,
-            unsafe_allow_html=True)
-            if escola_selecionada:
-                st.metric("Água Potável",         f"{es_agua_potavel_pct:.0f}%", border=True)
-                st.metric("Água Rede Pública",    f"{es_agua_rede_publica_pct:.0f}%", border=True)
-                st.metric("Poço Artesiano",       f"{es_agua_poco_artesiano_pct:.0f}%", border=True)
-                st.metric("Esgoto Disponível",    f"{es_esgoto_inexistente_pct:.0f}%", border=True)
-                st.metric("Esgoto Rede Pública",  f"{es_esgoto_rede_publica_pct:.0f}%", border=True)
-                st.metric("Energia Disponível",   f"{es_energia_inexistente_pct:.0f}%", border=True)
-                st.metric("Energia Rede Pública", f"{es_energia_rede_publica_pct:.0f}%", border=True)
-                st.metric("Coleta de Lixo",       f"{es_lixo_servico_coleta_pct:.0f}%", border=True)
-            else:
-                st.write("Por favor, selecione uma escola válida.")
-
+        saneamento_basico(conn, nome_escola_marta, escola_selecionada)
 
     # Conteúdo da aba "Infraestrutura"
     with tab_infraestrutura:
-        # Monta e executa SQL para selecionar todos os campos booleanos de infraestrutura
-        em_inf_df = pd.read_sql(
-            """
-            SELECT
-                sb.IN_PATIO_COBERTO           AS patio_coberto,
-                sb.IN_BIBLIOTECA              AS biblioteca,
-                sb.IN_LABORATORIO_CIENCIAS    AS laboratorio_ciencias,
-                sb.IN_LABORATORIO_INFORMATICA AS laboratorio_informatica,
-                sb.IN_QUADRA_ESPORTES         AS quadra_esportes,
-                sb.IN_PARQUE_INFANTIL         AS parque_infantil,
-                sb.IN_SALA_PROFESSOR          AS sala_professor,
-                sb.IN_COZINHA                 AS cozinha,
-                sb.IN_REFEITORIO              AS refeitório,
-                sb.IN_ALMOXARIFADO            AS almoxarifado,
-                sb.IN_ALIMENTACAO             AS alimentacao
-            FROM escola e
-            JOIN infraestrutura sb
-                ON sb.escola_id = e.id
-            WHERE e.NO_ENTIDADE = %s
-            """,
-            conn,
-            params=(nome_escola_marta,)  # Substitui %s pelo nome da escola de Marta
-        )
-
-        # Extrai indicadores de infraestrutura da escola selecionada
-        if escola_selecionada:
-            # Executa a mesma consulta, mas usando o nome da escola selecionada
-            es_inf_df = pd.read_sql(
-                """
-                SELECT
-                    sb.IN_PATIO_COBERTO           AS patio_coberto,
-                    sb.IN_BIBLIOTECA              AS biblioteca,
-                    sb.IN_LABORATORIO_CIENCIAS    AS laboratorio_ciencias,
-                    sb.IN_LABORATORIO_INFORMATICA AS laboratorio_informatica,
-                    sb.IN_QUADRA_ESPORTES         AS quadra_esportes,
-                    sb.IN_PARQUE_INFANTIL         AS parque_infantil,
-                    sb.IN_SALA_PROFESSOR          AS sala_professor,
-                    sb.IN_COZINHA                 AS cozinha,
-                    sb.IN_REFEITORIO              AS refeitório,
-                    sb.IN_ALMOXARIFADO            AS almoxarifado,
-                    sb.IN_ALIMENTACAO             AS alimentacao
-                FROM escola e
-                JOIN infraestrutura sb
-                    ON sb.escola_id = e.id
-                WHERE e.NO_ENTIDADE = %s
-                """,
-                conn,
-                params=(escola_selecionada,)
-            )
-        else:
-            # Se não houver seleção, cria DataFrame vazio com as mesmas colunas
-            es_inf_df = pd.DataFrame(columns=[
-                "patio_coberto", "biblioteca", "laboratorio_ciencias",
-                "laboratorio_informatica", "quadra_esportes", "parque_infantil",
-                "sala_professor", "cozinha", "refeitório", "almoxarifado", "alimentacao"
-            ])
-
-        # Função auxiliar: converte 0 e 1 em 0.0 e 100.0 respectivamente
-        def bool_to_pct(flag: int) -> float:
-            return 100.0 if bool(flag) else 0.0
-
-        # Calcula a porcentagem (100%: possui; 0%: não possui) das colunas (infraestruturas) da escola de Marta
-        if not em_inf_df.empty:
-            # Busca a primeira linha (índice 0) e converte o valor (booleano) em porcentagem (pct)
-            em_patio_coberto_pct           = bool_to_pct(em_inf_df.loc[0, "patio_coberto"])
-            em_biblioteca_pct              = bool_to_pct(em_inf_df.loc[0, "biblioteca"])
-            em_laboratorio_ciencias_pct    = bool_to_pct(em_inf_df.loc[0, "laboratorio_ciencias"])
-            em_laboratorio_informatica_pct = bool_to_pct(em_inf_df.loc[0, "laboratorio_informatica"])
-            em_quadra_esportes_pct         = bool_to_pct(em_inf_df.loc[0, "quadra_esportes"])
-            em_parque_infantil_pct         = bool_to_pct(em_inf_df.loc[0, "parque_infantil"])
-            em_sala_professor_pct          = bool_to_pct(em_inf_df.loc[0, "sala_professor"])
-            em_cozinha_pct                 = bool_to_pct(em_inf_df.loc[0, "cozinha"])
-            em_refeitorio_pct              = bool_to_pct(em_inf_df.loc[0, "refeitório"])
-            em_almoxarifado_pct            = bool_to_pct(em_inf_df.loc[0, "almoxarifado"])
-            em_alimentacao_pct             = bool_to_pct(em_inf_df.loc[0, "alimentacao"])
-        else:
-            # Se DataFrame estiver vazio, define todos como 0.0
-            em_patio_coberto_pct = em_biblioteca_pct = em_laboratorio_ciencias_pct = 0.0
-            em_laboratorio_informatica_pct = em_quadra_esportes_pct = em_parque_infantil_pct = 0.0
-            em_sala_professor_pct = em_cozinha_pct = em_refeitorio_pct = em_almoxarifado_pct = em_alimentacao_pct = 0.0
-
-        # Calcula a porcentagem (100%: possui; 0%: não possui) das colunas (infraestruturas) da escola selecionada
-        if not es_inf_df.empty:
-            # Busca a primeira linha (índice 0) e converte o valor (booleano) em porcentagem (pct)
-            es_patio_coberto_pct           = bool_to_pct(es_inf_df.loc[0, "patio_coberto"])
-            es_biblioteca_pct              = bool_to_pct(es_inf_df.loc[0, "biblioteca"])
-            es_laboratorio_ciencias_pct    = bool_to_pct(es_inf_df.loc[0, "laboratorio_ciencias"])
-            es_laboratorio_informatica_pct = bool_to_pct(es_inf_df.loc[0, "laboratorio_informatica"])
-            es_quadra_esportes_pct         = bool_to_pct(es_inf_df.loc[0, "quadra_esportes"])
-            es_parque_infantil_pct         = bool_to_pct(es_inf_df.loc[0, "parque_infantil"])
-            es_sala_professor_pct          = bool_to_pct(es_inf_df.loc[0, "sala_professor"])
-            es_cozinha_pct                 = bool_to_pct(es_inf_df.loc[0, "cozinha"])
-            es_refeitorio_pct              = bool_to_pct(es_inf_df.loc[0, "refeitório"])
-            es_almoxarifado_pct            = bool_to_pct(es_inf_df.loc[0, "almoxarifado"])
-            es_alimentacao_pct             = bool_to_pct(es_inf_df.loc[0, "alimentacao"])
-        else:
-            # Se não houver seleção, define todos como 0.0
-            es_patio_coberto_pct = es_biblioteca_pct = es_laboratorio_ciencias_pct = 0.0
-            es_laboratorio_informatica_pct = es_quadra_esportes_pct = es_parque_infantil_pct = 0.0
-            es_sala_professor_pct = es_cozinha_pct = es_refeitorio_pct = es_almoxarifado_pct = es_alimentacao_pct = 0.0
-
-        # Cria um layout de duas colunas no Streamlit, atribuídas às variáveis col1 (esquerda) e col2 (direita)
-        col1, col2 = st.columns(2)
-
-        with col1:
-            st.markdown("""
-                <h1>Escola de Marta</h1>
-            """,
-            unsafe_allow_html=True)
-            st.markdown(f"""
-                <p>{nome_escola_marta}</p>
-            """,
-            unsafe_allow_html=True)
-
-            # Exibe cada KPI como um cartão métrico
-            st.metric("Pátio Coberto",       f"{em_patio_coberto_pct:.0f}%", border=True)
-            st.metric("Biblioteca",          f"{em_biblioteca_pct:.0f}%", border=True)
-            st.metric("Lab. Ciências",       f"{em_laboratorio_ciencias_pct:.0f}%", border=True)
-            st.metric("Lab. Informática",    f"{em_laboratorio_informatica_pct:.0f}%", border=True)
-            st.metric("Quadra de Esportes",  f"{em_quadra_esportes_pct:.0f}%", border=True)
-            st.metric("Parque Infantil",     f"{em_parque_infantil_pct:.0f}%", border=True)
-            st.metric("Sala dos Professores",f"{em_sala_professor_pct:.0f}%", border=True)
-            st.metric("Cozinha",             f"{em_cozinha_pct:.0f}%", border=True)
-            st.metric("Refeitório",          f"{em_refeitorio_pct:.0f}%", border=True)
-            st.metric("Almoxarifado",        f"{em_almoxarifado_pct:.0f}%", border=True)
-            st.metric("Alimentação",         f"{em_alimentacao_pct:.0f}%", border=True)
-
-        with col2:
-            st.markdown("""
-                <h1>Escola selecionada</h1>
-            """,
-            unsafe_allow_html=True)
-            st.markdown(f"""
-                <p>{escola_selecionada}</p>
-            """,
-            unsafe_allow_html=True)
-            if escola_selecionada:
-                # Exibe KPIs para a escola escolhida
-                st.metric("Pátio Coberto",       f"{es_patio_coberto_pct:.0f}%", border=True)
-                st.metric("Biblioteca",          f"{es_biblioteca_pct:.0f}%", border=True)
-                st.metric("Lab. Ciências",       f"{es_laboratorio_ciencias_pct:.0f}%", border=True)
-                st.metric("Lab. Informática",    f"{es_laboratorio_informatica_pct:.0f}%", border=True)
-                st.metric("Quadra de Esportes",  f"{es_quadra_esportes_pct:.0f}%", border=True)
-                st.metric("Parque Infantil",     f"{es_parque_infantil_pct:.0f}%", border=True)
-                st.metric("Sala dos Professores",f"{es_sala_professor_pct:.0f}%", border=True)
-                st.metric("Cozinha",             f"{es_cozinha_pct:.0f}%", border=True)
-                st.metric("Refeitório",          f"{es_refeitorio_pct:.0f}%", border=True)
-                st.metric("Almoxarifado",        f"{es_almoxarifado_pct:.0f}%", border=True)
-                st.metric("Alimentação",         f"{es_alimentacao_pct:.0f}%", border=True)
-            else:
-                # Caso não haja escola selecionada, exibe mensagem de orientação
-                st.write("Por favor, selecione uma escola válida para ver os KPIs.")
+        infraestrutura(conn, nome_escola_marta, escola_selecionada)
 
     # Conteúdo da aba "Material"
     with tab_material:
-        st.header("Material")
+        material(conn, nome_escola_marta, escola_selecionada)
 
     # Conteúdo da aba "Corpo Docente"
     with tab_corpo_docente:
-        st.header("Corpo Docente")
+        corpo_docente(conn, nome_escola_marta)
 
     # Conteúdo da aba "Matrícula"
     with tab_matricula:
-        st.header("Matrícula")
+        matricula(conn, nome_escola_marta)
