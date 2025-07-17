@@ -6,56 +6,6 @@ import matplotlib.pyplot as plt
 #   em → escola da marta
 # =========================
 
-st.markdown("""
-    <style>
-        h3 {
-            text-align: center;
-            color: #1b2d53;
-        }
-        
-        .kpi-card {
-        background-color: #ffffff;
-        margin: 20px !important;
-        padding: 15px !important;
-        border-radius: 15px !important;
-        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2) !important;
-        }
-            
-        .green {
-            background-image: linear-gradient(90deg, #E3F2FD, #B3E5FC) !important;    
-        }    
-
-        .red {
-            background-image: linear-gradient(90deg, #FFF9E0, #FFE082) !important; 
-        }
-    
-        .kpi-title {
-        text-align: center;
-        font-weight: 600;
-        font-size: 1.2em;
-        }
-
-        .kpi-value {
-        text-align: center;
-        font-weight: 400;
-        font-size: 2em;
-        }
-
-        .kpi-delta {
-        text-align: center;
-        font-weight: 700;
-        font-size: 1.25em;
-        color: green !important;
-        }
-
-        .kpi-info {
-        font-weight: 700;
-        font-size: 1em;
-        color: #16233f;
-      }
-    </style>
-""", unsafe_allow_html=True)
-
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page (conn):
     # SQL Query p/ ler as regiões únicas

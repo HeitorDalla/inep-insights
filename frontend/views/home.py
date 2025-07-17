@@ -37,6 +37,14 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
 # Função para mostrar a página home
 def show_home_page (conn):
+
+    # Configuração inicial da sidebar com estilo moderno
+    st.sidebar.markdown("""
+        <div class="sidebar-title">
+            <span style="font-size:1.1em;"></span> Filtros de Pesquisa
+        </div>
+    """, unsafe_allow_html=True)
+        
     # Regiões
 
     # SQL Query p/ ler as regiões

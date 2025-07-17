@@ -1,3 +1,5 @@
+# Bibliotecas e Configuração
+
 import streamlit as st
 
 # Configuração da página
@@ -29,63 +31,28 @@ from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
 
 
-# Cria conexão com o banco de dados MySQL
-conn, cursor = get_connection()
+# Estilos
 
-# Configurações de estilo (CSS)
-st.markdown("""
-    <style>
-        .h1-sidebar-home {
-            text-align: center;
-        }
-        
-        .kpi-card {
-            background-color: #fff;
-            margin: 20px; padding: 15px;
-            padding-bottom: 15px;
-            border-radius: 20px;
-            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        }
+# Função para carregar os estilos
+def load_css(caminho_arquivo):
+    with open(caminho_arquivo, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-        .kpi-title {
-            font-weight: 700;
-            font-size: 1.5em;
-        }
+# Carrega CSS centralizado
+load_css("frontend/assets/css/style.css")
 
-        .kpi-value {
-            text-align: center;
-            font-weight: 400;
-            font-size: 3.5em;
 
-        }
-
-        .kpi-delta {
-            text-align: center;
-            font-weight: 700;
-            font-size: 1.25em;
-            color: green;
-            /* color: red; */
-        }
-
-        .kpi-info {
-            font-weight: 700;
-            font-size: 1em;
-            color: #16233fff;
-        }
-
-    </style>
-""", 
-unsafe_allow_html=True)
+# Sidebar
 
 # Configurações da imagem do Sidebar
 col1, col2, col3 = st.sidebar.columns([1, 2, 1])
-
 with col2:
-    st.image("frontend/assets/img/logo.png") # adiciona logo ao sidebar
+    st.image("frontend/assets/img/logo.png")
 
-# Configuração do menu de navegação
 
-# Streamlit Option Menu
+# Menu Horizontal
+
+# Configuração do Menu Horizontal
 selected = option_menu(
     menu_title=None,
     options=["Home", "Anal. Geral", "Anal. Específica"],
@@ -94,6 +61,9 @@ selected = option_menu(
     default_index=0,
     orientation="horizontal",
 )
+
+# Cria conexão com o banco de dados MySQL
+conn, cursor = get_connection()
 
 if (selected == "Home"):
     show_home_page(conn)
