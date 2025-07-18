@@ -42,7 +42,7 @@ h3:after {
 /* Cards de KPI - Design Moderno */
 .kpi-card {
     background-color: #ffffff;
-    margin: 6px; padding: 15px 10px;
+    margin: 7px; padding: 15px 10px;
     border-radius: 15px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border-left: 5px solid #3a7bd5;
@@ -50,12 +50,17 @@ h3:after {
     position: block;
 }
 
+.anal-espc-kpi-card {
+    position: relative;
+    min-height: 300px;
+}
+
+
 .kpi-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     box-shadow: 0 0px 15px rgba(0, 0, 0, 0.2);
     transition: all 0.3s ease; 
 }
-
 
 .kpi-label {
     text-align: center;
@@ -72,6 +77,13 @@ h3:after {
     font-size: 3.5rem;
     color: #1b2d53;
     font-family: var(--fonte);
+}
+
+.anal-espc-kpi-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .kpi-delta {
@@ -138,6 +150,18 @@ h3:after {
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2) !important;
     transform: translateY(-2px);
     transition: all 0.3s ease; 
+}
+
+[data-testid="stSidebar"] .stMultiSelect div[data-baseweb="multi-select"] > div {
+    background-color: #fff !important;
+}
+
+[data-testid="stSidebar"] .stMultiSelect > label {
+    color: #fff !important;
+}
+
+[data-testid="stSidebar"] .stMultiSelect [data-baseweb="tag"] {
+    background-color: #1b2d53 !important;
 }
 
 /* ============= BOTÕES E ELEMENTOS INTERATIVOS ============= */

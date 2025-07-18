@@ -1,186 +1,21 @@
-# import pandas as pd
-# import streamlit as st
-# from frontend.views.graficos import grafico_barras_comparativo, grafico_radar, grafico_donut_multimidia
-
-# # Função para mostrar a tela de materiais
-# def material (conn, nome_escola_marta, escola_selecionada):
-#     # Consulta para obter dados de materiais da escola de Marta
-#     em_mat_df = pd.read_sql(
-#         """
-#         SELECT
-#             m.IN_MATERIAL_PED_CIENTIFICO AS material_cientifico,
-#             m.IN_MATERIAL_PED_ARTISTICAS AS material_artistico,
-#             m.IN_MATERIAL_PED_DESPORTIVA AS material_esportivo,
-#             m.IN_INTERNET AS internet,
-#             m.QT_EQUIP_MULTIMIDIA AS equipamentos_multimidia
-#         FROM escola e
-#         JOIN materiais m ON m.escola_id = e.id
-#         WHERE e.NO_ENTIDADE = %s
-#         """,
-#         conn,
-#         params=(nome_escola_marta,)
-#     )
-
-#     # Consulta para a escola selecionada
-#     if not escola_selecionada.empty:
-#         es_mat_df = pd.read_sql(
-#             """
-#             SELECT
-#                 m.IN_MATERIAL_PED_CIENTIFICO AS material_cientifico,
-#                 m.IN_MATERIAL_PED_ARTISTICAS AS material_artistico,
-#                 m.IN_MATERIAL_PED_DESPORTIVA AS material_esportivo,
-#                 m.IN_INTERNET AS internet,
-#                 m.QT_EQUIP_MULTIMIDIA AS equipamentos_multimidia
-#             FROM escola e
-#             JOIN materiais m ON m.escola_id = e.id
-#             WHERE e.NO_ENTIDADE = %s
-#             """,
-#             conn,
-#             params=(escola_selecionada,)
-#         )
-#     else:
-#         es_mat_df = pd.DataFrame(columns=[
-#             "material_cientifico", "material_artistico", "material_esportivo",
-#             "internet", "equipamentos_multimidia"
-#         ])
-
-#     # Função auxiliar para converter booleanos em porcentagem
-#     def bool_to_pct(flag: int) -> float:
-#         return 100.0 if bool(flag) else 0.0
-
-#     # Processamento dos dados da escola de Marta
-#     if not em_mat_df.empty:
-#         em_material_cientifico_pct = bool_to_pct(em_mat_df.loc[0, "material_cientifico"])
-#         em_material_artistico_pct = bool_to_pct(em_mat_df.loc[0, "material_artistico"])
-#         em_material_esportivo_pct = bool_to_pct(em_mat_df.loc[0, "material_esportivo"])
-#         em_internet_pct = bool_to_pct(em_mat_df.loc[0, "internet"])
-#         em_equipamentos_multimidia = int(em_mat_df.loc[0, "equipamentos_multimidia"])
-#     else:
-#         em_material_cientifico_pct = em_material_artistico_pct = em_material_esportivo_pct = 0.0
-#         em_internet_pct = 0.0
-#         em_equipamentos_multimidia = 0
-
-#     # Processamento dos dados da escola selecionada
-#     if not es_mat_df.empty:
-#         es_material_cientifico_pct = bool_to_pct(es_mat_df.loc[0, "material_cientifico"])
-#         es_material_artistico_pct = bool_to_pct(es_mat_df.loc[0, "material_artistico"])
-#         es_material_esportivo_pct = bool_to_pct(es_mat_df.loc[0, "material_esportivo"])
-#         es_internet_pct = bool_to_pct(es_mat_df.loc[0, "internet"])
-#         es_equipamentos_multimidia = int(es_mat_df.loc[0, "equipamentos_multimidia"])
-#     else:
-#         es_material_cientifico_pct = es_material_artistico_pct = es_material_esportivo_pct = 0.0
-#         es_internet_pct = 0.0
-#         es_equipamentos_multimidia = 0
-
-#     # Layout da página
-#     st.markdown("""
-#         <style>
-#             h1, h2, h3, p {
-#                 text-align: center;
-#             }
-#             .metric-card {
-#                 border-radius: 10px;
-#                 padding: 15px;
-#                 margin-bottom: 15px;
-#                 box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-#             }
-#             .highlight {
-#                 background-color: #f8f9fa;
-#                 padding: 10px;
-#                 border-radius: 5px;
-#                 margin: 10px 0;
-#             }
-#         </style>
-#     """, unsafe_allow_html=True)
-
-#     # Layout de duas colunas
-#     col1, col2 = st.columns(2)
-
-#     with col1:
-#         st.markdown(f"""
-#             <div class="metric-card">
-#                 <h2>Escola de Marta</h2>
-#                 <p>{nome_escola_marta}</p>
-#             </div>
-#         """, unsafe_allow_html=True)
-        
-#         st.metric("Material Científico", f"{em_material_cientifico_pct:.0f}%", border=True)
-#         st.metric("Material Artístico", f"{em_material_artistico_pct:.0f}%", border=True)
-#         st.metric("Material Esportivo", f"{em_material_esportivo_pct:.0f}%", border=True)
-#         st.metric("Acesso à Internet", f"{em_internet_pct:.0f}%", border=True)
-#         st.metric("Equip. Multimídia", em_equipamentos_multimidia, border=True)
-
-#     with col2:
-#         st.markdown(f"""
-#             <div class="metric-card">
-#                 <h2>Escola Selecionada</h2>
-#                 <p>{escola_selecionada if escola_selecionada else "Nenhuma escola selecionada"}</p>
-#             </div>
-#         """, unsafe_allow_html=True)
-        
-#         if not escola_selecionada.empty:
-#             st.metric("Material Científico", f"{es_material_cientifico_pct:.0f}%", border=True)
-#             st.metric("Material Artístico", f"{es_material_artistico_pct:.0f}%", border=True)
-#             st.metric("Material Esportivo", f"{es_material_esportivo_pct:.0f}%", border=True)
-#             st.metric("Acesso à Internet", f"{es_internet_pct:.0f}%", border=True)
-#             st.metric("Equip. Multimídia", es_equipamentos_multimidia, border=True)
-#         else:
-#             st.warning("Selecione uma escola para comparar")
-
-#     # Seção de gráficos interativos
-#     st.markdown("---")
-#     st.markdown("<h2>Análise Visual Comparativa</h2>", unsafe_allow_html=True)
-
-#     if not escola_selecionada.empty and not es_mat_df.empty and not em_mat_df.empty:
-#         categorias = ['Material Científico', 'Material Artístico', 'Material Esportivo', 'Internet']
-#         valores_em = [em_material_cientifico_pct, em_material_artistico_pct, em_material_esportivo_pct, em_internet_pct]
-#         valores_es = [es_material_cientifico_pct, es_material_artistico_pct, es_material_esportivo_pct, es_internet_pct]
-
-#         # Gráfico de Barras
-#         st.plotly_chart(grafico_barras_comparativo(categorias, valores_em, valores_es), use_container_width=True)
-
-#         # Gráfico de Radar
-#         st.plotly_chart(grafico_radar(categorias, valores_em, valores_es), use_container_width=True)
-
-#         # Gráfico Donut
-#         st.plotly_chart(grafico_donut_multimidia(em_equipamentos_multimidia, es_equipamentos_multimidia), use_container_width=True)
-
-
-#     # Seção de recomendações (apenas para a escola de Marta)
-#     st.markdown("---")
-#     st.markdown("""
-#         <h2>Recomendações para a Escola de Marta</h2>
-#         <div class="highlight">
-#             <h3>Prioridades de Investimento</h3>
-#             <ul>
-#                 <li><strong>Conexão com a Internet:</strong> Fundamental para acesso a conteúdos digitais e plataformas educacionais.</li>
-#                 <li><strong>Equipamentos Multimídia:</strong> Projetores e computadores para aulas mais dinâmicas.</li>
-#                 <li><strong>Kits Científicos Básicos:</strong> Para aulas práticas de ciências mesmo com infraestrutura limitada.</li>
-#                 <li><strong>Parcerias com ONGs:</strong> Buscar organizações que doem materiais pedagógicos para escolas rurais.</li>
-#             </ul>
-            
-#             <h3>Estratégias com Recursos Existentes</h3>
-#             <ul>
-#                 <li>Utilizar materiais recicláveis para atividades artísticas e científicas.</li>
-#                 <li>Implementar um sistema de empréstimo de livros e materiais entre professores.</li>
-#                 <li>Buscar formações sobre ensino com recursos limitados para a equipe docente.</li>
-#             </ul>
-#         </div>
-#     """, unsafe_allow_html=True)
-
+# Importa bibliotecas necessárias
 import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
+# Função para carregar os estilos CSS
+def load_css(caminho_arquivo):
+    with open(caminho_arquivo, "r", encoding="utf-8") as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# Carrega CSS centralizado
+load_css("frontend/assets/css/style.css")
+
+# Função para mostrar a tela de materiais pedagógicos
 def material(conn, nome_escola_marta, df_escolas):
-    """
-    Função para mostrar a análise de materiais pedagógicos
-    """
-    
     # Busca dados de materiais da escola de Marta
-    # ✅ CORREÇÃO: nome_escola_marta é uma string, não um DataFrame
-    em_mat_df = pd.read_sql(
+    em_mat = pd.read_sql(
         """
         SELECT
             m.IN_MATERIAL_PED_CIENTIFICO AS material_cientifico,
@@ -189,27 +24,39 @@ def material(conn, nome_escola_marta, df_escolas):
             m.IN_INTERNET AS internet,
             m.QT_EQUIP_MULTIMIDIA AS equipamentos_multimidia
         FROM escola e
-        JOIN materiais m ON m.escola_id = e.id
+        JOIN materiais m
+            ON m.escola_id = e.id
         WHERE e.NO_ENTIDADE = %s
         """,
         conn,
-        params=(nome_escola_marta,)  # ✅ Isso está correto - é uma string
+        params=(nome_escola_marta,)
     )
 
-    # Função auxiliar para converter valores booleanos em texto
+    # Função auxiliar para converter valores booleanos em texto "Sim" ou "Não"
     def bool_to_text(flag: int) -> str:
         return "Sim" if bool(flag) else "Não"
 
     # Processa os dados da escola de Marta
-    if not em_mat_df.empty:
+    if not em_mat.empty:
+        with st.expander("ⓘ Com dúvidas? Clique para abrir o glossário"):
+            st.markdown("""
+            1. **Material Científico** ─ Instrumentos e materiais socioculturais e/ou pedagógicos em uso na escola para o desenvolvimento de atividades de ensino e aprendizagem ─ Conjunto de materiais científicos;
+            2. **Material Artístico** ─ Instrumentos e materiais socioculturais e/ou pedagógicos em uso na escola para o desenvolvimento de atividades de ensino e aprendizagem - Materiais para atividades culturais e artísticas;
+            3. **Material Esportivo** ─ Instrumentos e materiais socioculturais e/ou pedagógicos em uso na escola para o desenvolvimento de atividades de ensino e aprendizagem - Materiais para prática desportiva e recreação;
+            4. **Internet** ─ Acesso à Internet;
+            5. **Equipamentos de Multimídia** ─ Quantidade de Projetores Multimídia (Datashow).
+            """)
+
+        # Extrai os valores da primeira linha e converte para texto
         em_vals = {
-            'material_cientifico': bool_to_text(em_mat_df.loc[0, 'material_cientifico']),
-            'material_artistico': bool_to_text(em_mat_df.loc[0, 'material_artistico']),
-            'material_esportivo': bool_to_text(em_mat_df.loc[0, 'material_esportivo']),
-            'internet': bool_to_text(em_mat_df.loc[0, 'internet']),
-            'equipamentos_multimidia': int(em_mat_df.loc[0, 'equipamentos_multimidia'])
+            'material_cientifico': bool_to_text(em_mat.loc[0, 'material_cientifico']),
+            'material_artistico': bool_to_text(em_mat.loc[0, 'material_artistico']),
+            'material_esportivo': bool_to_text(em_mat.loc[0, 'material_esportivo']),
+            'internet': bool_to_text(em_mat.loc[0, 'internet']),
+            'equipamentos_multimidia': int(em_mat.loc[0, 'equipamentos_multimidia'])
         }
     else:
+        # Se não encontrou dados, define todos como "Não" ou 0
         em_vals = {
             'material_cientifico': "Não",
             'material_artistico': "Não",
@@ -219,11 +66,11 @@ def material(conn, nome_escola_marta, df_escolas):
         }
 
     # Busca dados de materiais das escolas filtradas
-    # ✅ CORREÇÃO: Verificar se df_escolas não está vazio antes de usar
     if not df_escolas.empty:
-        # Cria placeholders dinâmicos para a query
+        # Cria placeholders dinâmicos para a query baseado no número de escolas
         placeholders = ", ".join(["%s"] * len(df_escolas))
         
+        # Monta query SQL para buscar dados de todas as escolas filtradas
         sql = f"""
             SELECT
                 e.NO_ENTIDADE,
@@ -239,13 +86,14 @@ def material(conn, nome_escola_marta, df_escolas):
             WHERE e.NO_ENTIDADE IN ({placeholders})
         """
         
-        # ✅ CORREÇÃO: Usar .tolist() para converter o DataFrame em lista
+        # Executa a query com os nomes das escolas filtradas
         params = df_escolas["escola_nome"].tolist()
         escolas_filtradas_mat = pd.read_sql(sql, conn, params=params)
     else:
+        # Se não há escolas filtradas, cria DataFrame vazio
         escolas_filtradas_mat = pd.DataFrame()
 
-    # Layout de duas colunas
+    # Cria layout de duas colunas
     col1, col2 = st.columns(2)
 
     # Coluna 1: Dados da escola de Marta
@@ -257,13 +105,38 @@ def material(conn, nome_escola_marta, df_escolas):
         st.markdown(f"""
             <p class="p-title-anal_espc">{nome_escola_marta}</p>
         """, unsafe_allow_html=True)
+
+        # KPI 1: Material Científico
+        st.markdown(f"""
+            <div class="kpi-card anal-espc-kpi-card">
+                <div class="kpi-label">Material Científico</div>
+                <div class="kpi-value anal-espc-kpi-value">{em_vals['material_cientifico']}</div>
+            </div>
+        """, unsafe_allow_html=True)
         
-        # Exibe métricas usando st.metric
-        st.metric("Material Científico", em_vals['material_cientifico'], border=True)
-        st.metric("Material Artístico", em_vals['material_artistico'], border=True)
-        st.metric("Material Esportivo", em_vals['material_esportivo'], border=True)
-        st.metric("Internet", em_vals['internet'], border=True)
-        st.metric("Equipamentos Multimídia", em_vals['equipamentos_multimidia'], border=True)
+        # KPI 2: Material Artístico
+        st.markdown(f"""
+            <div class="kpi-card anal-espc-kpi-card">
+                <div class="kpi-label">Material Artístico</div>
+                <div class="kpi-value anal-espc-kpi-value">{em_vals['material_artistico']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # KPI 3: Material Esportivo
+        st.markdown(f"""
+            <div class="kpi-card anal-espc-kpi-card">
+                <div class="kpi-label">Material Esportivo</div>
+                <div class="kpi-value anal-espc-kpi-value">{em_vals['material_esportivo']}</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # KPI 4: Internet
+        st.markdown(f"""
+            <div class="kpi-card anal-espc-kpi-card">
+                <div class="kpi-label">Internet</div>
+                <div class="kpi-value anal-espc-kpi-value">{em_vals['internet']}</div>
+            </div>
+        """, unsafe_allow_html=True)
 
     # Coluna 2: Gráficos das escolas filtradas
     with col2:
@@ -271,11 +144,72 @@ def material(conn, nome_escola_marta, df_escolas):
             <h1 class="h1-title-anal_espc">Escolas Filtradas</h1>
         """, unsafe_allow_html=True)
         
-        # ✅ CORREÇÃO: Verificar se há dados antes de criar gráficos
         if not escolas_filtradas_mat.empty:
+            qt_escolas_selecionadas = f"{len(escolas_filtradas_mat):,.0f}"
+            qt_escolas_selecionadas_formatted = qt_escolas_selecionadas.replace(",", "@").replace(".", ",").replace("@", ".")
+
             st.markdown(f"""
-                <p class="p-title-anal_espc">{len(escolas_filtradas_mat)} escolas selecionadas</p>
+                <p class="p-title-anal_espc"><b>{qt_escolas_selecionadas_formatted}</b> escolas filtradas</p>
             """, unsafe_allow_html=True)
+            
+            # Define função para criar gráfico de materiais
+            def criar_grafico_material(dados_df, campo, titulo):
+                if not dados_df.empty:
+                    # Calcula porcentagem por tipo de localização
+                    dados_agrupados = dados_df.groupby('localizacao')[campo].mean().reset_index()
+                    dados_agrupados[campo] = dados_agrupados[campo] * 100
+                    
+                    # Cria gráfico de barras
+                    fig = px.bar(
+                        dados_agrupados,
+                        x='localizacao',
+                        y=campo,
+                        title=f'{titulo} (%)',
+                        labels={'localizacao': 'Localização', campo: 'Porcentagem (%)'},
+                        color='localizacao',
+                        color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
+                    )
+                    
+                    # Ajusta layout do gráfico com estilo personalizado
+                    fig.update_layout(
+                        showlegend=False,
+                        height=300,
+                        margin=dict(l=20, r=20, t=70, b=20),
+                        plot_bgcolor='white',
+                        paper_bgcolor='white',
+                        title={
+                            'text': f'{titulo} (%)',
+                            'x': 0.5,
+                            'xanchor': 'center',
+                            'font': {
+                                'size': 20,
+                                'color': '#4a4a4a'
+                            }
+                        },
+                        
+                        # Estiliza os eixos
+                        xaxis=dict(
+                            gridcolor='#f0f0f0',
+                            linecolor='#d0d0d0',
+                            title_font=dict(size=12, color='#4a4a4a')
+                        ),
+                        yaxis=dict(
+                            gridcolor='#f0f0f0',
+                            linecolor='#d0d0d0',
+                            title_font=dict(size=12, color='#4a4a4a'),
+                            range=[0, 100]
+                        )
+                    )
+                    
+                    # Adiciona valores no topo das barras
+                    fig.update_traces(
+                        texttemplate='%{y:.1f}%', 
+                        textposition='inside',
+                        textfont=dict(size=18, color='white')
+                    )
+                    
+                    return fig
+                return None
             
             # Lista dos indicadores de materiais para criar gráficos
             indicadores_materiais = [
@@ -285,63 +219,12 @@ def material(conn, nome_escola_marta, df_escolas):
                 ('internet', 'Internet')
             ]
             
-            # Para cada indicador, cria um gráfico
+            # Para cada indicador de material, cria um gráfico
             for campo, titulo in indicadores_materiais:
-                # Calcula porcentagem por tipo de localização
-                dados_agrupados = escolas_filtradas_mat.groupby('localizacao')[campo].mean().reset_index()
-                dados_agrupados[campo] = dados_agrupados[campo] * 100
-                
-                # Cria gráfico de barras
-                fig = px.bar(
-                    dados_agrupados,
-                    x='localizacao',
-                    y=campo,
-                    title=f'{titulo} (%)',
-                    labels={'localizacao': 'Localização', campo: 'Porcentagem (%)'},
-                    color='localizacao',
-                    color_discrete_map={'Urbana': '#1f77b4', 'Rural': '#ff7f0e'}
-                )
-                
-                # Ajusta layout do gráfico
-                fig.update_layout(
-                    showlegend=False,
-                    height=300,
-                    margin=dict(l=20, r=20, t=40, b=20)
-                )
-                
-                # Adiciona valores no topo das barras
-                fig.update_traces(texttemplate='%{y:.1f}%', textposition='outside')
-                
-                # Exibe o gráfico
-                st.plotly_chart(fig, use_container_width=True)
-            
-            # Gráfico especial para equipamentos multimídia (quantidade)
-            st.markdown("<h3>Equipamentos Multimídia</h3>", unsafe_allow_html=True)
-            
-            # Calcula estatísticas de equipamentos por localização
-            equipamentos_stats = escolas_filtradas_mat.groupby('localizacao')['equipamentos_multimidia'].agg(['mean', 'median', 'max']).reset_index()
-            equipamentos_stats.columns = ['localizacao', 'media', 'mediana', 'maximo']
-            
-            # Gráfico de barras para equipamentos
-            fig_equip = px.bar(
-                equipamentos_stats,
-                x='localizacao',
-                y='media',
-                title='Quantidade Média de Equipamentos Multimídia',
-                labels={'localizacao': 'Localização', 'media': 'Quantidade Média'},
-                color='localizacao',
-                color_discrete_map={'Urbana': '#1f77b4', 'Rural': '#ff7f0e'}
-            )
-            
-            fig_equip.update_layout(
-                showlegend=False,
-                height=300,
-                margin=dict(l=20, r=20, t=40, b=20)
-            )
-            
-            fig_equip.update_traces(texttemplate='%{y:.1f}', textposition='outside')
-            st.plotly_chart(fig_equip, use_container_width=True)
-            
+                fig = criar_grafico_material(escolas_filtradas_mat, campo, titulo)
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+
         else:
             # Se não há escolas filtradas, exibe mensagem informativa
             st.markdown("""
@@ -349,3 +232,118 @@ def material(conn, nome_escola_marta, df_escolas):
             """, unsafe_allow_html=True)
             
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")
+    
+    # Seção de análise de equipamentos multimídia - fora das colunas
+    if not escolas_filtradas_mat.empty:
+        st.markdown("<hr>", unsafe_allow_html=True)
+        
+        # KPI 5: Quantidade de Equipamentos Multimídia
+        equipamentos_formatted = f"{em_vals['equipamentos_multimidia']:,.0f}".replace(",", "@").replace(".", ",").replace("@", ".")
+        st.markdown(f"""
+            <div class="kpi-card">
+                <div class="kpi-label">Quantidade de Equipamentos Multimídia (EM) da Escola de Marta</div>
+                <div class="kpi-value">{equipamentos_formatted}</div>
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Divide em 2 colunas para os gráficos de equipamentos multimídia
+        col_eq1, col_eq2 = st.columns(2)
+        
+        with col_eq1:
+            # Gráfico de barras - Média por localização
+            equipamentos_stats = escolas_filtradas_mat.groupby('localizacao')['equipamentos_multimidia'].mean().reset_index()
+            
+            fig_media = px.bar(
+                equipamentos_stats,
+                x='localizacao',
+                y='equipamentos_multimidia',
+                title='Média de EM das Escolas Filtradas',
+                labels={'localizacao': 'Localização', 'equipamentos_multimidia': 'Quantidade Média'},
+                color='localizacao',
+                color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
+            )
+            
+            fig_media.update_layout(
+                showlegend=False,
+                height=400,
+                margin=dict(l=20, r=20, t=70, b=20),
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                title={
+                    'text': 'Média de EM das Escolas Filtradas',
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'font': {
+                        'size': 16,
+                        'color': '#4a4a4a'
+                    }
+                },
+                xaxis=dict(
+                    gridcolor='#f0f0f0',
+                    linecolor='#d0d0d0',
+                    title_font=dict(size=12, color='#4a4a4a')
+                ),
+                yaxis=dict(
+                    gridcolor='#f0f0f0',
+                    linecolor='#d0d0d0',
+                    title_font=dict(size=12, color='#4a4a4a')
+                )
+            )
+            
+            fig_media.update_traces(
+                texttemplate='%{y:.1f}', 
+                textposition='inside',
+                textfont=dict(size=14, color='white')
+            )
+            
+            st.plotly_chart(fig_media, use_container_width=True)
+        
+        with col_eq2:
+            # Box Plot - Distribuição por localização
+            fig_box = px.box(
+                escolas_filtradas_mat,
+                x='localizacao',
+                y='equipamentos_multimidia',
+                title='Distribuição de EM das Escolas Filtradas',
+                labels={'localizacao': 'Localização', 'equipamentos_multimidia': 'Quantidade'},
+                color='localizacao',
+                color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
+            )
+            
+            fig_box.update_layout(
+                showlegend=False,
+                height=400,
+                margin=dict(l=20, r=20, t=70, b=20),
+                plot_bgcolor='white',
+                paper_bgcolor='white',
+                title={
+                    'text': 'Distribuição de EM das Escolas Filtradas',
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'font': {
+                        'size': 16,
+                        'color': '#4a4a4a'
+                    }
+                },
+                xaxis=dict(
+                    gridcolor='#f0f0f0',
+                    linecolor='#d0d0d0',
+                    title_font=dict(size=12, color='#4a4a4a')
+                ),
+                yaxis=dict(
+                    gridcolor='#f0f0f0',
+                    linecolor='#d0d0d0',
+                    title_font=dict(size=12, color='#4a4a4a')
+                )
+            )
+            
+            st.plotly_chart(fig_box, use_container_width=True)
+        
+    elif not df_escolas.empty:
+        st.markdown("""
+            <h2 style='color: #4a4a4a; margin-top: 40px;'>📊 Análise de Equipamentos Multimídia</h2>
+        """, unsafe_allow_html=True)
+        
+        st.info("Dados de equipamentos multimídia não disponíveis para as escolas filtradas.")
