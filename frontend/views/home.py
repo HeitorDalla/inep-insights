@@ -236,7 +236,7 @@ def show_home_page (conn):
                 <div class="kpi-label">Água Potável</div>
                 <div class="kpi-value">{formatted_agua_potavel}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_agua}</b> do total das escolas</div>
+                <div class="kpi-caption"><b>{pct_agua}</b> das escolas possuem água potável</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -274,7 +274,7 @@ def show_home_page (conn):
                 <div class="kpi-label">Internet</div>
                 <div class="kpi-value">{formatted_internet}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_internet}</b> do total das escolas possuem internet</div>
+                <div class="kpi-caption"><b>{pct_internet}</b> das escolas possuem internet</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -289,7 +289,7 @@ def show_home_page (conn):
                 <div class="kpi-label">Alimentação</div>
                 <div class="kpi-value">{formatted_alimentacao}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption">{pct_alimentacao} total das escolas que fornecem alimentação</div>
+                <div class="kpi-caption"><b>{pct_alimentacao}</b> das escolas fornecem alimentação</div>
             </div>
         """, unsafe_allow_html=True)
 
