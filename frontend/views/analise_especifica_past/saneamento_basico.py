@@ -13,7 +13,6 @@ def load_css(caminho_arquivo):
 load_css("frontend/assets/css/style.css")
 
 # Função para mostrar a tela de Saneamento Básico
-# Função para mostrar a tela de Saneamento Básico
 def saneamento_basico(conn, nome_escola_marta, df_escolas):
     # Busca dados de saneamento básico da escola de Marta
     em_df = pd.read_sql("""
@@ -35,26 +34,20 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
 
     # Função auxiliar para converter valores booleanos em texto "Sim" ou "Não"
     def bool_to_text(flag: int) -> str:
-        return "Sim" if bool(flag) else "Não"
+        return "Sim ✅" if bool(flag) else "Não ❌"
 
-    # Processa os dados da escola de Marta
-    if not em_df.empty:
-        # Extrai os valores da primeira linha e converte para texto
-        em_agua_potavel        = bool_to_text(em_df.loc[0, "agua_potavel"])
-        em_agua_rede_publica   = bool_to_text(em_df.loc[0, "agua_rede_publica"])
-        em_agua_poco_artesiano = bool_to_text(em_df.loc[0, "agua_poco_artesiano"])
-        # Para campos "inexistente", inverte o valor (se inexistente=1, mostra "Não disponível")
-        em_agua_inexistente    = bool_to_text(1 - em_df.loc[0, "agua_inexistente"])
-        em_esgoto_rede_publica = bool_to_text(em_df.loc[0, "esgoto_rede_publica"])
-        em_esgoto_inexistente  = bool_to_text(1 - em_df.loc[0, "esgoto_inexistente"])
-        em_energia_rede_publica= bool_to_text(em_df.loc[0, "energia_rede_publica"])
-        em_energia_inexistente = bool_to_text(1 - em_df.loc[0, "energia_inexistente"])
-        em_lixo_servico_coleta = bool_to_text(em_df.loc[0, "lixo_servico_coleta"])
-    else:
-        # Se não encontrou dados, define todos como "Não"
-        em_agua_potavel = em_agua_rede_publica = em_agua_poco_artesiano = "Não"
-        em_agua_inexistente = em_esgoto_rede_publica = em_esgoto_inexistente = "Não"
-        em_energia_rede_publica = em_energia_inexistente = em_lixo_servico_coleta = "Não"
+    # Dicionário com as opções de indicadores
+    indicadores_opcoes = {
+        'Água Potável': ('agua_potavel', False),
+        'Água de Rede Pública': ('agua_rede_publica', False),
+        'Água de Poço Artesiano': ('agua_poco_artesiano', False),
+        'Água Disponível': ('agua_inexistente', True),
+        'Esgoto de Rede Pública': ('esgoto_rede_publica', False),
+        'Esgoto Disponível': ('esgoto_inexistente', True),
+        'Energia de Rede Pública': ('energia_rede_publica', False),
+        'Energia Disponível': ('energia_inexistente', True),
+        'Coleta de Lixo': ('lixo_servico_coleta', False)
+    }
 
     # Busca dados de saneamento básico das escolas filtradas
     if not df_escolas.empty:
@@ -90,8 +83,60 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
         # Se não há escolas filtradas, cria DataFrame vazio
         escolas_filtradas_df = pd.DataFrame()
 
-    # Cria layout de duas colunas
+    # Cria layout de duas colunas para títulos
     col1, col2 = st.columns(2)
+    
+    with col1: 
+        st.markdown(f"""
+            <h1 class="h1-title-anal_espc">Escola de Marta</h1>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+            <p class="p-title-anal_espc">{nome_escola_marta}</p>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+            <h1 class="h1-title-anal_espc">Escolas Filtradas</h1>
+        """, unsafe_allow_html=True)
+
+        if not escolas_filtradas_df.empty:
+            qt_escolas_selecionas = f"{len(escolas_filtradas_df):,.0f}"
+            qt_escolas_selecionas_formatted = qt_escolas_selecionas.replace(",", "@").replace(".", ",").replace("@", ".")
+
+            st.markdown(f"""
+                <p class="p-title-anal_espc"><b>{qt_escolas_selecionas_formatted}</b> escolas filtradas</p>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+                <p class="p-title-anal_espc">Nenhuma escola selecionada</p>
+            """, unsafe_allow_html=True)
+
+    # Selectbox para escolher o indicador (com key única)
+    indicador_selecionado = st.selectbox(
+        "Selecione o indicador:",
+        list(indicadores_opcoes.keys()),
+        index=0,
+        key="saneamento_basico_indicador_selectbox"
+    )
+
+    # Obtém o campo e se deve inverter o valor
+    campo_selecionado, inverter_inexistente = indicadores_opcoes[indicador_selecionado]
+
+    # Processa os dados da escola de Marta
+    if not em_df.empty:
+        # Extrai o valor do campo selecionado
+        valor_campo = em_df.loc[0, campo_selecionado]
+        
+        # Aplica inversão se necessário (para campos "inexistente")
+        if inverter_inexistente:
+            valor_campo = 1 - valor_campo
+            
+        # Converte para texto
+        valor_escola_marta = bool_to_text(valor_campo)
+    else:
+        # Se não encontrou dados, define como "Não"
+        valor_escola_marta = "Não"
 
     # Define função para criar gráfico
     def criar_grafico(dados_df, campo, titulo, inverter_inexistente=False):
@@ -158,106 +203,26 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
             return fig
         return None
 
+    # Cria layout de duas colunas para conteúdo
+    col3, col4 = st.columns(2)
+
     # Coluna 1: Dados da escola de Marta
-    with col1:
-        st.markdown("""
-            <h1 class="h1-title-anal_espc">Escola de Marta</h1>
-        """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-            <p class="p-title-anal_espc">{nome_escola_marta}</p>
-        """, unsafe_allow_html=True)
-
-        # KPI 1: Água Potável
+    with col3:
+        # KPI único baseado no indicador selecionado
         st.markdown(f"""
             <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Água Potável</div>
-                <div class="kpi-value anal-espc-kpi-value">{em_agua_potavel}</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # KPI 2: Água de Rede Pública
-        st.markdown(f"""
-            <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Água de Rede Pública</div>
-                <div class="kpi-value anal-espc-kpi-value">{em_agua_rede_publica}</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # KPI 3: Esgoto Disponível
-        st.markdown(f"""
-            <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Esgoto Disponível</div>
-                <div class="kpi-value anal-espc-kpi-value">{em_esgoto_inexistente}</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # KPI 4: Esgoto de Rede Pública
-        st.markdown(f"""
-            <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Esgoto de Rede Pública</div>
-                <div class="kpi-value  anal-espc-kpi-value">{em_esgoto_rede_publica}</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # KPI 5: Energia Disponível
-        st.markdown(f"""
-            <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Energia Disponível</div>
-                <div class="kpi-value anal-espc-kpi-value">{em_energia_inexistente}</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # KPI 6: Energia de Rede Pública
-        st.markdown(f"""
-            <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Energia de Rede Pública</div>
-                <div class="kpi-value anal-espc-kpi-value">{em_energia_rede_publica}</div>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # KPI 7: Coleta de Lixo
-        st.markdown(f"""
-            <div class="kpi-card anal-espc-kpi-card">
-                <div class="kpi-label">Coleta de Lixo</div>
-                <div class="kpi-value anal-espc-kpi-value">{em_lixo_servico_coleta}</div>
+                <div class="kpi-label">{indicador_selecionado}</div>
+                <div class="kpi-value anal-espc-kpi-value">{valor_escola_marta}</div>
             </div>
         """, unsafe_allow_html=True)
 
-    # Coluna 2: Gráficos das escolas filtradas
-    with col2:
-        st.markdown("""
-            <h1 class="h1-title-anal_espc">Escolas Filtradas</h1>
-        """, unsafe_allow_html=True)
-        
+    # Coluna 2: Gráfico das escolas filtradas
+    with col4:
         if not escolas_filtradas_df.empty:
-            qt_escolas_selecionas = f"{len(escolas_filtradas_df):,.0f}"
-            qt_escolas_selecionas_formatted = qt_escolas_selecionas.replace(",", "@").replace(".", ",").replace("@", ".")
-
-            st.markdown(f"""
-                <p class="p-title-anal_espc"><b>{qt_escolas_selecionas_formatted}</b> escolas filtradas</p>
-            """, unsafe_allow_html=True)
-
-            # Lista completa de indicadores para corresponder aos KPIs
-            indicadores = [
-                ('agua_potavel', 'Água Potável', False),
-                ('agua_rede_publica', 'Água de Rede Pública', False),
-                ('esgoto_inexistente', 'Esgoto Disponível', True),  # Adicionado
-                ('esgoto_rede_publica', 'Esgoto de Rede Pública', False),
-                ('energia_inexistente', 'Energia Disponível', True),  # Adicionado
-                ('energia_rede_publica', 'Energia de Rede Pública', False),
-                ('lixo_servico_coleta', 'Coleta de Lixo', False)
-            ]
-
-            # Para cada indicador, cria um gráfico
-            for campo, titulo, inverter_inexistente in indicadores:
-                fig = criar_grafico(escolas_filtradas_df, campo, titulo, inverter_inexistente)
-                if fig:
-                    st.plotly_chart(fig, use_container_width=True)
+            # Cria gráfico para o indicador selecionado
+            fig = criar_grafico(escolas_filtradas_df, campo_selecionado, indicador_selecionado, inverter_inexistente)
+            if fig:
+                st.plotly_chart(fig, use_container_width=True)
         else:
             # Se não há escolas filtradas, exibe mensagem informativa
-            st.markdown("""
-                <p class="p-title-anal_espc">Nenhuma escola selecionada</p>
-            """, unsafe_allow_html=True)
-            
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")

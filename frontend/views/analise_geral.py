@@ -11,15 +11,15 @@ def show_analise_geral_page(conn):
     cursor = conn.cursor()
 
 
-    # # Header principal
-    # st.markdown("""
-    #     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-    #                 padding: 2rem; margin: -1rem -1rem 2rem -1rem; border-radius: 0 0 20px 20px;">
-    #         <h1 style="color: white; text-align: center; font-size: 2.5rem; margin-bottom: 0.5rem;">
-    #             📊 Análise Geral da Educação Brasileira
-    #         </h1>
-    #     </div>
-    # """, unsafe_allow_html=True)
+    # Header principal
+    st.markdown("""
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+                    padding: 2rem; margin: -1rem -1rem 2rem -1rem; border-radius: 0 0 20px 20px;">
+            <h1 style="color: white; text-align: center; font-size: 2.5rem; margin-bottom: 0.5rem;">
+                📊 Análise Geral da Educação Brasileira
+            </h1>
+        </div>
+    """, unsafe_allow_html=True)
     
 
     # Sidebar com filtros
