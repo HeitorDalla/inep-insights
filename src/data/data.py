@@ -23,7 +23,7 @@ colunas_uteis = [
     'IN_LIXO_SERVICO_COLETA',  # Lixo coletado por serviço de limpeza (Sim/Não)
 
     # Infraestrutura
-    'IN_ALIMENTACAO',  # Oferece alimentação escolar (Sim/Não)    # MUDAR DE TABELA
+    'IN_ALIMENTACAO',  # Oferece alimentação escolar (Sim/Não)
     'IN_PATIO_COBERTO',  # Possui pátio coberto (Sim/Não)
     'IN_BIBLIOTECA',  # Possui biblioteca (Sim/Não)
     'IN_LABORATORIO_CIENCIAS',  # Possui laboratório de ciências (Sim/Não)

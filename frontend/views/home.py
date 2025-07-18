@@ -38,7 +38,7 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 # Função principal: renderiza a página Home
 def show_home_page (conn):
 
-    # Configuração inicial da sidebar com estilo moderno
+    # Configuração inicial da sidebar
     st.sidebar.markdown("""
         <div class="sidebar-title">
             <span style="font-size:1.1em;">Filtros de Pesquisa</span> 
@@ -73,8 +73,7 @@ def show_home_page (conn):
         uf_unique = pd.read_sql("""
             SELECT DISTINCT uf.NO_UF
             FROM uf
-            JOIN regiao
-                ON uf.regiao_id = regiao.id
+            JOIN regiao ON uf.regiao_id = regiao.id
             WHERE regiao.NO_REGIAO = %s
             ORDER BY uf.NO_UF ASC
         """, conn, params=(regiao_selecionada,))

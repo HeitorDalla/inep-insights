@@ -2,6 +2,19 @@
 from streamlit_option_menu import option_menu
 import streamlit as st
 
+# Configuração da página Streamlit + menu de contexto
+st.set_page_config(
+    page_title="Painel de Indicadores",     # Título da aba do navegador
+    page_icon="📊",                         # Ícone que aparece na aba e no header
+    layout="wide",                          # Usa todo o espaço horizontal
+    initial_sidebar_state="collapsed",      # Sidebar começa recolhida
+    menu_items={                            # Itens do menu de contexto (canto superior direito)
+        'Get help': 'https://github.com/HeitorDalla/projeto-final',
+        'Report a bug': 'https://github.com/HeitorDalla/projeto-final/issues',
+        'About': "Aplicativo desenvolvido por Matheus V. Nellessen, Flávia ... e Heitor Villa"
+    }
+)
+
 selected = option_menu(
     menu_title=None,
     options=["Home", "Anal. Geral", "Anal. Específica"],
@@ -28,18 +41,6 @@ from frontend.views.home import show_home_page
 from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
 
-# Configuração da página Streamlit + menu de contexto
-st.set_page_config(
-    page_title="Painel de Indicadores",     # Título da aba do navegador
-    page_icon="📊",                         # Ícone que aparece na aba e no header
-    layout="wide",                          # Usa todo o espaço horizontal
-    initial_sidebar_state="collapsed",      # Sidebar começa recolhida
-    menu_items={                            # Itens do menu de contexto (canto superior direito)
-        'Get help': 'https://github.com/HeitorDalla/projeto-final',
-        'Report a bug': 'https://github.com/HeitorDalla/projeto-final/issues',
-        'About': "Aplicativo desenvolvido por Matheus V. Nellessen, Flávia ... e Heitor Villa"
-    }
-)
 
 # Estilos
 
@@ -50,6 +51,7 @@ def load_css(caminho_arquivo):
 
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")
+
 
 # Sidebar
 
