@@ -34,7 +34,7 @@ def create_database(conn, cursor):
         );
     """)
 
-    # 4. Tabela para representar a localização da escola: Urbana (1) ou Rural (2)
+    # 4. Criação da tabela de tipo de localização da escola (zona urbana ou rural) Urbana (1) ou Rural (2)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tipo_localizacao (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -50,7 +50,7 @@ def create_database(conn, cursor):
         );
     """)
 
-    # 5. Tabela principal que representa as escolas
+    # 5. Criação da tabela principal de escolas, vinculada ao município e ao tipo de localização
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS escola (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,

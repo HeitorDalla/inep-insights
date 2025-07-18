@@ -8,7 +8,7 @@ import requests
 
 # API externa: carregamento de coordenadas dos municípios
 
-@st.cache_data # memoiza o resultado para não recarregar a cada interação
+@st.cache_data # memoriza o resultado para não recarregar a cada interação
 def load_municipios_data():
     # Busca CSV remoto com coordenadas geográficas dos municípios e retorna um DataFrame
     url = "https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/main/csv/municipios.csv"
@@ -38,13 +38,14 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 # Função principal: renderiza a página Home
 def show_home_page (conn):
 
-    # Configuração inicial da sidebar
+    # Configuração inicial / principal da sidebar com estilo moderno
     st.sidebar.markdown("""
         <div class="sidebar-title">
             <span style="font-size:1.1em;">Filtros de Pesquisa</span> 
         </div>
     """, unsafe_allow_html=True)
-        
+
+
     # Regiões
 
     # SQL Query p/ ler as regiões únicas e ordena
@@ -57,6 +58,7 @@ def show_home_page (conn):
     # Adiciona opção 'Todos' para seleção ampla
     regiao_options = ['Todos'] + regiao_unique['NO_REGIAO'].tolist()
     regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_options)
+
 
     # UFs
 
@@ -73,7 +75,8 @@ def show_home_page (conn):
         uf_unique = pd.read_sql("""
             SELECT DISTINCT uf.NO_UF
             FROM uf
-            JOIN regiao ON uf.regiao_id = regiao.id
+            JOIN regiao
+                ON uf.regiao_id = regiao.id
             WHERE regiao.NO_REGIAO = %s
             ORDER BY uf.NO_UF ASC
         """, conn, params=(regiao_selecionada,))
@@ -81,6 +84,7 @@ def show_home_page (conn):
     # Adiciona opção 'Todos' para seleção ampla
     uf_options = ['Todos'] + uf_unique['NO_UF'].tolist()
     uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_options)
+
 
     # Municípios
 
@@ -114,7 +118,7 @@ def show_home_page (conn):
                 ORDER BY m.NO_MUNICIPIO ASC
             """, conn, params=(uf_selecionada,))
 
-    # Adiciona opção 'Todos' para seleção ampla
+    # Adiciona opção 'Todos' para seleção ampla dos Municípios
     municipios_options = ['Todos'] + municipio_unique['NO_MUNICIPIO'].tolist()
     municipio_selecionado = st.sidebar.selectbox("Selecione o município:", municipios_options)
 
@@ -141,7 +145,7 @@ def show_home_page (conn):
     # Junta != filtros de WHERE
     where_consulta = 'WHERE ' + ' AND '.join(where) if where else ''
 
-    # Consulta de KPIs agregados
+    # Retorno de dados agregados para indicar em KPIs 
     kpi_query = f'''
         SELECT
             COUNT(DISTINCT e.id)            AS total_escolas,
@@ -187,9 +191,9 @@ def show_home_page (conn):
     # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
     media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
 
-    # Exibição de KPI cards
+    # Exibição de KPI cards 
 
-    # Função auxiliar para formatação de grandes números
+    # Função auxiliar para formatação dos BIG NUMBERS
     def format_number(value: int) -> str:
         if value >= 10000:
             base = value / 1000
@@ -235,7 +239,7 @@ def show_home_page (conn):
                 <div class="kpi-label">Água Potável</div>
                 <div class="kpi-value">{formatted_agua_potavel}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_agua}</b> das escolas possuem água potável</div>
+                <div class="kpi-caption"><b>{pct_agua}</b> do total das escolas</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -273,7 +277,7 @@ def show_home_page (conn):
                 <div class="kpi-label">Internet</div>
                 <div class="kpi-value">{formatted_internet}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_internet}</b> das escolas possuem internet</div>
+                <div class="kpi-caption"><b>{pct_internet}</b> do total das escolas possuem internet</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -288,7 +292,7 @@ def show_home_page (conn):
                 <div class="kpi-label">Alimentação</div>
                 <div class="kpi-value">{formatted_alimentacao}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_alimentacao}</b> das escolas fornecem alimentação</div>
+                <div class="kpi-caption">{pct_alimentacao} total das escolas que fornecem alimentação</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -297,8 +301,8 @@ def show_home_page (conn):
 
 
     # Seção de mapa interativo dentro de expander
-    
-    # Mapa para representar as Escolas que possuem Infraestrutura
+    # Mostra no mapa, Escolas com base nas suas localizações, que possuem Infraestrutura básica
+
     with st.expander("Clique para visualizar o mapa."):
         # Consulta detalhada para scatter_mapbox
         escolas_query = f'''
@@ -319,10 +323,10 @@ def show_home_page (conn):
         '''
         
         df_escolas = pd.read_sql(escolas_query, conn, params=params)
-        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True) # renomeia coluna para merge com coordenadas
+        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True) # Renomeia coluna para merge com coordenadas
         
         if not df_escolas.empty:
-            # padroniza texto para maiúsculas sem acento para merge posterior
+            # Padroniza texto para maiúsculas sem acento para merge posterior
             df_escolas['municipio_upper'] = (
                 df_escolas['municipio']
                 .str.upper()
