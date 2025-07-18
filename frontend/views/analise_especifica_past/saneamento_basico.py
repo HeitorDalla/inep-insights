@@ -34,7 +34,7 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
 
     # Função auxiliar para converter valores booleanos em texto "Sim" ou "Não"
     def bool_to_text(flag: int) -> str:
-        return "Sim" if bool(flag) else "Não"
+        return "Sim ✅" if bool(flag) else "Não ❌"
 
     # Dicionário com as opções de indicadores
     indicadores_opcoes = {
@@ -48,31 +48,6 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
         'Energia Disponível': ('energia_inexistente', True),
         'Coleta de Lixo': ('lixo_servico_coleta', False)
     }
-
-    # Selectbox para escolher o indicador
-    indicador_selecionado = st.selectbox(
-        "Selecione o indicador de saneamento:",
-        list(indicadores_opcoes.keys()),
-        index=0
-    )
-
-    # Obtém o campo e se deve inverter o valor
-    campo_selecionado, inverter_inexistente = indicadores_opcoes[indicador_selecionado]
-
-    # Processa os dados da escola de Marta
-    if not em_df.empty:
-        # Extrai o valor do campo selecionado
-        valor_campo = em_df.loc[0, campo_selecionado]
-        
-        # Aplica inversão se necessário (para campos "inexistente")
-        if inverter_inexistente:
-            valor_campo = 1 - valor_campo
-            
-        # Converte para texto
-        valor_escola_marta = bool_to_text(valor_campo)
-    else:
-        # Se não encontrou dados, define como "Não"
-        valor_escola_marta = "Não"
 
     # Busca dados de saneamento básico das escolas filtradas
     if not df_escolas.empty:
@@ -108,8 +83,60 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
         # Se não há escolas filtradas, cria DataFrame vazio
         escolas_filtradas_df = pd.DataFrame()
 
-    # Cria layout de duas colunas
+    # Cria layout de duas colunas para títulos
     col1, col2 = st.columns(2)
+    
+    with col1: 
+        st.markdown(f"""
+            <h1 class="h1-title-anal_espc">Escola de Marta</h1>
+        """, unsafe_allow_html=True)
+        
+        st.markdown(f"""
+            <p class="p-title-anal_espc">{nome_escola_marta}</p>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown(f"""
+            <h1 class="h1-title-anal_espc">Escolas Filtradas</h1>
+        """, unsafe_allow_html=True)
+
+        if not escolas_filtradas_df.empty:
+            qt_escolas_selecionas = f"{len(escolas_filtradas_df):,.0f}"
+            qt_escolas_selecionas_formatted = qt_escolas_selecionas.replace(",", "@").replace(".", ",").replace("@", ".")
+
+            st.markdown(f"""
+                <p class="p-title-anal_espc"><b>{qt_escolas_selecionas_formatted}</b> escolas filtradas</p>
+            """, unsafe_allow_html=True)
+        else:
+            st.markdown("""
+                <p class="p-title-anal_espc">Nenhuma escola selecionada</p>
+            """, unsafe_allow_html=True)
+
+    # Selectbox para escolher o indicador (com key única)
+    indicador_selecionado = st.selectbox(
+        "Selecione o indicador:",
+        list(indicadores_opcoes.keys()),
+        index=0,
+        key="saneamento_basico_indicador_selectbox"
+    )
+
+    # Obtém o campo e se deve inverter o valor
+    campo_selecionado, inverter_inexistente = indicadores_opcoes[indicador_selecionado]
+
+    # Processa os dados da escola de Marta
+    if not em_df.empty:
+        # Extrai o valor do campo selecionado
+        valor_campo = em_df.loc[0, campo_selecionado]
+        
+        # Aplica inversão se necessário (para campos "inexistente")
+        if inverter_inexistente:
+            valor_campo = 1 - valor_campo
+            
+        # Converte para texto
+        valor_escola_marta = bool_to_text(valor_campo)
+    else:
+        # Se não encontrou dados, define como "Não"
+        valor_escola_marta = "Não"
 
     # Define função para criar gráfico
     def criar_grafico(dados_df, campo, titulo, inverter_inexistente=False):
@@ -176,16 +203,11 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
             return fig
         return None
 
-    # Coluna 1: Dados da escola de Marta
-    with col1:
-        st.markdown(f"""
-            <h1 class="h1-title-anal_espc">Escola de Marta</h1>
-        """, unsafe_allow_html=True)
-        
-        st.markdown(f"""
-            <p class="p-title-anal_espc">{nome_escola_marta}</p>
-        """, unsafe_allow_html=True)
+    # Cria layout de duas colunas para conteúdo
+    col3, col4 = st.columns(2)
 
+    # Coluna 1: Dados da escola de Marta
+    with col3:
         # KPI único baseado no indicador selecionado
         st.markdown(f"""
             <div class="kpi-card anal-espc-kpi-card">
@@ -195,27 +217,12 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
         """, unsafe_allow_html=True)
 
     # Coluna 2: Gráfico das escolas filtradas
-    with col2:
-        st.markdown(f"""
-            <h1 class="h1-title-anal_espc">Escolas Filtradas</h1>
-        """, unsafe_allow_html=True)
-        
+    with col4:
         if not escolas_filtradas_df.empty:
-            qt_escolas_selecionas = f"{len(escolas_filtradas_df):,.0f}"
-            qt_escolas_selecionas_formatted = qt_escolas_selecionas.replace(",", "@").replace(".", ",").replace("@", ".")
-
-            st.markdown(f"""
-                <p class="p-title-anal_espc"><b>{qt_escolas_selecionas_formatted}</b> escolas filtradas</p>
-            """, unsafe_allow_html=True)
-
             # Cria gráfico para o indicador selecionado
             fig = criar_grafico(escolas_filtradas_df, campo_selecionado, indicador_selecionado, inverter_inexistente)
             if fig:
                 st.plotly_chart(fig, use_container_width=True)
         else:
             # Se não há escolas filtradas, exibe mensagem informativa
-            st.markdown("""
-                <p class="p-title-anal_espc">Nenhuma escola selecionada</p>
-            """, unsafe_allow_html=True)
-            
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")
