@@ -1,3 +1,4 @@
+# Importações necessárias para inicialização do banco de dados
 from src.database.get_connection import get_connection
 from src.database.create_database import create_database
 from src.database.populate_database import populate_database
