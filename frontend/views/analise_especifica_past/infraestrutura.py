@@ -40,7 +40,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
 
     # Função auxiliar para converter valores booleanos em texto "Sim" ou "Não"
     def bool_to_text(flag: int) -> str:
-        return "Sim" if bool(flag) else "Não"
+        return "Sim ✅" if bool(flag) else "Não ❌"
 
     # Processa os dados da escola de Marta
     if not em_inf.empty:
