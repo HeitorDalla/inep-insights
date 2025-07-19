@@ -17,5 +17,5 @@ def inicializar_database ():
     create_database(conn, cursor) # Cria as tabelas do banco de dados (caso não existam)
     populate_database(conn, cursor) # Popula o banco com dados iniciais necessários para o funcionamento do sistema
 
-# Retorna a conexão e cursor para uso posterior 
+    # Retorna a conexão e cursor para uso posterior 
     return conn, cursor

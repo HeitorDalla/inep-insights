@@ -1,4 +1,4 @@
-    # Função responsável por criar todas as tabelas do banco de dados
+# Função responsável por criar todas as tabelas do banco de dados
 def create_database(conn, cursor):
     """
     Executa todos os comandos DDL para criar o banco e as tabelas normalizadas.

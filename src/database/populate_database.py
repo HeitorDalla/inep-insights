@@ -221,4 +221,5 @@ def populate_database(conn, cursor):
         # Em caso de erro, desfaz todas as inserções da transação
     except Exception as e:
         conn.rollback()
+        
         raise e # Lança novamente o erro para que possa ser tratado ou exibido
