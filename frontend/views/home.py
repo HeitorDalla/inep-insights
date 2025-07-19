@@ -11,7 +11,7 @@ from frontend.utils.shared import carregar_municipios, safe_int, format_number
 
 # API externa: carregamento de coordenadas dos municípios
 
-@st.cache_data # memoiza o resultado para não recarregar a cada interação
+@st.cache_data # memoriza o resultado para não recarregar a cada interação
 def load_municipios_data():
     # Busca CSV remoto com coordenadas geográficas dos municípios e retorna um DataFrame
     url = "https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/main/csv/municipios.csv"
@@ -79,7 +79,7 @@ def show_home_page (conn, filtros):
     # Junta != filtros de WHERE
     where_consulta = 'WHERE ' + ' AND '.join(where) if where else ''
 
-    # Consulta de KPIs agregados
+    # Retorno de dados agregados para indicar em KPIs 
     kpi_query = f'''
         SELECT
             COUNT(DISTINCT e.id)            AS total_escolas,
@@ -160,7 +160,7 @@ def show_home_page (conn, filtros):
                 <div class="kpi-label">Água Potável</div>
                 <div class="kpi-value">{formatted_agua_potavel}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_agua}</b> das escolas possuem água potável</div>
+                <div class="kpi-caption"><b>{pct_agua}</b> do total das escolas</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -198,7 +198,7 @@ def show_home_page (conn, filtros):
                 <div class="kpi-label">Internet</div>
                 <div class="kpi-value">{formatted_internet}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_internet}</b> das escolas possuem internet</div>
+                <div class="kpi-caption"><b>{pct_internet}</b> do total das escolas possuem internet</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -213,7 +213,7 @@ def show_home_page (conn, filtros):
                 <div class="kpi-label">Alimentação</div>
                 <div class="kpi-value">{formatted_alimentacao}</div>
                 <div class="kpi-delta"></div>
-                <div class="kpi-caption"><b>{pct_alimentacao}</b> das escolas fornecem alimentação</div>
+                <div class="kpi-caption">{pct_alimentacao} total das escolas que fornecem alimentação</div>
             </div>
         """, unsafe_allow_html=True)
 
@@ -222,8 +222,8 @@ def show_home_page (conn, filtros):
 
 
     # Seção de mapa interativo dentro de expander
-    
-    # Mapa para representar as Escolas que possuem Infraestrutura
+    # Mostra no mapa, Escolas com base nas suas localizações, que possuem Infraestrutura básica
+
     with st.expander("Clique para visualizar o mapa."):
         # Consulta detalhada para scatter_mapbox
         escolas_query = f'''
@@ -244,10 +244,10 @@ def show_home_page (conn, filtros):
         '''
         
         df_escolas = pd.read_sql(escolas_query, conn, params=params)
-        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True) # renomeia coluna para merge com coordenadas
+        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True) # Renomeia coluna para merge com coordenadas
         
         if not df_escolas.empty:
-            # padroniza texto para maiúsculas sem acento para merge posterior
+            # Padroniza texto para maiúsculas sem acento para merge posterior
             df_escolas['municipio_upper'] = (
                 df_escolas['municipio']
                 .str.upper()

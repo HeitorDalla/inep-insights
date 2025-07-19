@@ -1,6 +1,5 @@
 :root {
     --fonte: 'Segoe UI', sans-serif;
-
 }
 
 .h1-sidebar-home {
@@ -8,36 +7,29 @@
     font-family: var(--fonte);
 }
 
+
 .h1-title-anal_espc {
-    text-align: center;
-    color: #4a4a4a;
-    font-family: var(--fonte);
+    font-size: 2.5em !important;
+    text-align: center !important;
+    color: #4a4a4a !important;
+    font-family: var(--fonte) !important;
+}
+
+.h2-anal-geral {
+    font-size: 2.2em !important;
+    font-weight: 700 !important;
+    text-align: left !important;
+    color: #4a4a4a !important;
+    font-family: var(--fonte) !important;
 }
 
 .p-title-anal_espc {
-    text-align: center;
-    color: #4a4a4a;
-    font-family: var(--fonte);
+    font-size: 1.25em !important;
+    text-align: center !important;
+    color: #4a4a4a !important;
+    font-family: var(--fonte) !important;
 }
 
-h3 {
-    text-align: center;
-    color: #1b2d53;
-    font-family: var(--fonte);
-    font-weight: 600;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-h3:after {
-    content: "";
-    display: block;
-    width: 80px;
-    height: 3px;
-    background: linear-gradient(90deg, #1b2d53, #3a7bd5);
-    margin: 10px auto 0;
-    border-radius: 3px;
-}
 
 /* Cards de KPI - Design Moderno */
 .kpi-card {
@@ -49,12 +41,6 @@ h3:after {
     border-top: 5px solid #3a7bd5;
     position: block;
 }
-
-.anal-espc-kpi-card {
-    position: relative;
-    min-height: 300px;
-}
-
 
 .kpi-card:hover {
     transform: translateY(-4px);
@@ -79,13 +65,6 @@ h3:after {
     font-family: var(--fonte);
 }
 
-.anal-espc-kpi-value {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
 .kpi-delta {
     text-align: center;
     font-weight: 600;
@@ -102,6 +81,64 @@ h3:after {
     margin-top: 8px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+.anal-espc-kpi-card {
+    position: relative;
+    min-height: 300px;
+}
+.anal-espc-kpi-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.kpi-card-graph {
+    min-height: 400px;
+    border: none;
+    transform: translateY(-5px);
+
+}
+
+.kpi-card-graph:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+.kpi-label-graph {
+    font-weight: 700 !important;
+}
+
+.kip-sublabel-graph {
+    text-align: center;
+}
+
+.kpi-caption-graph {
+    position: absolute;
+    /* text-align: justify; */
+    top: 75%;
+    left: 5%;
+    color: #000;
+}
+
+.kpi-card-anal-geral {
+    min-height: none;
+}
+
+.kpi-label-anal-geral {
+    font-size: 1.2em;
+}
+
+.kpi-value-anal-geral {
+    font-size: 2.5em;
+}
+
+.kpi-delta-anal-geral {
+    color: #4a4a4a;
+}
+
+
+
 
 @media (max-width: 768px) {
     .kpi-card {
