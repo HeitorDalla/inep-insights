@@ -25,8 +25,7 @@ selected = option_menu(
     orientation="horizontal",
 )
 
-# Bibliotecas e Configuração
-
+# Importação de Bibliotecas e Configuração
 import pandas as pd
 import sys
 import os

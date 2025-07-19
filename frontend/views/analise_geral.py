@@ -7,14 +7,6 @@ import numpy as np
 
 # Função que mostra a página de Análise Geral
 def show_analise_geral_page(conn, filtros):
-
-    # Sidebar com filtros
-    st.sidebar.markdown("""
-        <div class="sidebar-title">
-            <span style="font-size:1.1em;">Filtros de Pesquisa</span> 
-        </div>
-    """, unsafe_allow_html=True)
-
     # Cursor para permitir executar consultas SQL
     cursor = conn.cursor()
     
