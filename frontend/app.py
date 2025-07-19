@@ -45,7 +45,8 @@ from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
 
 # Importações de funções auxiliares
-from frontend.utils.shared import aplicar_filtros, load_css
+from frontend.utils.load_css import load_css
+from frontend.utils.filters import aplicar_filtros
 
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")

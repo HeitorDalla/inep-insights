@@ -3,11 +3,8 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-
-# Função para carregar os estilos CSS
-def load_css(caminho_arquivo):
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+from frontend.utils.load_css import load_css
+from frontend.utils.formatters import bool_to_text
 
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")
@@ -33,14 +30,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
         JOIN infraestrutura sb
             ON sb.escola_id = e.id
         WHERE e.NO_ENTIDADE = %s
-        """,
-        conn,
-        params=(nome_escola_marta,)
-    )
-
-    # Função auxiliar para converter valores booleanos em texto "Sim" ou "Não"
-    def bool_to_text(flag: int) -> str:
-        return "Sim ✅" if bool(flag) else "Não ❌"
+        """, conn, params=(nome_escola_marta,))
 
     # Processa os dados da escola de Marta
     if not em_inf.empty:
@@ -111,10 +101,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
         JOIN infraestrutura i
             ON i.escola_id = e.id
         WHERE e.NO_ENTIDADE = %s
-        """,
-        conn,
-        params=(nome_escola_marta,)
-    )
+        """, conn, params=(nome_escola_marta,))
     
     # Extrai a quantidade de transporte da escola de Marta
     em_qt_transporte = int(em_trans.loc[0, "transporte"]) if not em_trans.empty else 0

@@ -2,7 +2,6 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-from frontend.utils.shared import carregar_municipios
 
 # Importando Páginas de visualização
 from frontend.views.analise_especifica_past.saneamento_basico import saneamento_basico
@@ -10,6 +9,9 @@ from frontend.views.analise_especifica_past.corpo_docente import corpo_docente
 from frontend.views.analise_especifica_past.infraestrutura import infraestrutura
 from frontend.views.analise_especifica_past.material import material
 from frontend.views.analise_especifica_past.matricula import matricula
+
+# Importanções funções úteis
+from frontend.utils.filters import carregar_municipios
 
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page(conn, filtros):
@@ -109,26 +111,26 @@ def show_analise_especifica_page(conn, filtros):
     nome_escola_marta = "TRABALHO E SABER ESCOLA MUNICIPAL DO CAMPO"
 
     # Conteúdo da aba "Saneamento Básico"
-    with tab_saneamento_basico:
+    if tab_saneamento_basico:
         # Passa a conexão, nome da escola de Marta e o DataFrame com escolas filtradas
         saneamento_basico(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Infraestrutura"
-    with tab_infraestrutura:
+    if tab_infraestrutura:
         # Passa a conexão, nome da escola de Marta e o DataFrame com escolas filtradas
         infraestrutura(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Material"
-    with tab_material:
+    if tab_material:
         # Mantém a implementação original (não alterada nesta versão)
         material(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Corpo Docente"
-    with tab_corpo_docente:
+    if tab_corpo_docente:
         # Mantém a implementação original (não alterada nesta versão)
         corpo_docente(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Matrícula"
-    with tab_matricula:
+    if tab_matricula:
         # Mantém a implementação original (não alterada nesta versão)
         matricula(conn, nome_escola_marta, df_escolas)

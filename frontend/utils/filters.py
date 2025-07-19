@@ -95,42 +95,9 @@ def carregar_municipios (conn, regiao_selecionada, uf_selecionada):
 
     return ['Todos'] + municipio_unique['NO_MUNICIPIO'].tolist()
 
-# Função para carregar os estilos
-def load_css(caminho_arquivo):
-    try:
-        with open(caminho_arquivo, "r", encoding="utf-8") as f:
-            st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-    except FileNotFoundError:
-        st.error("Arquivo css não encontrado!")
-
 # Função para verificar se o valor da consulta esta nula
 def safe_int(value):
     try:
         return int(value) if pd.notna(value) else 0
     except (TypeError, ValueError):
         return 0
-    
-# Função auxiliar para formatação de grandes números
-def format_number(value: int) -> str:
-    if value >= 10000:
-        base = value / 1000
-        s = f"{base:,.0f}"
-        s = s.replace(",", "@").replace(".", ",").replace("@", ".")
-        return f"{s} mil"
-    
-    elif value >= 1000:
-        base = value / 1000
-        s = f"{base:,.0f}"
-        s = s.replace(",", "@").replace(".", ",").replace("@", ".")
-        return f"{s} mil"
-    
-    elif value >= 100:
-        s = f"{value:,.0f}"
-        return s.replace(",", "@").replace(".", ",").replace("@", ".")
-    
-    elif value >= 10:
-        s = f"{value:,.0f}"
-        return s.replace(",", "@").replace(".", ",").replace("@", ".")
-    
-    else:
-        return str(value)

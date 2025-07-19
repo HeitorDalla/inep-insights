@@ -3,18 +3,15 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-
-# Função para carregar os estilos CSS
-def load_css(caminho_arquivo):
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+from frontend.utils.load_css import load_css
+from frontend.utils.formatters import bool_to_text
 
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")
 
 # Função para mostrar a tela de materiais pedagógicos
 def material(conn, nome_escola_marta, df_escolas):
-    # 1) Busca dados de materiais da escola de Marta
+    # Busca dados de materiais da escola de Marta
     em_mat = pd.read_sql(
         """
         SELECT
@@ -27,16 +24,9 @@ def material(conn, nome_escola_marta, df_escolas):
         JOIN materiais m
             ON m.escola_id = e.id
         WHERE e.NO_ENTIDADE = %s
-        """,
-        conn,
-        params=(nome_escola_marta,)
-    )
+        """, conn, params=(nome_escola_marta,))
 
-    # 2) Função auxiliar para converter valores booleanos em texto "Sim"/"Não"
-    def bool_to_text(flag: int) -> str:
-        return "Sim" if bool(flag) else "Não"
-
-    # 3) Processa os dados da escola de Marta
+    # Processa os dados da escola de Marta
     if not em_mat.empty:
         with st.expander("ⓘ Com dúvidas? Clique para abrir o glossário"):
             st.markdown("""
@@ -62,7 +52,7 @@ def material(conn, nome_escola_marta, df_escolas):
             'equipamentos_multimidia': 0
         }
 
-    # 4) Busca dados de materiais das escolas filtradas
+    # Busca dados de materiais das escolas filtradas
     if not df_escolas.empty:
         placeholders = ", ".join(["%s"] * len(df_escolas))
         sql = f"""
@@ -84,7 +74,7 @@ def material(conn, nome_escola_marta, df_escolas):
     else:
         escolas_filtradas_mat = pd.DataFrame()
 
-    # 5) Títulos das seções
+    # Títulos das seções
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""<h1 class="h1-title-anal_espc">Escola de Marta</h1>""", unsafe_allow_html=True)
@@ -97,7 +87,7 @@ def material(conn, nome_escola_marta, df_escolas):
         else:
             st.markdown("""<p class="p-title-anal_espc">Nenhuma escola selecionada</p>""", unsafe_allow_html=True)
 
-    # 6) Dicionário de opções para o selectbox
+    # Dicionário de opções para o selectbox
     indicadores_opcoes = {
         'Material Científico': 'material_cientifico',
         'Material Artístico': 'material_artistico',
@@ -105,7 +95,7 @@ def material(conn, nome_escola_marta, df_escolas):
         'Internet': 'internet'
     }
 
-    # 7) Selectbox para escolher o indicador de material
+    # Selectbox para escolher o indicador de material
     indicador_selecionado = st.selectbox(
         "Selecione o indicador de material:",
         list(indicadores_opcoes.keys()),
@@ -114,7 +104,7 @@ def material(conn, nome_escola_marta, df_escolas):
     )
     campo_selecionado = indicadores_opcoes[indicador_selecionado]
 
-    # 8) Função para criar gráfico de materiais (percentual)
+    # Função para criar gráfico de materiais (percentual)
     def criar_grafico_material(dados_df, campo, titulo):
         if not dados_df.empty:
             dados_agrupados = dados_df.groupby('localizacao')[campo].mean().reset_index()
@@ -147,7 +137,7 @@ def material(conn, nome_escola_marta, df_escolas):
             return fig
         return None
 
-    # 9) Layout de duas colunas para KPI e gráfico selecionado
+    # Layout de duas colunas para KPI e gráfico selecionado
     col3, col4 = st.columns(2)
     with col3:
         valor_kpi = em_vals[campo_selecionado]
@@ -165,7 +155,7 @@ def material(conn, nome_escola_marta, df_escolas):
         else:
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")
 
-    # 10) Seção de análise de Equipamentos Multimídia em três colunas
+    # Seção de análise de Equipamentos Multimídia em três colunas
     if not escolas_filtradas_mat.empty:
         st.markdown("<hr>", unsafe_allow_html=True)
         col_eq1, col_eq2, col_eq3 = st.columns(3)

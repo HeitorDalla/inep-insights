@@ -6,8 +6,8 @@ from io import StringIO
 import requests
 
 # Importacão de funções utilitárias
-from frontend.utils.shared import carregar_municipios, safe_int, format_number
-
+from frontend.utils.filters import carregar_municipios, safe_int
+from frontend.utils.formatters import format_number
 
 # API externa: carregamento de coordenadas dos municípios
 

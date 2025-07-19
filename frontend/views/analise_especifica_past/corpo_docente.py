@@ -4,11 +4,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-
-# Função para carregar estilos CSS
-def load_css(caminho_arquivo):
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+from frontend.utils.load_css import load_css
 
 # Carrega CSS global
 load_css("frontend/assets/css/style.css")
@@ -32,10 +28,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
         JOIN corpo_docente cd
             ON cd.escola_id = e.id
         WHERE e.NO_ENTIDADE = %s
-        """,
-        conn,
-        params=(nome_escola_marta,)
-    )
+        """,conn, params=(nome_escola_marta,))
 
     # 2) Processa valores da escola de Marta
     if not em_docente.empty:

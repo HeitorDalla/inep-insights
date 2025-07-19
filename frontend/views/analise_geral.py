@@ -4,6 +4,7 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
+from frontend.utils.formatters import format_number
 
 # Função que mostra a página de Análise Geral
 def show_analise_geral_page(conn, filtros):
@@ -413,38 +414,6 @@ def show_analise_geral_page(conn, filtros):
                 st.plotly_chart(fig_saneamento, use_container_width=True)
                     
         st.markdown("<hr>", unsafe_allow_html=True)
-
-        def format_number(value: int) -> str:
-            """
-            Formata números com separadores brasileiros e sufixos apropriados.
-            - Valores >= 1.000.000: mostra em milhões com 1 casa decimal
-            - Valores >= 1.000: mostra em milhares com 1 casa decimal  
-            - Valores < 1.000: mostra o número completo
-            """
-            if value >= 1000000:  # 1 milhão ou mais
-                base = value / 1000000
-                if base >= 10:  # 10M ou mais - sem casa decimal
-                    s = f"{base:,.0f}"
-                else:  # Menos de 10M - com 1 casa decimal
-                    s = f"{base:,.1f}"
-                # Troca separadores para formato brasileiro
-                s = s.replace(",", "@").replace(".", ",").replace("@", ".")
-                return f"{s} mi"
-            
-            elif value >= 1000:  # 1 mil ou mais
-                base = value / 1000
-                if base >= 10:  # 10k ou mais - sem casa decimal
-                    s = f"{base:,.0f}"
-                else:  # Menos de 10k - com 1 casa decimal
-                    s = f"{base:,.1f}"
-                # Troca separadores para formato brasileiro
-                s = s.replace(",", "@").replace(".", ",").replace("@", ".")
-                return f"{s} mil"
-            
-            else:  # Menos de 1000
-                s = f"{value:,.0f}"
-                return s.replace(",", "@").replace(".", ",").replace("@", ".")
-
 
         # Métricas principais
         st.markdown('<h1 class="h1-title-anal_espc">Panorama da Educação Básica</h1><br>', unsafe_allow_html=True)
