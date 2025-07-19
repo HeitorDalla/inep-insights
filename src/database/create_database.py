@@ -3,7 +3,13 @@ def create_database(conn, cursor):
     """
     Executa todos os comandos DDL para criar o banco e as tabelas normalizadas.
     """
+
+    # =================================================================
+    # TABELAS DE HIERARQUIA GEOGRÁFICA
+    # =================================================================
+    
     # 1. Criação da tabela de regiões geográficas do Brasil
+    # Armazena as 5 regiões: Norte, Nordeste, Centro-Oeste, Sudeste, Sul
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS regiao (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -12,7 +18,8 @@ def create_database(conn, cursor):
         );
     """)
 
-    # 2. Criação da tabela de Unidades Federativas (UFs), associadas a uma região
+    # 2. Criação da tabela de Unidades Federativas (UFs)
+    # Cada UF pertence a uma região específica 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS uf (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -23,7 +30,8 @@ def create_database(conn, cursor):
         );
     """)
 
-    # 3. Tabela de municípios, vinculados a uma UF
+    # 3. Tabela de municípios
+    # Cada município pertence a uma UF específica 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS municipio (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -34,7 +42,13 @@ def create_database(conn, cursor):
         );
     """)
 
-    # 4. Criação da tabela de tipo de localização da escola (zona urbana ou rural) Urbana (1) ou Rural (2)
+    # =================================================================
+    # TABELAS DE CLASSIFICAÇÃO E DADOS PRINCIPAIS
+    # =================================================================
+    
+    # 4. Criação da tabela de tipo de localização da escola
+    # Define se a escola está em zona urbana (1) ou rural (2)
+    # Utiliza coluna calculada para gerar descrição automaticamente
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS tipo_localizacao (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -50,7 +64,9 @@ def create_database(conn, cursor):
         );
     """)
 
-    # 5. Criação da tabela principal de escolas, vinculada ao município e ao tipo de localização
+    # 5. Criação da tabela principal de escolas
+    # Tabela central que armazena informações básicas das escolas
+    # Relacionada com município e tipo de localização
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS escola (
             id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -63,11 +79,16 @@ def create_database(conn, cursor):
         );
     """)
 
+    # =================================================================
+    # TABELAS DE DADOS ESPECÍFICOS DAS ESCOLAS
+    # =================================================================
+    
     # 6. Tabela com informações de saneamento básico das escolas
+    # Armazena dados sobre água, esgoto, energia e coleta de lixo
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS saneamento_basico (
             escola_id INT PRIMARY KEY NOT NULL,
-            IN_AGUA_POTAVEL BOOL NOT NULL,
+            IN_AGUA_POTAVEL BOOL NOT NULL,   
             IN_AGUA_INEXISTENTE BOOL NOT NULL,
             IN_AGUA_POCO_ARTESIANO BOOL NOT NULL,
             IN_AGUA_REDE_PUBLICA BOOL NOT NULL,
@@ -81,6 +102,7 @@ def create_database(conn, cursor):
     """)
 
     # 7. Tabela com infraestrutura física das escolas
+    # Armazena dados sobre espaços físicos, equipamentos e serviços
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS infraestrutura (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -101,6 +123,7 @@ def create_database(conn, cursor):
     """)
 
     # 8. Tabela com informações do corpo docente e equipe técnica
+    # Armazena quantidades de profissionais por categoria
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS corpo_docente (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -119,6 +142,7 @@ def create_database(conn, cursor):
     """)
 
     # 9. Tabela com dados de matrículas por etapa de ensino e perfil do aluno
+    # Armazena quantidades de alunos por modalidade, gênero e cor/raça
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS matriculas (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -139,6 +163,7 @@ def create_database(conn, cursor):
     """)
 
     # 10. Tabela com insumos e materiais pedagógicos disponíveis
+    # Armazena dados sobre recursos educacionais e tecnológicos
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS materiais (
             escola_id INT PRIMARY KEY NOT NULL,
@@ -150,6 +175,11 @@ def create_database(conn, cursor):
             FOREIGN KEY (escola_id) REFERENCES escola(id)
         );
     """)
-
+    # =================================================================
+    # FINALIZAÇÃO
+    # =================================================================
+    
+    # Confirma todas as alterações no banco de dados
+    # Garante que todas as tabelas sejam criadas antes de prosseguir
     # Aplica (commita) todas as criações no banco de dados
     conn.commit()
