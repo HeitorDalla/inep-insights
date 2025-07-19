@@ -1,6 +1,5 @@
 :root {
     --fonte: 'Segoe UI', sans-serif;
-
 }
 
 .h1-sidebar-home {
@@ -8,9 +7,18 @@
     font-family: var(--fonte);
 }
 
+
 .h1-title-anal_espc {
     font-size: 2.5em !important;
     text-align: center !important;
+    color: #4a4a4a !important;
+    font-family: var(--fonte) !important;
+}
+
+.h2-anal-geral {
+    font-size: 2.2em !important;
+    font-weight: 700 !important;
+    text-align: left !important;
     color: #4a4a4a !important;
     font-family: var(--fonte) !important;
 }
@@ -22,24 +30,6 @@
     font-family: var(--fonte) !important;
 }
 
-/* h3 {
-    text-align: center;
-    color: #1b2d53;
-    font-family: var(--fonte);
-    font-weight: 600;
-    margin-bottom: 2rem;
-    position: relative;
-}
-
-h3:after {
-    content: "";
-    display: block;
-    width: 80px;
-    height: 3px;
-    background: linear-gradient(90deg, #1b2d53, #3a7bd5);
-    margin: 10px auto 0;
-    border-radius: 3px;
-} */
 
 /* Cards de KPI - Design Moderno */
 .kpi-card {
@@ -129,6 +119,22 @@ h3:after {
     top: 75%;
     left: 5%;
     color: #000;
+}
+
+.kpi-card-anal-geral {
+    min-height: none;
+}
+
+.kpi-label-anal-geral {
+    font-size: 1.2em;
+}
+
+.kpi-value-anal-geral {
+    font-size: 2.5em;
+}
+
+.kpi-delta-anal-geral {
+    color: #4a4a4a;
 }
 
 

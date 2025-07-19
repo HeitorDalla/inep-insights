@@ -8,19 +8,7 @@ import numpy as np
 # Função que mostra a página de Análise Geral
 def show_analise_geral_page(conn):    
     # Cursor para permitir executar consultas SQL
-    cursor = conn.cursor()
-
-
-    # Header principal
-    st.markdown("""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-                    padding: 2rem; margin: -1rem -1rem 2rem -1rem; border-radius: 0 0 20px 20px;">
-            <h1 style="color: white; text-align: center; font-size: 2.5rem; margin-bottom: 0.5rem;">
-                📊 Análise Geral da Educação Brasileira
-            </h1>
-        </div>
-    """, unsafe_allow_html=True)
-    
+    cursor = conn.cursor()   
 
     # Sidebar com filtros
     st.sidebar.markdown("""
@@ -68,18 +56,6 @@ def show_analise_geral_page(conn):
     uf_options = ['Todos'] + uf_unique['NO_UF'].tolist()
     uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_options)
 
-
-    # Legendas da Sidebar    
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("### 📋 Legenda dos Scores")
-    st.sidebar.markdown("""
-    - **🟢 80-100**: Excelente
-    - **🟡 60-79**: Bom
-    - **🟠 40-59**: Regular
-    - **🔴 0-39**: Crítico
-    """)
-
-    
     # Construir consultas SQL dinâmicas baseadas nos filtros
     where_clause = "" # string para acumular condições
     params = []
@@ -214,10 +190,6 @@ def show_analise_geral_page(conn):
         saneamento_data = transform_data(df_saneamento)
         saneamento_rural, saneamento_urbana = saneamento_data
         
-
-        # SCORE PRINCIPAL
-        st.markdown("## 🎯 Score de Infraestrutura Educacional")
-        
         # Cálculo do score baseado nos dados reais
         def calcular_score(infra, saneamento):
             if not infra or not saneamento:
@@ -253,6 +225,8 @@ def show_analise_geral_page(conn):
         score_rural = calcular_score(infra_rural, saneamento_rural) if infra_rural and saneamento_rural else 0
         score_urbana = calcular_score(infra_urbana, saneamento_urbana) if infra_urbana and saneamento_urbana else 0
         
+        st.markdown('<h1 class="h1-title-anal_espc">Score de Infraestrutura e Saneamento Básico</h1><br>', unsafe_allow_html=True)
+
         # Layout do Score
         col1, col2 = st.columns(2)
         
@@ -262,19 +236,19 @@ def show_analise_geral_page(conn):
                 mode = "gauge+number", # gráfico vai mostrar o medidor e o número
                 value = score_rural, # valor que será mostrado no gráfico
                 domain = {'x': [0, 1], 'y': [0, 1]}, # ocupa todo o espaço disponível
-                title = {'text': "🌾 Score Rural", 'font': {'size': 20}}, # título do gráfico
+                title = {'text': "Score de Infraestrutura e Saneamento Rural", 'font': {'size': 24}}, # título do gráfico
                 gauge = { # configuração do medidor
                     'axis': {'range': [None, 100]}, # define que o valor vai de 0 a 100
-                    'bar': {'color': "#ff6b6b"}, # cor da barra
+                    'bar': {'color': "#8BC34A"}, # cor da barra
                     'steps': [ # define as faixar coloridas
-                        {'range': [0, 40], 'color': "#ffebee"},
-                        {'range': [40, 60], 'color': "#fff3e0"},
-                        {'range': [60, 80], 'color': "#f3e5f5"},
-                        {'range': [80, 100], 'color': "#e8f5e8"}
+                        {'range': [0, 40], 'color': "#FFB3B3"},
+                        {'range': [40, 60], 'color': "#FFF5B3"},
+                        {'range': [60, 80], 'color': "#B3D9FF"},
+                        {'range': [80, 100], 'color': "#B3FFB3"}
                     ],
                     'threshold': { # uma linha vermelha para indicar o patamar de excelência
                         'line': {'color': "red", 'width': 4},
-                        'thickness': 0.75,
+                        'thickness': 0.8,
                         'value': 80 # o valor onde a linha aparece
                     }
                 }
@@ -282,9 +256,9 @@ def show_analise_geral_page(conn):
             
             fig_score_rural.update_layout( # ajustando aparência
                 height=300, # altura do gráfico
-                font={'color': "darkblue", 'family': "Arial"},
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)"
+                font={'color': "#4a4a4a", 'family': "Arial"},
+                paper_bgcolor="#fff",
+                plot_bgcolor="#fff"
             )
             
             st.plotly_chart(fig_score_rural, use_container_width=True) # exibi o gráfico   # use_container_width=True (faz o gráfico ocupar toda a largura da coluna)
@@ -295,19 +269,19 @@ def show_analise_geral_page(conn):
                 mode = "gauge+number",
                 value = score_urbana,
                 domain = {'x': [0, 1], 'y': [0, 1]},
-                title = {'text': "🏙️ Score Urbano", 'font': {'size': 20}},
+                title = {'text': "Score de Infraestrutura e Saneamento Urbano", 'font': {'size': 24}},
                 gauge = {
                     'axis': {'range': [None, 100]},
-                    'bar': {'color': "#4ecdc4"},
+                    'bar': {'color': "#757575"},
                     'steps': [
-                        {'range': [0, 40], 'color': "#ffebee"},
-                        {'range': [40, 60], 'color': "#fff3e0"},
-                        {'range': [60, 80], 'color': "#f3e5f5"},
-                        {'range': [80, 100], 'color': "#e8f5e8"}
+                        {'range': [0, 40], 'color': "#FFB3B3"},
+                        {'range': [40, 60], 'color': "#FFF5B3"},
+                        {'range': [60, 80], 'color': "#B3D9FF"},
+                        {'range': [80, 100], 'color': "#B3FFB3"}
                     ],
                     'threshold': {
                         'line': {'color': "red", 'width': 4},
-                        'thickness': 0.75,
+                        'thickness': 0.8,
                         'value': 80
                     }
                 }
@@ -315,247 +289,383 @@ def show_analise_geral_page(conn):
             
             fig_score_urbana.update_layout(
                 height=300,
-                font={'color': "darkblue", 'family': "Arial"},
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)"
+                font={'color': "#4a4a4a", 'family': "Arial"},
+                paper_bgcolor="#fff",
+                plot_bgcolor="#fff"
             )
             
             st.plotly_chart(fig_score_urbana, use_container_width=True)
         
-        # Interpretação dos Scores
         gap_score = score_urbana - score_rural
         
         if gap_score > 30:
-            st.error(f"🚨 **GAP CRÍTICO DE {gap_score:.1f} PONTOS!** A desigualdade rural-urbana requer ação imediata.")
+            st.error(f"🚨 **GAP CRÍTICO ({gap_score:.1f} PONTOS)!** A desigualdade rural-urbana requer ação imediata.")
         elif gap_score > 20:
-            st.warning(f"⚠️ **GAP SIGNIFICATIVO DE {gap_score:.1f} PONTOS.** Disparidade preocupante entre rural e urbano.")
+            st.warning(f"⚠️ **GAP ALTO ({gap_score:.1f} PONTOS)**. Disparidade preocupante entre rural e urbano.")
         elif gap_score > 10:
-            st.info(f"ℹ️ **GAP MODERADO DE {gap_score:.1f} PONTOS.** Há espaço para melhorias na equidade.")
+            st.info(f"🔵 **GAP MODERADO ({gap_score:.1f} PONTOS)**. Há espaço para melhorias na equidade.")
         else:
-            st.success(f"✅ **GAP BAIXO DE {gap_score:.1f} PONTOS.** Situação relativamente equilibrada.")
+            st.success(f"✅ **GAP BAIXO ({gap_score:.1f} PONTOS)**. Situação relativamente equilibrada.")
         
+        with st.expander("ⓘ Com dúvidas? Clique para abrir a explicação"):
+            st.markdown("""
+                <p><b>Score</b> é uma nota de 0 a 100 que mostra se a escola tem boa infraestrutura e saneamento (biblioteca, laboratórios, água potável, coleta de lixo, etc.). Quanto maior o número, melhor a escola.</p>
+                        
+                <p>Gap é a diferença entre as escolas rurais e urbanas. Se o gap é grande, significa que há muita desigualdade entre campo e cidade.</p>
+                        
+                <p>As variáveis determinantes para o score estão divididados em duas categorias:</p>
+                         
+                <ul>
+                    <li><strong>Infraestrutura</strong>: conjunto de estruturas físicas da escola:</li>
+                        <ul>
+                            <li>Biblioteca</li>
+                            <li>Laboratório de Ciências</li>
+                            <li>Laboratório de Informática</li>
+                            <li>Quadra de Esportes</li>
+                            <li>Refeitório</li>
+                            <li>Pátio</li>
+                        </ul>
+                    <li><strong>Saneamento Básico</strong>: serviços essenciais de utilidade pública:</li>
+                        <ul>
+                            <li>Água Potável</li>
+                            <li>Água de Rede Pública</li>
+                            <li>Esgoto de Rede Pública</li>
+                            <li>Energia Elétrica</li>
+                            <li>Coleta de Lixo</li>
+                        </ul>
+                </ul>
+                """, unsafe_allow_html=True)
+        
+        st.markdown('<h1 class="h1-title-anal_espc">Comparativo Urbano-Rural</h1><br>', unsafe_allow_html=True)
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            # Gráfico de infraestrutura
+            if not df_infra.empty:
+                infra_columns = [col for col in df_infra.columns if col != 'localizacao']
+                
+                fig_infra = go.Figure()
+                
+                # Adicionar dados rurais
+                rural_data = df_infra[df_infra['localizacao'] == 'Rural']
+                if not rural_data.empty:
+                    fig_infra.add_trace(go.Bar(
+                        name='Rural',
+                        x=infra_columns,
+                        y=rural_data[infra_columns].values.flatten(),
+                        marker_color='#8BC34A',
+                        text=[f'{val:.1f}%' for val in rural_data[infra_columns].values.flatten()],
+                        textposition='auto',
+                        textfont=dict(color='#fff', size=14)
+                    ))
+                
+                # Adicionar dados urbanos
+                urbana_data = df_infra[df_infra['localizacao'] == 'Urbana']
+                if not urbana_data.empty:
+                    fig_infra.add_trace(go.Bar(
+                        name='Urbana',
+                        x=infra_columns,
+                        y=urbana_data[infra_columns].values.flatten(),
+                        marker_color='#757575',
+                        text=[f'{val:.1f}%' for val in urbana_data[infra_columns].values.flatten()],
+                        textposition='auto',
+                        textfont=dict(color='#fff', size=14)
+                    ))
+                
+                # Configuração única do layout
+                fig_infra.update_layout(
+                    title=dict(
+                        text='Infraestrutura',
+                        font=dict(color='#4a4a4a', size=24),
+                        x=0.5,  # Centraliza o título
+                        xanchor='center'  # Garante centralização perfeita
+                    ),
+                    plot_bgcolor='#fff',
+                    paper_bgcolor='#fff',
+                    font=dict(color='#4a4a4a'),
+                    xaxis=dict(
+                        title='Tipo de Infraestrutura',
+                        title_font=dict(color='#4a4a4a'),
+                        tickfont=dict(color='#4a4a4a'),
+                        tickangle=-45  # Texto horizontal
+                    ),
+                    yaxis=dict(
+                        title='Percentual de Escolas (%)',
+                        title_font=dict(color='#4a4a4a'),
+                        tickfont=dict(color='#4a4a4a'),
+                        range=[0, 100]
+                    ),
+                    legend=dict(
+                        font=dict(color='#4a4a4a')
+                    ),
+                    barmode='group',
+                    height=500,
+                    showlegend=True,
+                    margin=dict(l=50, r=50, t=80, b=50)
+                )
+                
+                st.plotly_chart(fig_infra, use_container_width=True)
+
+        with col2:    
+            # Gráfico de saneamento
+            if not df_saneamento.empty:
+                saneamento_columns = [col for col in df_saneamento.columns if col != 'localizacao']
+                
+                fig_saneamento = go.Figure()
+                
+                # Adicionar dados rurais
+                rural_data = df_saneamento[df_saneamento['localizacao'] == 'Rural']
+                if not rural_data.empty:
+                    fig_saneamento.add_trace(go.Bar(
+                        name='Rural',
+                        x=saneamento_columns,
+                        y=rural_data[saneamento_columns].values.flatten(),
+                        marker_color='#8BC34A',
+                        text=[f'{val:.1f}%' for val in rural_data[saneamento_columns].values.flatten()],
+                        textposition='auto',
+                        textfont=dict(color='#fff', size=14)
+                    ))
+                
+                # Adicionar dados urbanos
+                urbana_data = df_saneamento[df_saneamento['localizacao'] == 'Urbana']
+                if not urbana_data.empty:
+                    fig_saneamento.add_trace(go.Bar(
+                        name='Urbana',
+                        x=saneamento_columns,
+                        y=urbana_data[saneamento_columns].values.flatten(),
+                        marker_color='#757575',
+                        text=[f'{val:.1f}%' for val in urbana_data[saneamento_columns].values.flatten()],
+                        textposition='auto',
+                        textfont=dict(color='#fff', size=14)
+                    ))
+                
+                # Configuração única do layout
+                fig_saneamento.update_layout(
+                    title=dict(
+                        text='Saneamento Básico',
+                        font=dict(color='#4a4a4a', size=24),
+                        x=0.5,  # Centraliza o título
+                        xanchor='center'  # Garante centralização perfeita
+                    ),
+                    plot_bgcolor='#fff',
+                    paper_bgcolor='#fff',
+                    font=dict(color='#4a4a4a'),
+                    xaxis=dict(
+                        title='Tipo de Saneamento',
+                        title_font=dict(color='#4a4a4a'),
+                        tickfont=dict(color='#4a4a4a'),
+                        tickangle=-45  # Texto horizontal
+                    ),
+                    yaxis=dict(
+                        title='Percentual de Escolas (%)',
+                        title_font=dict(color='#4a4a4a'),
+                        tickfont=dict(color='#4a4a4a'),
+                        range=[0, 100]
+                    ),
+                    legend=dict(
+                        font=dict(color='#4a4a4a')
+                    ),
+                    barmode='group',
+                    height=500,
+                    showlegend=True,
+                    margin=dict(l=50, r=50, t=80, b=50)
+                )
+                
+                st.plotly_chart(fig_saneamento, use_container_width=True)
+                    
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+        def format_number(value: int) -> str:
+            """
+            Formata números com separadores brasileiros e sufixos apropriados.
+            - Valores >= 1.000.000: mostra em milhões com 1 casa decimal
+            - Valores >= 1.000: mostra em milhares com 1 casa decimal  
+            - Valores < 1.000: mostra o número completo
+            """
+            if value >= 1000000:  # 1 milhão ou mais
+                base = value / 1000000
+                if base >= 10:  # 10M ou mais - sem casa decimal
+                    s = f"{base:,.0f}"
+                else:  # Menos de 10M - com 1 casa decimal
+                    s = f"{base:,.1f}"
+                # Troca separadores para formato brasileiro
+                s = s.replace(",", "@").replace(".", ",").replace("@", ".")
+                return f"{s} mi"
+            
+            elif value >= 1000:  # 1 mil ou mais
+                base = value / 1000
+                if base >= 10:  # 10k ou mais - sem casa decimal
+                    s = f"{base:,.0f}"
+                else:  # Menos de 10k - com 1 casa decimal
+                    s = f"{base:,.1f}"
+                # Troca separadores para formato brasileiro
+                s = s.replace(",", "@").replace(".", ",").replace("@", ".")
+                return f"{s} mil"
+            
+            else:  # Menos de 1000
+                s = f"{value:,.0f}"
+                return s.replace(",", "@").replace(".", ",").replace("@", ".")
+
 
         # Métricas principais
-        st.markdown("## 📈 Panorama Educacional")
-        
+        st.markdown('<h1 class="h1-title-anal_espc">Panorama da Educação Básica</h1><br>', unsafe_allow_html=True)
+
         # Calcular métricas dinâmicas
         matriculas_rural = df_matriculas[df_matriculas['localizacao'] == 'Rural'].sum(numeric_only=True).sum() if not df_matriculas.empty else 0
         matriculas_urbana = df_matriculas[df_matriculas['localizacao'] == 'Urbana'].sum(numeric_only=True).sum() if not df_matriculas.empty else 0
-        
+
         escolas_rural = df_escolas[df_escolas['localizacao'] == 'Rural']['total_escolas'].sum() if not df_escolas.empty else 0
         escolas_urbana = df_escolas[df_escolas['localizacao'] == 'Urbana']['total_escolas'].sum() if not df_escolas.empty else 0
-        
+
         total_escolas = escolas_rural + escolas_urbana
         total_matriculas = matriculas_rural + matriculas_urbana
-        
+
         col1, col2, col3, col4 = st.columns(4)
-        
+
         with col1:
-            st.metric(
-                label="🌾 Escolas Rurais",
-                value=f"{escolas_rural:,}",
-                delta=f"{(escolas_rural/total_escolas*100):.1f}% do total" if total_escolas > 0 else "0%"
-            )
-        
+            st.markdown(f"""
+                <div class="kpi-card kpi-card-anal-geral">
+                    <div class="kpi-label kpi-label-anal-geral">Qnt. Escolas Rurais</div>
+                    <div class="kpi-value kpi-value-anal-geral">{format_number(escolas_rural)}</div>
+                    <div class="kpi-delta kpi-delta-anal-geral">{(escolas_rural/total_escolas*100):.1f}% do Total</div>
+                </div>
+            """, unsafe_allow_html=True)
+
         with col2:
-            st.metric(
-                label="🏙️ Escolas Urbanas",
-                value=f"{escolas_urbana:,}",
-                delta=f"{(escolas_urbana/total_escolas*100):.1f}% do total" if total_escolas > 0 else "0%"
-            )
-        
+            st.markdown(f"""
+                <div class="kpi-card kpi-card-anal-geral">
+                    <div class="kpi-label kpi-label-anal-geral">Qnt. Escolas Urbanas</div>
+                    <div class="kpi-value kpi-value-anal-geral">{format_number(escolas_urbana)}</div>
+                    <div class="kpi-delta kpi-delta-anal-geral">{(escolas_urbana/total_escolas*100):.1f}% do Total</div>
+                </div>
+            """, unsafe_allow_html=True)
+
         with col3:
-            st.metric(
-                label="👥 Matrículas Rurais",
-                value=f"{matriculas_rural:,}",
-                delta=f"{(matriculas_rural/total_matriculas*100):.1f}% do total" if total_matriculas > 0 else "0%"
-            )
-        
+            st.markdown(f"""
+                <div class="kpi-card kpi-card-anal-geral">
+                    <div class="kpi-label kpi-label-anal-geral">Qnt. Matrículas Rurais</div>
+                    <div class="kpi-value kpi-value-anal-geral">{format_number(matriculas_rural)}</div>
+                    <div class="kpi-delta kpi-delta-anal-geral">{(matriculas_rural/total_matriculas*100):.1f}% do Total</div>
+                </div>
+            """, unsafe_allow_html=True)
+
         with col4:
-            st.metric(
-                label="👥 Matrículas Urbanas",
-                value=f"{matriculas_urbana:,}",
-                delta=f"{(matriculas_urbana/total_matriculas*100):.1f}% do total" if total_matriculas > 0 else "0%"
-            )
-        
-        # Gráficos principais
-        st.markdown("## 📊 Análise Comparativa Detalhada")
-        
-        # Gráfico de infraestrutura
-        if not df_infra.empty:
-            infra_columns = [col for col in df_infra.columns if col != 'localizacao']
-            
-            fig_infra = go.Figure()
-            
-            # Adicionar dados rurais
-            rural_data = df_infra[df_infra['localizacao'] == 'Rural']
-            if not rural_data.empty:
-                fig_infra.add_trace(go.Bar(
-                    name='Rural',
-                    x=infra_columns,
-                    y=rural_data[infra_columns].values.flatten(),
-                    marker_color='#ff6b6b',
-                    text=[f'{val:.1f}%' for val in rural_data[infra_columns].values.flatten()],
-                    textposition='auto',
-                ))
-            
-            # Adicionar dados urbanos
-            urbana_data = df_infra[df_infra['localizacao'] == 'Urbana']
-            if not urbana_data.empty:
-                fig_infra.add_trace(go.Bar(
-                    name='Urbana',
-                    x=infra_columns,
-                    y=urbana_data[infra_columns].values.flatten(),
-                    marker_color='#4ecdc4',
-                    text=[f'{val:.1f}%' for val in urbana_data[infra_columns].values.flatten()],
-                    textposition='auto',
-                ))
-            
-            fig_infra.update_layout(
-                title='🏗️ Infraestrutura Educacional',
-                xaxis_title='Tipo de Infraestrutura',
-                yaxis_title='Percentual de Escolas (%)',
-                barmode='group',
-                height=500,
-                showlegend=True,
-                xaxis={'tickangle': -45}
-            )
-            
-            st.plotly_chart(fig_infra, use_container_width=True)
-        
-        # Gráfico de saneamento
-        if not df_saneamento.empty:
-            saneamento_columns = [col for col in df_saneamento.columns if col != 'localizacao']
-            
-            fig_saneamento = go.Figure()
-            
-            # Adicionar dados rurais
-            rural_data = df_saneamento[df_saneamento['localizacao'] == 'Rural']
-            if not rural_data.empty:
-                fig_saneamento.add_trace(go.Bar(
-                    name='Rural',
-                    x=saneamento_columns,
-                    y=rural_data[saneamento_columns].values.flatten(),
-                    marker_color='#ff6b6b',
-                    text=[f'{val:.1f}%' for val in rural_data[saneamento_columns].values.flatten()],
-                    textposition='auto',
-                ))
-            
-            # Adicionar dados urbanos
-            urbana_data = df_saneamento[df_saneamento['localizacao'] == 'Urbana']
-            if not urbana_data.empty:
-                fig_saneamento.add_trace(go.Bar(
-                    name='Urbana',
-                    x=saneamento_columns,
-                    y=urbana_data[saneamento_columns].values.flatten(),
-                    marker_color='#4ecdc4',
-                    text=[f'{val:.1f}%' for val in urbana_data[saneamento_columns].values.flatten()],
-                    textposition='auto',
-                ))
-            
-            fig_saneamento.update_layout(
-                title='🚰 Saneamento Básico',
-                xaxis_title='Tipo de Saneamento',
-                yaxis_title='Percentual de Escolas (%)',
-                barmode='group',
-                height=500,
-                showlegend=True,
-                xaxis={'tickangle': -45}
-            )
-            
-            st.plotly_chart(fig_saneamento, use_container_width=True)
-        
+            st.markdown(f"""
+                <div class="kpi-card kpi-card-anal-geral">
+                    <div class="kpi-label kpi-label-anal-geral">Qnt. Matrículas Urbanas</div>
+                    <div class="kpi-value kpi-value-anal-geral">{format_number(matriculas_urbana)}</div>
+                    <div class="kpi-delta kpi-delta-anal-geral">{(matriculas_urbana/total_matriculas*100):.1f}% do Total</div>
+                </div>
+            """, unsafe_allow_html=True)
+
         # Gráfico de matrículas e corpo docente
-        st.markdown("## 📚 Distribuição de Matrículas e Recursos Humanos")
+        st.markdown('<br><h1 class="h1-title-anal_espc">Distribuição de Matrículas por Localização</h1><br>', unsafe_allow_html=True)
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            if not df_matriculas.empty:
-                matriculas_columns = [col for col in df_matriculas.columns if col != 'localizacao']
-                
-                fig_matriculas = go.Figure()
-                
-                # Adicionar dados rurais
-                rural_data = df_matriculas[df_matriculas['localizacao'] == 'Rural']
-                if not rural_data.empty:
-                    fig_matriculas.add_trace(go.Bar(
-                        name='Rural',
-                        x=matriculas_columns,
-                        y=rural_data[matriculas_columns].values.flatten(),
-                        marker_color='#ff6b6b',
-                        text=[f'{int(val):,}' for val in rural_data[matriculas_columns].values.flatten()],
-                        textposition='auto',
-                    ))
-                
-                # Adicionar dados urbanos
-                urbana_data = df_matriculas[df_matriculas['localizacao'] == 'Urbana']
-                if not urbana_data.empty:
-                    fig_matriculas.add_trace(go.Bar(
-                        name='Urbana',
-                        x=matriculas_columns,
-                        y=urbana_data[matriculas_columns].values.flatten(),
-                        marker_color='#4ecdc4',
-                        text=[f'{int(val):,}' for val in urbana_data[matriculas_columns].values.flatten()],
-                        textposition='auto',
-                    ))
-                
-                fig_matriculas.update_layout(
-                    title='👥 Matrículas por Nível de Ensino',
-                    xaxis_title='Nível de Ensino',
-                    yaxis_title='Número de Matrículas',
-                    barmode='group',
-                    height=400,
-                    showlegend=True,
-                    xaxis={'tickangle': -45}
-                )
-                
-                st.plotly_chart(fig_matriculas, use_container_width=True)
-        
-        with col2:
-            if not df_docente.empty:
-                docente_columns = [col for col in df_docente.columns if col != 'localizacao']
-                
-                fig_docente = go.Figure()
-                
-                # Adicionar dados rurais
-                rural_data = df_docente[df_docente['localizacao'] == 'Rural']
-                if not rural_data.empty:
-                    fig_docente.add_trace(go.Bar(
-                        name='Rural',
-                        x=docente_columns,
-                        y=rural_data[docente_columns].values.flatten(),
-                        marker_color='#ff6b6b',
-                        text=[f'{val:.1f}' for val in rural_data[docente_columns].values.flatten()],
-                        textposition='auto',
-                    ))
-                
-                # Adicionar dados urbanos
-                urbana_data = df_docente[df_docente['localizacao'] == 'Urbana']
-                if not urbana_data.empty:
-                    fig_docente.add_trace(go.Bar(
-                        name='Urbana',
-                        x=docente_columns,
-                        y=urbana_data[docente_columns].values.flatten(),
-                        marker_color='#4ecdc4',
-                        text=[f'{val:.1f}' for val in urbana_data[docente_columns].values.flatten()],
-                        textposition='auto',
-                    ))
-                
-                fig_docente.update_layout(
-                    title='👩‍🏫 Profissionais por Escola',
-                    xaxis_title='Função',
-                    yaxis_title='Quantidade Média',
-                    barmode='group',
-                    height=400,
-                    showlegend=True,
-                    xaxis={'tickangle': -45}
-                )
-                
-                st.plotly_chart(fig_docente, use_container_width=True)
+        if not df_matriculas.empty:
+            matriculas_columns = [col for col in df_matriculas.columns if col != 'localizacao']
+            
+            fig_matriculas = go.Figure()
+            
+            # Adicionar dados rurais
+            rural_data = df_matriculas[df_matriculas['localizacao'] == 'Rural']
+            if not rural_data.empty:
+                fig_matriculas.add_trace(go.Bar(
+                    name='Rural',
+                    x=matriculas_columns,
+                    y=rural_data[matriculas_columns].values.flatten(),
+                    marker_color='#8BC34A',
+                    text=[f'{int(val):,}' for val in rural_data[matriculas_columns].values.flatten()],
+                    textposition='auto',
+                ))
+            
+            # Adicionar dados urbanos
+            urbana_data = df_matriculas[df_matriculas['localizacao'] == 'Urbana']
+            if not urbana_data.empty:
+                fig_matriculas.add_trace(go.Bar(
+                    name='Urbana',
+                    x=matriculas_columns,
+                    y=urbana_data[matriculas_columns].values.flatten(),
+                    marker_color='#757575',
+                    text=[f'{int(val):,}' for val in urbana_data[matriculas_columns].values.flatten()],
+                    textposition='auto',
+                ))
+            
+            fig_matriculas.update_layout(
+                title={
+                    'text': '',
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'font': {'color': '#4a4a4a', 'size': 28}
+                },
+                xaxis_title='Nível de Ensino',
+                yaxis_title='Número de Matrículas',
+                barmode='group',
+                height=500,
+                showlegend=True,
+                xaxis={
+                    'tickangle': -45,
+                    'title': {'font': {'color': '#4a4a4a'}},
+                    'tickfont': {'color': '#4a4a4a'}
+                },
+                yaxis={
+                    'title': {'font': {'color': '#4a4a4a'}},
+                    'tickfont': {'color': '#4a4a4a'}
+                },
+                paper_bgcolor='#fff',
+                plot_bgcolor='#fff',
+                font={'color': '#4a4a4a'},
+                legend={'font': {'color': '#4a4a4a'}},
+                margin=dict(l=50, r=50, t=80, b=50)
+
+            )
+            
+            st.plotly_chart(fig_matriculas, use_container_width=True)
+
+        # # Deixa ou não deixa? eis a questão?
+        # if not df_docente.empty:
+        #     docente_columns = [col for col in df_docente.columns if col != 'localizacao']
+            
+        #     fig_docente = go.Figure()
+            
+        #     # Adicionar dados rurais
+        #     rural_data = df_docente[df_docente['localizacao'] == 'Rural']
+        #     if not rural_data.empty:
+        #         fig_docente.add_trace(go.Bar(
+        #             name='Rural',
+        #             x=docente_columns,
+        #             y=rural_data[docente_columns].values.flatten(),
+        #             marker_color='#ff6b6b',
+        #             text=[f'{val:.1f}' for val in rural_data[docente_columns].values.flatten()],
+        #             textposition='auto',
+        #         ))
+            
+        #     # Adicionar dados urbanos
+        #     urbana_data = df_docente[df_docente['localizacao'] == 'Urbana']
+        #     if not urbana_data.empty:
+        #         fig_docente.add_trace(go.Bar(
+        #             name='Urbana',
+        #             x=docente_columns,
+        #             y=urbana_data[docente_columns].values.flatten(),
+        #             marker_color='#4ecdc4',
+        #             text=[f'{val:.1f}' for val in urbana_data[docente_columns].values.flatten()],
+        #             textposition='auto',
+        #         ))
+            
+        #     fig_docente.update_layout(
+        #         title='👩‍🏫 Profissionais por Escola',
+        #         xaxis_title='Função',
+        #         yaxis_title='Quantidade Média',
+        #         barmode='group',
+        #         height=400,
+        #         showlegend=True,
+        #         xaxis={'tickangle': -45}
+        #     )
+            
+        #     st.plotly_chart(fig_docente, use_container_width=True)
         
         # Gráfico de correlação: matrículas vs infraestrutura
-        st.markdown("## 🔗 Relação: Matrículas x Infraestrutura")
+        st.markdown('<hr><h1 class="h1-title-anal_espc">Relação entre Infraestrutura e Densidade de Matrículas</h1><br>', unsafe_allow_html=True)
         
         if not df_matriculas.empty and not df_infra.empty:
             # Juntar dados de matrículas e infraestrutura
@@ -581,7 +691,7 @@ def show_analise_geral_page(conn):
             fig_correlacao = go.Figure()
             
             for idx, row in df_correlacao.iterrows():
-                color = '#ff6b6b' if row['localizacao'] == 'Rural' else '#4ecdc4'
+                color = '#8BC34A' if row['localizacao'] == 'Rural' else '#757575'
                 
                 fig_correlacao.add_trace(go.Scatter(
                     x=[row[col] for col in infra_cols],
@@ -597,22 +707,52 @@ def show_analise_geral_page(conn):
                 ))
             
             fig_correlacao.update_layout(
-                title='📚 Matrículas por Escola vs Infraestrutura',
+                title={
+                    'text': '',
+                    'x': 0.5,
+                    'xanchor': 'center',
+                    'font': {'color': '#4a4a4a', 'size': 20}
+                },
                 xaxis_title='Percentual de Escolas com Infraestrutura (%)',
                 yaxis_title='Matrículas por Escola',
                 height=500,
-                showlegend=True
+                showlegend=True,
+                xaxis={
+                    'title': {'font': {'color': '#4a4a4a'}},
+                    'tickfont': {'color': '#4a4a4a'}
+                },
+                yaxis={
+                    'title': {'font': {'color': '#4a4a4a'}},
+                    'tickfont': {'color': '#4a4a4a'}
+                },
+                paper_bgcolor='#fff',
+                plot_bgcolor='#fff',
+                font={'color': '#4a4a4a'},
+                legend={'font': {'color': '#4a4a4a'}},
+                margin=dict(l=50, r=50, t=80, b=50)
             )
             
             st.plotly_chart(fig_correlacao, use_container_width=True)
             
-            st.markdown("""
-            **💡 Interpretação do Gráfico:**
-            - Cada ponto representa um tipo de infraestrutura
-            - Posição no eixo Y mostra a relação com matrículas
-            - Padrões podem indicar quais infraestruturas atraem mais alunos
-            """)
-        
+            with st.expander("ⓘ Com dúvidas? Clique para abrir a explicação"):
+                st.markdown("""
+                    Este gráfico compara a relação entre infraestrutura das escolas e a densidade de alunos por escola nas áreas rurais e urbanas.
+
+                    * **Eixo X**: Percentual de escolas com infraestrutura (quanto mais à direita, melhor a infraestrutura)
+                    * **Eixo Y**: Número de matrículas por escola
+                    
+                    **Interpretação rápida**:
+                            
+                    * **Pontos mais à direita** → melhor infraestrutura
+                    * **Pontos mais altos** → mais alunos por escola
+                    """, unsafe_allow_html=True)
+
+        # ────────────────────────────────────────────────────────────────────────────────────────────────────────
+        # PRECISA DAR ESTILO NISSO, ESTOU SEM IDEIAS !!!
+        # ────────────────────────────────────────────────────────────────────────────────────────────────────────
+        st.write("PRECISA DAR ESTILO NISSO, ESTOU SEM IDEIAS !!!")
+
+
         # Insights baseados nos dados
         st.markdown("## 🧠 Insights Estratégicos")
         
