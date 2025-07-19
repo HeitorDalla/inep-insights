@@ -86,26 +86,6 @@ def show_analise_geral_page(conn, filtros):
     GROUP BY tl.descricao
     """
     
-    # Consulta para dados de corpo docente
-    query_docente = f"""
-    SELECT 
-        tl.descricao AS localizacao,
-        AVG(c.QT_PROF_BIBLIOTECARIO) AS bibliotecarios,
-        AVG(c.QT_PROF_PEDAGOGIA) AS professores,
-        AVG(c.QT_PROF_PSICOLOGO) AS psicologos,
-        AVG(c.QT_PROF_NUTRICIONISTA) AS nutricionistas,
-        AVG(c.QT_PROF_ADMINISTRATIVOS) AS administrativos,
-        AVG(c.QT_PROF_SERVICOS_GERAIS) AS servicos_gerais
-    FROM escola e
-    JOIN municipio m ON e.municipio_id = m.id
-    JOIN uf u ON m.uf_id = u.id
-    JOIN regiao r ON u.regiao_id = r.id
-    JOIN tipo_localizacao tl ON e.tp_localizacao_id = tl.id
-    JOIN corpo_docente c ON e.id = c.escola_id
-    WHERE 1=1 {where_clause}
-    GROUP BY tl.descricao
-    """
-    
     # Consulta para contagem de escolas
     query_escolas = f"""
     SELECT 
@@ -128,7 +108,6 @@ def show_analise_geral_page(conn, filtros):
         df_infra = fetch_data(query_infra, params)
         df_saneamento = fetch_data(query_saneamento, params)
         df_matriculas = fetch_data(query_matriculas, params)
-        df_docente = fetch_data(query_docente, params)
         df_escolas = fetch_data(query_escolas, params)
         
         # Transformar dados para formato adequado
@@ -293,7 +272,7 @@ def show_analise_geral_page(conn, filtros):
                             <li>Coleta de Lixo</li>
                         </ul>
                 </ul>
-                """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
         st.markdown('<h1 class="h1-title-anal_espc">Comparativo Urbano-Rural</h1><br>', unsafe_allow_html=True)
 
@@ -585,48 +564,6 @@ def show_analise_geral_page(conn, filtros):
             )
             
             st.plotly_chart(fig_matriculas, use_container_width=True)
-
-        # # Deixa ou não deixa? eis a questão?
-        # if not df_docente.empty:
-        #     docente_columns = [col for col in df_docente.columns if col != 'localizacao']
-            
-        #     fig_docente = go.Figure()
-            
-        #     # Adicionar dados rurais
-        #     rural_data = df_docente[df_docente['localizacao'] == 'Rural']
-        #     if not rural_data.empty:
-        #         fig_docente.add_trace(go.Bar(
-        #             name='Rural',
-        #             x=docente_columns,
-        #             y=rural_data[docente_columns].values.flatten(),
-        #             marker_color='#ff6b6b',
-        #             text=[f'{val:.1f}' for val in rural_data[docente_columns].values.flatten()],
-        #             textposition='auto',
-        #         ))
-            
-        #     # Adicionar dados urbanos
-        #     urbana_data = df_docente[df_docente['localizacao'] == 'Urbana']
-        #     if not urbana_data.empty:
-        #         fig_docente.add_trace(go.Bar(
-        #             name='Urbana',
-        #             x=docente_columns,
-        #             y=urbana_data[docente_columns].values.flatten(),
-        #             marker_color='#4ecdc4',
-        #             text=[f'{val:.1f}' for val in urbana_data[docente_columns].values.flatten()],
-        #             textposition='auto',
-        #         ))
-            
-        #     fig_docente.update_layout(
-        #         title='👩‍🏫 Profissionais por Escola',
-        #         xaxis_title='Função',
-        #         yaxis_title='Quantidade Média',
-        #         barmode='group',
-        #         height=400,
-        #         showlegend=True,
-        #         xaxis={'tickangle': -45}
-        #     )
-            
-        #     st.plotly_chart(fig_docente, use_container_width=True)
         
         # Gráfico de correlação: matrículas vs infraestrutura
         st.markdown('<hr><h1 class="h1-title-anal_espc">Relação entre Infraestrutura e Densidade de Matrículas</h1><br>', unsafe_allow_html=True)
@@ -709,7 +646,7 @@ def show_analise_geral_page(conn, filtros):
                             
                     * **Pontos mais à direita** → melhor infraestrutura
                     * **Pontos mais altos** → mais alunos por escola
-                    """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
         # ────────────────────────────────────────────────────────────────────────────────────────────────────────
         # PRECISA DAR ESTILO NISSO, ESTOU SEM IDEIAS !!!
