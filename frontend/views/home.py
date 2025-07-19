@@ -5,6 +5,9 @@ import plotly.express as px
 from io import StringIO
 import requests
 
+# Importacão de funções utilitárias
+from frontend.utils.shared import carregar_municipios, safe_int, format_number
+
 
 # API externa: carregamento de coordenadas dos municípios
 
@@ -36,88 +39,23 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
 
 # Função principal: renderiza a página Home
-def show_home_page (conn):
+def show_home_page (conn, filtros):
+    # Filtros da Sidebar
+    regiao_selecionada = filtros['regiao']
 
-    # Configuração inicial da sidebar
-    st.sidebar.markdown("""
-        <div class="sidebar-title">
-            <span style="font-size:1.1em;">Filtros de Pesquisa</span> 
-        </div>
-    """, unsafe_allow_html=True)
-        
-    # Regiões
+    uf_selecionada = filtros['uf']
 
-    # SQL Query p/ ler as regiões únicas e ordena
-    regiao_unique = pd.read_sql("""
-        SELECT DISTINCT NO_REGIAO
-        FROM regiao
-        ORDER BY NO_REGIAO ASC
-    """, conn)
+    lista_municipios = carregar_municipios(
+        conn=conn,
+        regiao_selecionada=regiao_selecionada,
+        uf_selecionada=uf_selecionada
+    )
 
-    # Adiciona opção 'Todos' para seleção ampla
-    regiao_options = ['Todos'] + regiao_unique['NO_REGIAO'].tolist()
-    regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_options)
-
-    # UFs
-
-    # SQL Query p/ ler as UFs
-    if regiao_selecionada == 'Todos':
-        # Busca todas as UFs se não foi filtrada por região
-        uf_unique = pd.read_sql("""
-            SELECT DISTINCT NO_UF
-            FROM uf
-            ORDER BY NO_UF ASC
-        """, conn)
-    else:
-        # Busca apenas UFs da região selecionada
-        uf_unique = pd.read_sql("""
-            SELECT DISTINCT uf.NO_UF
-            FROM uf
-            JOIN regiao ON uf.regiao_id = regiao.id
-            WHERE regiao.NO_REGIAO = %s
-            ORDER BY uf.NO_UF ASC
-        """, conn, params=(regiao_selecionada,))
-
-    # Adiciona opção 'Todos' para seleção ampla
-    uf_options = ['Todos'] + uf_unique['NO_UF'].tolist()
-    uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_options)
-
-    # Municípios
-
-    # SQL Query p/ ler os municípios 
-    if uf_selecionada == 'Todos':
-        # Se nenhum filtro aplicado .: pega todos os municípios
-        if regiao_selecionada == 'Todos':
-            municipio_unique = pd.read_sql_query("""
-                SELECT DISTINCT NO_MUNICIPIO
-                FROM municipio
-                ORDER BY NO_MUNICIPIO ASC
-            """, conn)
-        else:
-            # Filtra município por região
-            municipio_unique = pd.read_sql_query("""
-                SELECT DISTINCT m.NO_MUNICIPIO
-                FROM municipio AS m
-                JOIN uf AS u ON m.uf_id = u.id
-                JOIN regiao AS r ON u.regiao_id = r.id
-                WHERE r.NO_REGIAO = %s
-                ORDER BY m.NO_MUNICIPIO ASC
-            """, conn, params=(regiao_selecionada,))
-    else:
-        # Filtra município por UF
-        municipio_unique = pd.read_sql_query("""
-                SELECT DISTINCT m.NO_MUNICIPIO
-                FROM municipio AS m
-                JOIN uf AS u
-                    ON m.uf_id = u.id
-                WHERE u.NO_UF = %s
-                ORDER BY m.NO_MUNICIPIO ASC
-            """, conn, params=(uf_selecionada,))
-
-    # Adiciona opção 'Todos' para seleção ampla
-    municipios_options = ['Todos'] + municipio_unique['NO_MUNICIPIO'].tolist()
-    municipio_selecionado = st.sidebar.selectbox("Selecione o município:", municipios_options)
-
+    municipio_selecionado = st.sidebar.selectbox(
+        "Selecione o município:", 
+        options=lista_municipios,
+        key='municipio_home'
+    )
 
     # Montagem dinâmica do WHERE
     where = [] # lista de cláusulas
@@ -145,23 +83,32 @@ def show_home_page (conn):
     kpi_query = f'''
         SELECT
             COUNT(DISTINCT e.id)            AS total_escolas,
+
             SUM(sb.IN_AGUA_POTAVEL)         AS tem_agua_potavel,
-            SUM(cd.QT_PROF_BIBLIOTECARIO + 
-            cd.QT_PROF_PEDAGOGIA + 
-            cd.QT_PROF_SAUDE +
-            cd.QT_PROF_PSICOLOGO + 
-            cd.QT_PROF_ADMINISTRATIVOS + 
-            cd.QT_PROF_SERVICOS_GERAIS +
-            cd.QT_PROF_SEGURANCA + 
-            cd.QT_PROF_GESTAO + 
-            cd.QT_PROF_ASSIST_SOCIAL +
-            cd.QT_PROF_NUTRICIONISTA)       AS total_equipe_escolar,
-            SUM(mt.QT_MAT_INF + 
-            mt.QT_MAT_FUND + 
-            mt.QT_MAT_MED + 
-            mt.QT_MAT_EJA + 
-            mt.QT_MAT_ESP)                  AS total_matriculas,
+
+            SUM(
+                cd.QT_PROF_BIBLIOTECARIO + 
+                cd.QT_PROF_PEDAGOGIA + 
+                cd.QT_PROF_SAUDE +
+                cd.QT_PROF_PSICOLOGO + 
+                cd.QT_PROF_ADMINISTRATIVOS + 
+                cd.QT_PROF_SERVICOS_GERAIS +
+                cd.QT_PROF_SEGURANCA + 
+                cd.QT_PROF_GESTAO + 
+                cd.QT_PROF_ASSIST_SOCIAL +
+                cd.QT_PROF_NUTRICIONISTA
+            ) AS total_equipe_escolar,
+
+            SUM(
+                mt.QT_MAT_INF + 
+                mt.QT_MAT_FUND + 
+                mt.QT_MAT_MED + 
+                mt.QT_MAT_EJA + 
+                mt.QT_MAT_ESP
+            ) AS total_matriculas,
+
             SUM(mat.IN_INTERNET)            AS tem_internet,
+
             SUM(inf.IN_ALIMENTACAO)         AS tem_alimentacao
         FROM escola e
         INNER JOIN municipio mun ON e.municipio_id = mun.id
@@ -177,39 +124,17 @@ def show_home_page (conn):
     df_kpi = pd.read_sql(kpi_query, conn, params=params)
 
     # Extrai valores individuais e trata None
-    total_escolas = int(df_kpi['total_escolas'][0])
-    tem_agua_potavel = int(df_kpi['tem_agua_potavel'][0]) if df_kpi['tem_agua_potavel'][0] else 0
-    total_equipe_escolar = int(df_kpi['total_equipe_escolar'][0]) or 0
-    total_matriculas = int(df_kpi['total_matriculas'][0]) or 0
-    tem_internet = int(df_kpi['tem_internet'][0]) if df_kpi['tem_internet'][0] else 0
-    tem_alimentacao = int(df_kpi['tem_alimentacao'][0]) if df_kpi['tem_alimentacao'][0] else 0
+    total_escolas = safe_int(df_kpi['total_escolas'].iloc[0])
+    tem_agua_potavel = safe_int(df_kpi['tem_agua_potavel'].iloc[0])
+    total_equipe_escolar = safe_int(df_kpi['total_equipe_escolar'].iloc[0])
+    total_matriculas = safe_int(df_kpi['total_matriculas'].iloc[0])
+    tem_internet = safe_int(df_kpi['tem_internet'].iloc[0])
+    tem_alimentacao = safe_int(df_kpi['tem_alimentacao'].iloc[0])
 
     # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
     media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
 
     # Exibição de KPI cards
-
-    # Função auxiliar para formatação de grandes números
-    def format_number(value: int) -> str:
-        if value >= 10000:
-            base = value / 1000
-            s = f"{base:,.0f}"
-            s = s.replace(",", "@").replace(".", ",").replace("@", ".")
-            return f"{s} mil"
-        elif value >= 1000:
-            base = value / 1000
-            s = f"{base:,.0f}"
-            s = s.replace(",", "@").replace(".", ",").replace("@", ".")
-            return f"{s} mil"
-        elif value >= 100:
-            s = f"{value:,.0f}"
-            return s.replace(",", "@").replace(".", ",").replace("@", ".")
-        elif value >= 10:
-            s = f"{value:,.0f}"
-            return s.replace(",", "@").replace(".", ",").replace("@", ".")
-        else:
-            return str(value)
-
     col1, col2, col3 = st.columns(3)
     col4, col5, col6 = st.columns(3)
 

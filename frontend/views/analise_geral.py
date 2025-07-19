@@ -6,7 +6,7 @@ import plotly.graph_objects as go
 import numpy as np
 
 # Função que mostra a página de Análise Geral
-def show_analise_geral_page(conn):    
+def show_analise_geral_page(conn, filtros):
     # Cursor para permitir executar consultas SQL
     cursor = conn.cursor()
 
@@ -21,53 +21,10 @@ def show_analise_geral_page(conn):
     #     </div>
     # """, unsafe_allow_html=True)
     
+    # Filtros da Sidebar
+    regiao_selecionada = filtros['regiao']
 
-    # Sidebar com filtros
-    st.sidebar.markdown("""
-        <div class="sidebar-title">
-            <span style="font-size:1.1em;">Filtros de Pesquisa</span> 
-        </div>
-    """, unsafe_allow_html=True)
-
-    
-    # Regiões
-
-    # SQL Query p/ ler as regiões únicas e ordena
-    regiao_unique = pd.read_sql("""
-        SELECT DISTINCT NO_REGIAO
-        FROM regiao
-        ORDER BY NO_REGIAO ASC
-    """, conn)
-
-    # Adiciona opção 'Todos' para seleção ampla
-    regiao_options = ['Todos'] + regiao_unique['NO_REGIAO'].tolist()
-    regiao_selecionada = st.sidebar.selectbox("Selecione a região:", options=regiao_options)
-
-    
-    # UFs
-
-    # SQL Query p/ ler as UFs
-    if regiao_selecionada == 'Todos':
-        # Busca todas as UFs se não foi filtrada por região
-        uf_unique = pd.read_sql("""
-            SELECT DISTINCT NO_UF
-            FROM uf
-            ORDER BY NO_UF ASC
-        """, conn)
-    else:
-        # Busca apenas UFs da região selecionada
-        uf_unique = pd.read_sql("""
-            SELECT DISTINCT uf.NO_UF
-            FROM uf
-            JOIN regiao ON uf.regiao_id = regiao.id
-            WHERE regiao.NO_REGIAO = %s
-            ORDER BY uf.NO_UF ASC
-        """, conn, params=(regiao_selecionada,))
-
-    # Adiciona opção 'Todos' para seleção ampla
-    uf_options = ['Todos'] + uf_unique['NO_UF'].tolist()
-    uf_selecionada = st.sidebar.selectbox("Selecione a UF:", options=uf_options)
-
+    uf_selecionada = filtros['uf']
 
     # Legendas da Sidebar    
     st.sidebar.markdown("---")
@@ -337,15 +294,19 @@ def show_analise_geral_page(conn):
 
         # Métricas principais
         st.markdown("## 📈 Panorama Educacional")
-        
-        # Calcular métricas dinâmicas
-        matriculas_rural = df_matriculas[df_matriculas['localizacao'] == 'Rural'].sum(numeric_only=True).sum() if not df_matriculas.empty else 0
-        matriculas_urbana = df_matriculas[df_matriculas['localizacao'] == 'Urbana'].sum(numeric_only=True).sum() if not df_matriculas.empty else 0
-        
+
+        # Calcular a quantidade de escolas rurais e urbanas que tem
         escolas_rural = df_escolas[df_escolas['localizacao'] == 'Rural']['total_escolas'].sum() if not df_escolas.empty else 0
         escolas_urbana = df_escolas[df_escolas['localizacao'] == 'Urbana']['total_escolas'].sum() if not df_escolas.empty else 0
         
+        # Calcular a quantidade total de escolas que tem
         total_escolas = escolas_rural + escolas_urbana
+
+        # Calcular a quantidade de matrículas rurais e urbanas que tem
+        matriculas_rural = df_matriculas[df_matriculas['localizacao'] == 'Rural'].sum(numeric_only=True).sum() if not df_matriculas.empty else 0
+        matriculas_urbana = df_matriculas[df_matriculas['localizacao'] == 'Urbana'].sum(numeric_only=True).sum() if not df_matriculas.empty else 0
+        
+        # Calcular a quantidade total de matrículas que tem
         total_matriculas = matriculas_rural + matriculas_urbana
         
         col1, col2, col3, col4 = st.columns(4)
@@ -382,88 +343,88 @@ def show_analise_geral_page(conn):
         st.markdown("## 📊 Análise Comparativa Detalhada")
         
         # Gráfico de infraestrutura
-        if not df_infra.empty:
-            infra_columns = [col for col in df_infra.columns if col != 'localizacao']
+        if not df_infra.empty: # verifica se a query de infraestrutura não está vazia
+            infra_columns = [col for col in df_infra.columns if col != 'localizacao'] # guarda somente as colunas, tirando a localização
             
-            fig_infra = go.Figure()
+            fig_infra = go.Figure() # inicia um gráfico vazio
             
             # Adicionar dados rurais
-            rural_data = df_infra[df_infra['localizacao'] == 'Rural']
-            if not rural_data.empty:
+            rural_data = df_infra[df_infra['localizacao'] == 'Rural'] # pega apenas os dados rurais
+            if not rural_data.empty: # verifica se os dados rurais não estão vazios
                 fig_infra.add_trace(go.Bar(
-                    name='Rural',
-                    x=infra_columns,
-                    y=rural_data[infra_columns].values.flatten(),
-                    marker_color='#ff6b6b',
-                    text=[f'{val:.1f}%' for val in rural_data[infra_columns].values.flatten()],
-                    textposition='auto',
+                    name='Rural', # nome da barra
+                    x=infra_columns, # são os tipos (colunas)
+                    y=rural_data[infra_columns].values.flatten(), # porcentagem (0 a 100)
+                    marker_color='#ff6b6b', # cor da coluna
+                    text=[f'{val:.1f}%' for val in rural_data[infra_columns].values.flatten()], # mostra os valores com uma casa decimal
+                    textposition='auto', # mostra os valores sobre a barra
                 ))
             
             # Adicionar dados urbanos
-            urbana_data = df_infra[df_infra['localizacao'] == 'Urbana']
-            if not urbana_data.empty:
+            urbana_data = df_infra[df_infra['localizacao'] == 'Urbana'] # filtra apenas os dados urbanos
+            if not urbana_data.empty: # verifica se os dados não estão vazios
                 fig_infra.add_trace(go.Bar(
-                    name='Urbana',
-                    x=infra_columns,
-                    y=urbana_data[infra_columns].values.flatten(),
-                    marker_color='#4ecdc4',
-                    text=[f'{val:.1f}%' for val in urbana_data[infra_columns].values.flatten()],
-                    textposition='auto',
+                    name='Urbana', # nome da barra
+                    x=infra_columns, # são os tipos (colunas)
+                    y=urbana_data[infra_columns].values.flatten(), # porcentagem de 0 a 100
+                    marker_color='#4ecdc4', # cor da coluna do gráfico
+                    text=[f'{val:.1f}%' for val in urbana_data[infra_columns].values.flatten()], # mostra os valores com uma casa decimal
+                    textposition='auto', # mostra os valores sobre a barra
                 ))
             
-            fig_infra.update_layout(
-                title='🏗️ Infraestrutura Educacional',
-                xaxis_title='Tipo de Infraestrutura',
-                yaxis_title='Percentual de Escolas (%)',
-                barmode='group',
-                height=500,
-                showlegend=True,
-                xaxis={'tickangle': -45}
+            fig_infra.update_layout( # configuração do layout
+                title='🏗️ Infraestrutura Educacional', # título do gráfico
+                xaxis_title='Tipo de Infraestrutura', # rótulo do eixo X
+                yaxis_title='Percentual de Escolas (%)', # rótulo do eixo Y
+                barmode='group', # barras ao lado para comparação
+                height=500, # altura do gráfico
+                showlegend=True, # controla se a legenda do gráfico fica visível
+                xaxis={'tickangle': -45} # inclina os nomes para melhor leitura
             )
             
-            st.plotly_chart(fig_infra, use_container_width=True)
+            st.plotly_chart(fig_infra, use_container_width=True) # exibição dos gráficos ao streamlit
         
         # Gráfico de saneamento
-        if not df_saneamento.empty:
-            saneamento_columns = [col for col in df_saneamento.columns if col != 'localizacao']
+        if not df_saneamento.empty: # verifica se a consulta de saneamento esta vazia
+            saneamento_columns = [col for col in df_saneamento.columns if col != 'localizacao'] # filtra apenas os nomes das colunas, tirando as localizações
             
-            fig_saneamento = go.Figure()
+            fig_saneamento = go.Figure() # inicia um gráfico vazio
             
             # Adicionar dados rurais
-            rural_data = df_saneamento[df_saneamento['localizacao'] == 'Rural']
-            if not rural_data.empty:
+            rural_data = df_saneamento[df_saneamento['localizacao'] == 'Rural'] # filtra apenas os dados rurais
+            if not rural_data.empty: # verifica se os dados não estão vazios
                 fig_saneamento.add_trace(go.Bar(
-                    name='Rural',
-                    x=saneamento_columns,
-                    y=rural_data[saneamento_columns].values.flatten(),
-                    marker_color='#ff6b6b',
-                    text=[f'{val:.1f}%' for val in rural_data[saneamento_columns].values.flatten()],
-                    textposition='auto',
+                    name='Rural', # nome da barra
+                    x=saneamento_columns, # são as colunas
+                    y=rural_data[saneamento_columns].values.flatten(), # são as porcentagens (0 a 100)
+                    marker_color='#ff6b6b', # cor da barra
+                    text=[f'{val:.1f}%' for val in rural_data[saneamento_columns].values.flatten()], # mostra os valores com uma casa decimal
+                    textposition='auto', # mostra os valores sobre a barra
                 ))
             
             # Adicionar dados urbanos
-            urbana_data = df_saneamento[df_saneamento['localizacao'] == 'Urbana']
-            if not urbana_data.empty:
+            urbana_data = df_saneamento[df_saneamento['localizacao'] == 'Urbana'] # filtra apenas os dados urbanos
+            if not urbana_data.empty: # verifica se os dados não estão vazios
                 fig_saneamento.add_trace(go.Bar(
-                    name='Urbana',
-                    x=saneamento_columns,
-                    y=urbana_data[saneamento_columns].values.flatten(),
-                    marker_color='#4ecdc4',
-                    text=[f'{val:.1f}%' for val in urbana_data[saneamento_columns].values.flatten()],
-                    textposition='auto',
+                    name='Urbana', # nome da barra
+                    x=saneamento_columns, # são as colunas
+                    y=urbana_data[saneamento_columns].values.flatten(), # são as porcentagens (0 a 100)
+                    marker_color='#4ecdc4', # cor da barra
+                    text=[f'{val:.1f}%' for val in urbana_data[saneamento_columns].values.flatten()], # mostra os valores com uma casa decimal
+                    textposition='auto', # mostra os valores sobre a barra
                 ))
             
-            fig_saneamento.update_layout(
-                title='🚰 Saneamento Básico',
-                xaxis_title='Tipo de Saneamento',
-                yaxis_title='Percentual de Escolas (%)',
-                barmode='group',
-                height=500,
-                showlegend=True,
-                xaxis={'tickangle': -45}
+            fig_saneamento.update_layout( # configuração do layout
+                title='🚰 Saneamento Básico', # título do gráfico
+                xaxis_title='Tipo de Saneamento', # rótulos do eixo X
+                yaxis_title='Percentual de Escolas (%)', # rótulos do eixo Y
+                barmode='group', # colocar os dados em comparação lado a lado
+                height=500, # altura do gráfico
+                showlegend=True, # controla para colocar a legenda do gráfico
+                xaxis={'tickangle': -45} # inclina os nomes dos rótulos do eixo X, para melhorar na leitura
             )
             
-            st.plotly_chart(fig_saneamento, use_container_width=True)
+            st.plotly_chart(fig_saneamento, use_container_width=True) # plota o gráfico no streamlit
         
         # Gráfico de matrículas e corpo docente
         st.markdown("## 📚 Distribuição de Matrículas e Recursos Humanos")

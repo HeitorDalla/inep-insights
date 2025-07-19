@@ -1,8 +1,6 @@
-# Configuração da Página Inicial
-from streamlit_option_menu import option_menu
 import streamlit as st
 
-# Configuração da página Streamlit + menu de contexto
+# Configuração da página Streamlit
 st.set_page_config(
     page_title="Painel de Indicadores",     # Título da aba do navegador
     page_icon="📊",                         # Ícone que aparece na aba e no header
@@ -15,6 +13,9 @@ st.set_page_config(
     }
 )
 
+# Configurações do menu de contexto
+from streamlit_option_menu import option_menu
+
 selected = option_menu(
     menu_title=None,
     options=["Home", "Anal. Geral", "Anal. Específica"],
@@ -26,6 +27,7 @@ selected = option_menu(
 
 # Bibliotecas e Configuração
 
+import pandas as pd
 import sys
 import os
 
@@ -35,25 +37,19 @@ ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-# Importa módulos internos internos do projeto
+# Importações de conexão
 from src.database.get_connection import get_connection
+
+# Importações das Páginas
 from frontend.views.home import show_home_page
 from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
 
-
-# Estilos
-
-# Função para carregar os estilos
-def load_css(caminho_arquivo):
-    with open(caminho_arquivo, "r", encoding="utf-8") as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# Importações de funções auxiliares
+from frontend.utils.shared import aplicar_filtros, load_css
 
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")
-
-
-# Sidebar
 
 # Cria três colunas proporcionais (1:2:1) no sidebar para centralizar a logo
 col1, col2, col3 = st.sidebar.columns([1, 2, 1])
@@ -64,15 +60,18 @@ with col2:
 # Cria conexão com o banco de dados MySQL
 conn, cursor = get_connection()
 
+# Aplicar filtros padrões (aparecem em todas as páginas)
+filtros_selecionados = aplicar_filtros(conn)
+
 # Roteamento das páginas com base na opção selecionada
 if (selected == "Home"):
-    show_home_page(conn)
+    show_home_page(conn, filtros_selecionados)
     # Chama a função "show_home_page" (importada do módulo "frontend.views.home")
     
 if selected == 'Anal. Geral':
-    show_analise_geral_page(conn)
+    show_analise_geral_page(conn, filtros_selecionados)
     # Chama a função "show_analise_geral_page" (importada do módulo "frontend.views.analise_geral")
 
 if (selected == "Anal. Específica"):
-    show_analise_especifica_page (conn)
+    show_analise_especifica_page (conn, filtros_selecionados)
     # Chama a função "show_analise_especifica_page" (importada do módulo "frontend.views.analise_especifica")
