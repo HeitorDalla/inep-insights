@@ -4,13 +4,10 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
-from frontend.utils.load_css import load_css
-
-# Carrega CSS global
-load_css("frontend/assets/css/style.css")
 
 def corpo_docente(conn, nome_escola_marta, df_escolas):
-    # 1) Busca dados da escola de Marta
+    st.write("A pagina corpo docente esta funcionando")
+    # Busca dados da escola de Marta
     em_docente = pd.read_sql(
         """
         SELECT
@@ -30,7 +27,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
         WHERE e.NO_ENTIDADE = %s
         """,conn, params=(nome_escola_marta,))
 
-    # 2) Processa valores da escola de Marta
+    # Processa valores da escola de Marta
     if not em_docente.empty:
         em_vals = em_docente.iloc[0].to_dict()
         total_profissionais_marta = sum(em_vals.values())
@@ -43,7 +40,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
         ], 0)
         total_profissionais_marta = 0
 
-    # 3) Busca dados das escolas filtradas
+    # Busca dados das escolas filtradas
     if not df_escolas.empty:
         with st.expander("ⓘ Com dúvidas? Clique para abrir o glossário"):
             st.markdown("""
@@ -84,7 +81,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
     else:
         escolas_filtradas_docente = pd.DataFrame()
 
-    # 4) Mapear nomes e colunas de profissionais
+    # Mapear nomes e colunas de profissionais
     nomes_profissionais = {
         'bibliotecario': 'Bibliotecários(as)',
         'pedagogia': 'Pedagogos(as)',
@@ -99,7 +96,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
     }
     colunas_profissionais = list(nomes_profissionais.keys())
 
-    # 5) Se houver escolas filtradas, calcula médias e total por localização
+    # Se houver escolas filtradas, calcula médias e total por localização
     if not escolas_filtradas_docente.empty:
         # Médias por localização
         medias_localizacao = escolas_filtradas_docente.groupby('localizacao')[colunas_profissionais].mean()
@@ -117,7 +114,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
         )
         categoria_key = inv_map[indicador_selecionado]
 
-        # 5.2) Layout em duas colunas: categoria à esquerda, total à direita
+        # Layout em duas colunas: categoria à esquerda, total à direita
         col1, col2 = st.columns(2)
         with col1:
             # Monta gráfico de barras para a categoria selecionada
@@ -218,7 +215,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
     # Separador visual
     st.markdown("<hr>", unsafe_allow_html=True)
 
-    # 6) Demais gráficos (mantidos exatamente como no script original)
+    # Demais gráficos (mantidos exatamente como no script original)
     if not escolas_filtradas_docente.empty:
         # Distribuição em pizza da escola de Marta
         colp, colh = st.columns(2)

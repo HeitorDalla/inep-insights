@@ -111,26 +111,26 @@ def show_analise_especifica_page(conn, filtros):
     nome_escola_marta = "TRABALHO E SABER ESCOLA MUNICIPAL DO CAMPO"
 
     # Conteúdo da aba "Saneamento Básico"
-    if tab_saneamento_basico:
+    with tab_saneamento_basico:
         # Passa a conexão, nome da escola de Marta e o DataFrame com escolas filtradas
         saneamento_basico(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Infraestrutura"
-    if tab_infraestrutura:
+    with tab_infraestrutura:
         # Passa a conexão, nome da escola de Marta e o DataFrame com escolas filtradas
         infraestrutura(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Material"
-    if tab_material:
+    with tab_material:
         # Mantém a implementação original (não alterada nesta versão)
         material(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Corpo Docente"
-    if tab_corpo_docente:
+    with tab_corpo_docente:
         # Mantém a implementação original (não alterada nesta versão)
         corpo_docente(conn, nome_escola_marta, df_escolas)
 
     # Conteúdo da aba "Matrícula"
-    if tab_matricula:
+    with tab_matricula:
         # Mantém a implementação original (não alterada nesta versão)
         matricula(conn, nome_escola_marta, df_escolas)

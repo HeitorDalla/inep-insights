@@ -3,11 +3,7 @@ import pandas as pd
 import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
-from frontend.utils.load_css import load_css
 from frontend.utils.formatters import bool_to_text
-
-# Carrega CSS centralizado
-load_css("frontend/assets/css/style.css")
 
 # Função para mostrar a tela de infraestrutura
 def infraestrutura(conn, nome_escola_marta, df_escolas):

@@ -102,6 +102,7 @@ def show_analise_geral_page(conn, filtros):
     """
     
     # Função para executar consultas e processar resultados
+    @st.cache_data
     def fetch_data(query, params=None):
         return pd.read_sql(query, conn, params=params)
     
