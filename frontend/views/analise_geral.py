@@ -5,16 +5,20 @@ import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
 from frontend.utils.formatters import format_number
+from frontend.utils.filters import aplicar_filtros
 
 # Função que mostra a página de Análise Geral
-def show_analise_geral_page(conn, filtros):
+def show_analise_geral_page(conn):
     # Cursor para permitir executar consultas SQL
     cursor = conn.cursor()
+
+    # Pegar os filtros padrões
+    filtros_selcionados = aplicar_filtros(conn)
     
     # Filtros da Sidebar
-    regiao_selecionada = filtros['regiao']
+    regiao_selecionada = filtros_selcionados['regiao']
 
-    uf_selecionada = filtros['uf']
+    uf_selecionada = filtros_selcionados['uf']
 
     # Construir consultas SQL dinâmicas baseadas nos filtros
     where_clause = "" # string para acumular condições

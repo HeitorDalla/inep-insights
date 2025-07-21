@@ -6,7 +6,7 @@ from io import StringIO
 import requests
 
 # Importacão de funções utilitárias
-from frontend.utils.filters import carregar_municipios, safe_int
+from frontend.utils.filters import aplicar_filtros, carregar_municipios, safe_int
 from frontend.utils.formatters import format_number
 
 # API externa: carregamento de coordenadas dos municípios
@@ -39,12 +39,18 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
 
 # Função principal: renderiza a página Home
-def show_home_page (conn, filtros):
+def show_home_page (conn):
+    # Pegar os filtros padrões
+    filtros_selecionados = aplicar_filtros(conn)
+
     # Filtros da Sidebar
-    regiao_selecionada = filtros['regiao']
+    # Região
+    regiao_selecionada = filtros_selecionados['regiao']
 
-    uf_selecionada = filtros['uf']
+    # UF
+    uf_selecionada = filtros_selecionados['uf']
 
+    # Município
     lista_municipios = carregar_municipios(
         conn=conn,
         regiao_selecionada=regiao_selecionada,

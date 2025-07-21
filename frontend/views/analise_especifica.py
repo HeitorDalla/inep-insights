@@ -10,26 +10,49 @@ from frontend.views.analise_especifica_past.infraestrutura import infraestrutura
 from frontend.views.analise_especifica_past.material import material
 from frontend.views.analise_especifica_past.matricula import matricula
 
-# Importanções funções úteis
-from frontend.utils.filters import carregar_municipios
-
 # Função para mostrar a página de análise específica
-def show_analise_especifica_page(conn, filtros):
-    # Filtros da Sidebar
-    regiao_selecionada = filtros['regiao']
-
-    uf_selecionada = filtros['uf']
-
-    lista_municipios = carregar_municipios(
-        conn=conn,
-        regiao_selecionada=regiao_selecionada,
-        uf_selecionada=uf_selecionada
+def show_analise_especifica_page(conn):
+    # SQL Query para ler as regiões únicas do banco de dados
+    regiao_unique = pd.read_sql("""
+        SELECT DISTINCT NO_REGIAO 
+        FROM regiao 
+        ORDER BY NO_REGIAO ASC
+    """, conn)
+    
+    # Selectbox na sidebar para o usuário selecionar a região
+    regiao_selecionada = st.sidebar.selectbox(
+        "Selecione a região:",
+        options=regiao_unique["NO_REGIAO"]
     )
 
+    # SQL Query para ler as UFs únicas baseadas na região selecionada
+    uf_unique = pd.read_sql("""
+        SELECT DISTINCT uf.NO_UF
+        FROM uf
+        JOIN regiao ON uf.regiao_id = regiao.id
+        WHERE regiao.NO_REGIAO = %s
+        ORDER BY uf.NO_UF ASC
+    """, conn, params=(regiao_selecionada,))
+
+    # Selectbox na sidebar para o usuário selecionar a UF
+    uf_selecionada = st.sidebar.selectbox(
+        "Selecione a UF:",
+        options=uf_unique["NO_UF"]
+    )
+
+    # SQL Query para ler os municípios únicos baseados na UF selecionada
+    municipio_unique = pd.read_sql("""
+        SELECT DISTINCT municipio.NO_MUNICIPIO
+        FROM municipio
+        JOIN uf ON municipio.uf_id = uf.id
+        WHERE uf.NO_UF = %s
+        ORDER BY municipio.NO_MUNICIPIO ASC
+    """, conn, params=(uf_selecionada,))
+
+    # Selectbox na sidebar para o usuário selecionar o município
     municipio_selecionado = st.sidebar.selectbox(
-        "Selecione o município:", 
-        options=lista_municipios,
-        key='municipio_home'
+        "Selecione o município:",
+        options=municipio_unique["NO_MUNICIPIO"]
     )
 
     # Filtro de Localização

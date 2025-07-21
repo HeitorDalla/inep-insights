@@ -46,7 +46,6 @@ from frontend.views.analise_especifica import show_analise_especifica_page
 
 # Importações de funções auxiliares
 from frontend.utils.load_css import load_css
-from frontend.utils.filters import aplicar_filtros
 
 # Carrega CSS centralizado
 load_css("frontend/assets/css/style.css")
@@ -60,18 +59,15 @@ with col2:
 # Cria conexão com o banco de dados MySQL
 conn, cursor = get_connection()
 
-# Aplicar filtros padrões (aparecem em todas as páginas)
-filtros_selecionados = aplicar_filtros(conn)
-
 # Roteamento das páginas com base na opção selecionada
 if (selected == "Home"):
-    show_home_page(conn, filtros_selecionados)
+    show_home_page(conn)
     # Chama a função "show_home_page" (importada do módulo "frontend.views.home")
     
 if selected == 'Anal. Geral':
-    show_analise_geral_page(conn, filtros_selecionados)
+    show_analise_geral_page(conn)
     # Chama a função "show_analise_geral_page" (importada do módulo "frontend.views.analise_geral")
 
 if (selected == "Anal. Específica"):
-    show_analise_especifica_page (conn, filtros_selecionados)
+    show_analise_especifica_page (conn)
     # Chama a função "show_analise_especifica_page" (importada do módulo "frontend.views.analise_especifica")
