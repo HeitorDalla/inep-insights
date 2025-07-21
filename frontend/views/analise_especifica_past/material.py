@@ -2,11 +2,13 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
+
+# Importando funções utilitárias
 from frontend.utils.formatters import bool_to_text
+from frontend.utils.graficos import criar_grafico_material
 
 # Função para mostrar a tela de materiais pedagógicos
-def material(conn, nome_escola_marta, df_escolas):
+def material(conn, nome_escola_marta, df_escolas, localizacoes_filtradas):
     # Busca dados de materiais da escola de Marta
     em_mat = pd.read_sql(
         """
@@ -66,6 +68,12 @@ def material(conn, nome_escola_marta, df_escolas):
             WHERE e.NO_ENTIDADE IN ({placeholders})
         """
         params = df_escolas["escola_nome"].tolist()
+
+        if localizacoes_filtradas:
+            loc_placeholders = ", ".join(["%s"] * len(localizacoes_filtradas))
+            sql += f" AND tl.descricao IN ({loc_placeholders})"
+            params += localizacoes_filtradas
+
         escolas_filtradas_mat = pd.read_sql(sql, conn, params=params)
     else:
         escolas_filtradas_mat = pd.DataFrame()
@@ -98,40 +106,8 @@ def material(conn, nome_escola_marta, df_escolas):
         index=0,
         key="material_indicador_selectbox"
     )
-    campo_selecionado = indicadores_opcoes[indicador_selecionado]
 
-    # Função para criar gráfico de materiais (percentual)
-    def criar_grafico_material(dados_df, campo, titulo):
-        if not dados_df.empty:
-            dados_agrupados = dados_df.groupby('localizacao')[campo].mean().reset_index()
-            dados_agrupados[campo] = dados_agrupados[campo] * 100
-            fig = px.bar(
-                dados_agrupados,
-                x='localizacao',
-                y=campo,
-                title=f'{titulo} (%)',
-                labels={'localizacao': 'Localização', campo: 'Porcentagem (%)'},
-                color='localizacao',
-                color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
-            )
-            fig.update_layout(
-                showlegend=False,
-                height=300,
-                margin=dict(l=20, r=20, t=70, b=20),
-                plot_bgcolor='white',
-                paper_bgcolor='white',
-                title={
-                    'text': f'{titulo} (%)',
-                    'x': 0.5,
-                    'xanchor': 'center',
-                    'font': {'size': 20, 'color': '#4a4a4a'}
-                },
-                xaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a')),
-                yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a'), range=[0,100])
-            )
-            fig.update_traces(texttemplate='%{y:.1f}%', textposition='inside', textfont=dict(size=18, color='white'))
-            return fig
-        return None
+    campo_selecionado = indicadores_opcoes[indicador_selecionado]
 
     # Layout de duas colunas para KPI e gráfico selecionado
     col3, col4 = st.columns(2)
@@ -143,11 +119,20 @@ def material(conn, nome_escola_marta, df_escolas):
                 <div class="kpi-value anal-espc-kpi-value">{valor_kpi}</div>
             </div>
         """, unsafe_allow_html=True)
+
+    # Gráfico de barras para o indicador selecionado
     with col4:
         if not escolas_filtradas_mat.empty:
-            fig = criar_grafico_material(escolas_filtradas_mat, campo_selecionado, indicador_selecionado)
-            if fig:
-                st.plotly_chart(fig, use_container_width=True)
+            if not localizacoes_filtradas:
+                st.warning("Por favor, selecione ao menos um tipo de localização para visualizar o gráfico.")
+            else:
+                # Cria gráfico
+                fig = criar_grafico_material(escolas_filtradas_mat, campo_selecionado, indicador_selecionado)
+
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.warning("Nenhum dado disponível para os filtros selecionados.")
         else:
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")
 

@@ -117,12 +117,11 @@ def show_analise_especifica_page(conn):
     unsafe_allow_html=True)
 
     # Configuração do menu de navegação com abas internas
-    tab_saneamento_basico, tab_infraestrutura, tab_material, tab_corpo_docente, tab_matricula = st.tabs([
+    tab_saneamento_basico, tab_infraestrutura, tab_material, tab_corpo_docente = st.tabs([
         "💦 Saneamento Básico",
         "🏫 Infraestrutura", 
         "📒 Material",
-        "👩🏻 Corpo Docente",
-        "🧑🏻‍🎓 Matrícula"
+        "👩🏻 Corpo Docente"
     ])
 
     # Nome da escola da persona Marta (escola de referência para comparação)
@@ -136,14 +135,14 @@ def show_analise_especifica_page(conn):
     # Conteúdo da aba "Infraestrutura"
     with tab_infraestrutura:
         # Passa a conexão, nome da escola de Marta e o DataFrame com escolas filtradas
-        infraestrutura(conn, nome_escola_marta, df_escolas)
+        infraestrutura(conn, nome_escola_marta, df_escolas, tipo_localizacao_selecionada)
 
     # Conteúdo da aba "Material"
     with tab_material:
-        # Mantém a implementação original (não alterada nesta versão)
-        material(conn, nome_escola_marta, df_escolas)
+        # Mantém a implementação original
+        material(conn, nome_escola_marta, df_escolas, tipo_localizacao_selecionada)
 
     # Conteúdo da aba "Corpo Docente"
     with tab_corpo_docente:
-        # Mantém a implementação original (não alterada nesta versão)
+        # Mantém a implementação original
         corpo_docente(conn, nome_escola_marta, df_escolas)

@@ -1,10 +1,10 @@
 # Importa bibliotecas necessárias
 import pandas as pd
 import streamlit as st
-import plotly.express as px
-import plotly.graph_objects as go
+
+# Importando funções utilitárias
 from frontend.utils.formatters import bool_to_text
-from frontend.utils.graficos import criar_grafico
+from frontend.utils.graficos import criar_grafico_saneamento
 
 # Função para mostrar a tela de Saneamento Básico
 def saneamento_basico(conn, nome_escola_marta, df_escolas, localizacoes_filtradas):
@@ -153,7 +153,7 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas, localizacoes_filtrada
             if not localizacoes_filtradas:
                 st.warning("Por favor, selecione ao menos um tipo de localização para visualizar o gráfico.")
             else:
-                fig = criar_grafico(escolas_filtradas_df, campo_selecionado, indicador_selecionado, inverter_inexistente)
+                fig = criar_grafico_saneamento(escolas_filtradas_df, campo_selecionado, indicador_selecionado, inverter_inexistente)
 
                 if fig:
                     st.plotly_chart(fig, use_container_width=True)
