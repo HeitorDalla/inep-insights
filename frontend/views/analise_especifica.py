@@ -8,7 +8,6 @@ from frontend.views.analise_especifica_past.saneamento_basico import saneamento_
 from frontend.views.analise_especifica_past.corpo_docente import corpo_docente
 from frontend.views.analise_especifica_past.infraestrutura import infraestrutura
 from frontend.views.analise_especifica_past.material import material
-from frontend.views.analise_especifica_past.matricula import matricula
 
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page(conn):
@@ -22,7 +21,8 @@ def show_analise_especifica_page(conn):
     # Selectbox na sidebar para o usuário selecionar a região
     regiao_selecionada = st.sidebar.selectbox(
         "Selecione a região:",
-        options=regiao_unique["NO_REGIAO"]
+        options=regiao_unique["NO_REGIAO"],
+        index=0
     )
 
     # SQL Query para ler as UFs únicas baseadas na região selecionada
@@ -37,7 +37,8 @@ def show_analise_especifica_page(conn):
     # Selectbox na sidebar para o usuário selecionar a UF
     uf_selecionada = st.sidebar.selectbox(
         "Selecione a UF:",
-        options=uf_unique["NO_UF"]
+        options=uf_unique["NO_UF"],
+        index=0
     )
 
     # SQL Query para ler os municípios únicos baseados na UF selecionada
@@ -52,42 +53,26 @@ def show_analise_especifica_page(conn):
     # Selectbox na sidebar para o usuário selecionar o município
     municipio_selecionado = st.sidebar.selectbox(
         "Selecione o município:",
-        options=municipio_unique["NO_MUNICIPIO"]
+        options=municipio_unique["NO_MUNICIPIO"],
+        index=0
     )
 
     # Filtro de Localização
-    tipo_localizacao_df = pd.read_sql("""
+    tipo_localizacao_unique = pd.read_sql("""
         SELECT id, descricao 
         FROM tipo_localizacao 
         ORDER BY descricao ASC
     """, conn)
 
-    tipo_localizacao_list = tipo_localizacao_df["descricao"].tolist()
+    # Fazer uma lista com os tipos de localizações únicas
+    tipo_localizacao_list = tipo_localizacao_unique["descricao"].tolist()
+
+    # Multiselect na sidebar para o usuário selecionar os tipos de localização
     tipo_localizacao_selecionada = st.sidebar.multiselect(
         "Selecione o(s) tipo(s) de localização:",
-        options=tipo_localizacao_list
+        options=tipo_localizacao_list,
+        default=tipo_localizacao_list
     )
-
-    # Construção da query final - VERSÃO MELHORADA
-    where_clauses = []
-    params = []
-    
-    if regiao_selecionada != 'Todos':
-        where_clauses.append("r.NO_REGIAO = %s")
-        params.append(regiao_selecionada)
-    
-    if uf_selecionada != 'Todos':
-        where_clauses.append("u.NO_UF = %s")
-        params.append(uf_selecionada)
-    
-    if municipio_selecionado != 'Todos':
-        where_clauses.append("m.NO_MUNICIPIO = %s")
-        params.append(municipio_selecionado)
-    
-    if tipo_localizacao_selecionada: # verifica o item selecionado
-        placeholders = ", ".join(["%s"] * len(tipo_localizacao_selecionada))
-        where_clauses.append(f"tl.descricao IN ({placeholders})")
-        params.extend(tipo_localizacao_selecionada)
 
     # Monta a query SQL com placeholders dinâmicos
     sql = """
@@ -100,10 +85,20 @@ def show_analise_especifica_page(conn):
         JOIN uf u ON m.uf_id = u.id
         JOIN regiao r ON u.regiao_id = r.id
         JOIN tipo_localizacao tl ON e.tp_localizacao_id = tl.id
+        WHERE r.NO_REGIAO = %s
+            AND u.NO_UF = %s
+            AND m.NO_MUNICIPIO = %s
     """
     
-    if where_clauses:
-        sql += " WHERE " + " AND ".join(where_clauses)
+    params = [regiao_selecionada, uf_selecionada, municipio_selecionado]
+    
+    # Adiciona filtro de localização se não estiver selecionado todos
+    if tipo_localizacao_selecionada:
+        placeholders = ", ".join(["%s"] * len(tipo_localizacao_selecionada))
+        
+        sql += f" AND tl.descricao IN ({placeholders})"
+
+        params.extend(tipo_localizacao_selecionada)
     
     sql += " ORDER BY e.NO_ENTIDADE ASC"
     
@@ -136,7 +131,7 @@ def show_analise_especifica_page(conn):
     # Conteúdo da aba "Saneamento Básico"
     with tab_saneamento_basico:
         # Passa a conexão, nome da escola de Marta e o DataFrame com escolas filtradas
-        saneamento_basico(conn, nome_escola_marta, df_escolas)
+        saneamento_basico(conn, nome_escola_marta, df_escolas, tipo_localizacao_selecionada)
 
     # Conteúdo da aba "Infraestrutura"
     with tab_infraestrutura:
@@ -152,8 +147,3 @@ def show_analise_especifica_page(conn):
     with tab_corpo_docente:
         # Mantém a implementação original (não alterada nesta versão)
         corpo_docente(conn, nome_escola_marta, df_escolas)
-
-    # Conteúdo da aba "Matrícula"
-    with tab_matricula:
-        # Mantém a implementação original (não alterada nesta versão)
-        matricula(conn, nome_escola_marta, df_escolas)
