@@ -2,11 +2,13 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-import plotly.graph_objects as go
+
+# Importar funções utilitárias
 from frontend.utils.formatters import bool_to_text
+from frontend.utils.graficos import criar_grafico_infraestrutura
 
 # Função para mostrar a tela de infraestrutura
-def infraestrutura(conn, nome_escola_marta, df_escolas):
+def infraestrutura(conn, nome_escola_marta, df_escolas, localizacoes_filtradas):
     # Busca dados de infraestrutura da escola de Marta
     em_inf = pd.read_sql(
         """
@@ -84,6 +86,12 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
         
         # Executa a query com os nomes das escolas filtradas
         params = df_escolas["escola_nome"].tolist()
+        
+        if localizacoes_filtradas:
+            loc_placeholders = ", ".join(["%s"] * len(localizacoes_filtradas))
+            sql += f" AND tl.descricao IN ({loc_placeholders})"
+            params += localizacoes_filtradas
+
         escolas_filtradas_inf = pd.read_sql(sql, conn, params=params)
     else:
         # Se não há escolas filtradas, cria DataFrame vazio
@@ -121,6 +129,12 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
         
         # Executa a query com os nomes das escolas filtradas
         params_trans = df_escolas["escola_nome"].tolist()
+
+        if localizacoes_filtradas:
+            loc_placeholders = ", ".join(["%s"] * len(localizacoes_filtradas))
+            sql_trans += f" AND tl.descricao IN ({loc_placeholders})"
+            params_trans += localizacoes_filtradas
+        
         escolas_filtradas_trans = pd.read_sql(sql_trans, conn, params=params_trans)
     else:
         # Se não há escolas filtradas, cria DataFrame vazio
@@ -166,65 +180,6 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
     # Obtém o campo selecionado
     campo_selecionado = indicadores_opcoes[indicador_selecionado]
 
-    # Define função para criar gráfico de infraestrutura
-    def criar_grafico_infraestrutura(dados_df, campo, titulo):
-        if not dados_df.empty:
-            # Calcula porcentagem por tipo de localização
-            dados_agrupados = dados_df.groupby('localizacao')[campo].mean().reset_index()
-            dados_agrupados[campo] = dados_agrupados[campo] * 100
-            
-            # Cria gráfico de barras
-            fig = px.bar(
-                dados_agrupados,
-                x='localizacao',
-                y=campo,
-                title=f'{titulo} (%)',
-                labels={'localizacao': 'Localização', campo: 'Porcentagem (%)'},
-                color='localizacao',
-                color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
-            )
-            
-            # Ajusta layout do gráfico com estilo personalizado
-            fig.update_layout(
-                showlegend=False,
-                height=300,
-                margin=dict(l=20, r=20, t=70, b=20),
-                plot_bgcolor='white',
-                paper_bgcolor='white',
-                title={
-                    'text': f'{titulo} (%)',
-                    'x': 0.5,
-                    'xanchor': 'center',
-                    'font': {
-                        'size': 20,
-                        'color': '#4a4a4a'
-                    }
-                },
-                
-                # Estiliza os eixos
-                xaxis=dict(
-                    gridcolor='#f0f0f0',
-                    linecolor='#d0d0d0',
-                    title_font=dict(size=12, color='#4a4a4a')
-                ),
-                yaxis=dict(
-                    gridcolor='#f0f0f0',
-                    linecolor='#d0d0d0',
-                    title_font=dict(size=12, color='#4a4a4a'),
-                    range=[0, 100]
-                )
-            )
-            
-            # Adiciona valores no topo das barras
-            fig.update_traces(
-                texttemplate='%{y:.1f}%', 
-                textposition='inside',
-                textfont=dict(size=18, color='white')
-            )
-            
-            return fig
-        return None
-
     # Cria layout de duas colunas para conteúdo
     col3, col4 = st.columns(2)
 
@@ -241,10 +196,16 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
     # Coluna 2: Gráfico das escolas filtradas
     with col4:
         if not escolas_filtradas_inf.empty:
-            # Cria gráfico para o indicador selecionado
-            fig = criar_grafico_infraestrutura(escolas_filtradas_inf, campo_selecionado, indicador_selecionado)
-            if fig:
-                st.plotly_chart(fig, use_container_width=True)
+            if not localizacoes_filtradas:
+                st.warning("Por favor, selecione ao menos um tipo de localização para visualizar o gráfico.")
+            else:
+                # Cria gráfico para o indicador selecionado
+                fig = criar_grafico_infraestrutura(escolas_filtradas_inf, campo_selecionado, indicador_selecionado)
+
+                if fig:
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.warning("Nenhum dado disponível para os filtros selecionados.")
         else:
             # Se não há escolas filtradas, exibe mensagem informativa
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")
