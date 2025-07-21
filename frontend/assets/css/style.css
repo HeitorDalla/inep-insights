@@ -30,6 +30,14 @@
     font-family: var(--fonte) !important;
 }
 
+.p-destaque {
+    font-size: 1.8em !important;
+    text-align: center !important;
+    color: #4a4a4a !important;
+    font-family: var(--fonte) !important;
+    font-weight: 600 !important;
+}
+
 h2 {
     font-size: 1.25em !important;
     text-align: center !important;

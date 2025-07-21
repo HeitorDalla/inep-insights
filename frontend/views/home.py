@@ -140,6 +140,10 @@ def show_home_page (conn):
     # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
     media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
 
+    st.write("""
+    Marta Oliveira, diretora de uma escola municipal em uma comunidade rural, com 20 anos dedicados à educação, enfrenta diariamente os desafios da falta de infraestrutura básica.
+    Estes indicadores buscam dar visibilidade a essa realidade e fortalecer o apelo por políticas públicas mais justas, atraindo parceiros comprometidos com uma educação de qualidade no campo, que considerem as desigualdades entre áreas urbanas e rurais""")
+
     # Exibição de KPI cards
     col1, col2, col3 = st.columns(3)
     col4, col5, col6 = st.columns(3)

@@ -6,7 +6,6 @@ import plotly.graph_objects as go
 import numpy as np
 
 def corpo_docente(conn, nome_escola_marta, df_escolas):
-    st.write("A pagina corpo docente esta funcionando")
     # Busca dados da escola de Marta
     em_docente = pd.read_sql(
         """

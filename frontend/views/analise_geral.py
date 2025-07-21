@@ -622,91 +622,64 @@ def show_analise_geral_page(conn):
                     * **Pontos mais altos** → mais alunos por escola
                 """, unsafe_allow_html=True)
 
-        # ────────────────────────────────────────────────────────────────────────────────────────────────────────
-        # PRECISA DAR ESTILO NISSO, ESTOU SEM IDEIAS !!!
-        # ────────────────────────────────────────────────────────────────────────────────────────────────────────
-        st.write("PRECISA DAR ESTILO NISSO, ESTOU SEM IDEIAS !!!")
-
-
         # Insights baseados nos dados
-        st.markdown("## 🧠 Insights Estratégicos")
+        st.markdown('<hr><h1 class="h1-title-anal_espc">Insights Relevantes</h1><br>', unsafe_allow_html=True)
         
-        with st.expander("🎯 **Principais Desafios das Escolas Rurais**", expanded=True):
-            if infra_rural and saneamento_rural:
-                st.markdown(f"""
-                **Situação Atual (Score: {score_rural}/100):**
-                - 📚 **Biblioteca**: Presente em apenas {infra_rural.get('biblioteca', 0):.1f}% das escolas rurais
-                - 🔬 **Laboratório de Ciências**: Apenas {infra_rural.get('lab_ciencias', 0):.1f}% têm acesso
-                - 🌐 **Internet**: {infra_rural.get('internet', 0):.1f}% conectadas vs {infra_urbana.get('internet', 0):.1f}% urbanas
-                - 🚰 **Saneamento**: {saneamento_rural.get('esgoto_rede_publica', 0):.1f}% com esgoto tratado vs {saneamento_urbana.get('esgoto_rede_publica', 0):.1f}% urbanas
-                
-                **Impacto Direto:**
-                - **Aprendizado Limitado**: Falta de infraestrutura básica compromete qualidade
-                - **Exclusão Digital**: Dificulta acesso a recursos educacionais modernos
-                - **Problemas de Saúde**: Saneamento precário afeta frequência escolar
-                - **Desigualdade**: Diferença gritante entre realidades rural e urbana
-                """)
+        # with st.expander("ⓘ Clique para visualizar os insights"):
+        if infra_rural and saneamento_rural:
+            # st.markdown('<p class="p-title-anal_espc"">Direcionamento de Investimentos</p>', unsafe_allow_html=True)
+
+            if score_rural <= 40:
+                st.error(f"🚨 **SCORE CRÍTICO ({score_rural:.1f} PONTOS)!**")
+            elif score_rural <= 60:
+                st.warning(f"⚠️ **SCORE BAIXO ({score_rural:.1f} PONTOS).**")
+            elif score_rural <= 80:
+                st.info(f"🔵 **SCORE MODERADO ({score_rural:.1f} PONTOS).**")
             else:
-                st.warning("Dados insuficientes para gerar insights completos.")
-        
-        with st.expander("💡 **Recomendações Prioritárias**"):
-            if infra_rural and saneamento_rural:
-                # Identificar prioridades baseadas nos dados
-                prioridades = []
-                
-                # Analisar infraestrutura
-                infra_items = [
-                    ('biblioteca', 'Biblioteca'),
-                    ('lab_ciencias', 'Laboratório de Ciências'),
-                    ('lab_informatica', 'Laboratório de Informática'),
-                    ('internet', 'Internet'),
-                    ('esgoto_rede_publica', 'Esgoto Tratado')
-                ]
-                
-                for key, label in infra_items:
-                    rural_val = infra_rural.get(key, 0) if key in infra_rural else saneamento_rural.get(key, 0)
-                    urbana_val = infra_urbana.get(key, 0) if key in infra_urbana else saneamento_urbana.get(key, 0)
-                    
-                    if rural_val < 50:
-                        gap = urbana_val - rural_val
-                        prioridades.append((label, gap, rural_val))
-                
-                # Ordenar por gap
-                prioridades.sort(key=lambda x: x[1], reverse=True)
-                
-                if prioridades:
-                    st.markdown("**🚀 Prioridades de Investimento:**")
-                    for i, (item, gap, atual) in enumerate(prioridades[:3]):
-                        st.markdown(f"{i+1}. **{item}**: {atual:.1f}% atual, GAP de {gap:.1f} pontos")
-                    
-                    st.markdown("""
-                    **💰 Estratégia de Captação:**
-                    1. **Internet**: Essencial para educação moderna
-                    2. **Biblioteca**: Baixo custo, alto impacto
-                    3. **Saneamento**: Fundamental para saúde e permanência
-                    
-                    **🎯 Argumentos para Secretarias:**
-                    - Investimento em infraestrutura melhora indicadores educacionais
-                    - Redução da desigualdade entre zonas rural e urbana
-                    - Impacto direto na qualidade do ensino
-                    """)
-                else:
-                    st.info("Todos os indicadores estão acima de 50%. Foque em melhorias pontuais.")
-            else:
-                st.warning("Dados insuficientes para recomendações específicas.")
-        
-        with st.expander("📊 **Como Apresentar Estes Dados**"):
-            st.markdown(f"""
-            **Para Secretarias de Educação:**
-            1. **Destaque o GAP**: {gap_score:.1f} pontos entre rural e urbano
-            2. **Mostre correlações**: Infraestrutura x matrículas x desempenho
-            3. **Proponha soluções**: Priorize investimentos de maior impacto
+                st.success(f"✅ **SCORE ALTO ({score_rural:.1f} PONTOS)!**")
+
+            col1, col2, col3 = st.columns(3)
+
+            with col1: 
+                st.info(f"**Biblioteca**: {infra_rural.get('biblioteca', 0):.1f}% Escolas Rurais")
+
+            with col2:
+                st.info(f"**Lab. Ciências**: {infra_rural.get('lab_ciencias', 0):.1f}% Escolas Rurais")
+
+            with col3:
+                st.info(f"**Internet**: {infra_rural.get('internet', 0):.1f}% Rural vs {infra_urbana.get('internet', 0):.1f}% Urbana")
+
+            prioridades = []
             
-            **Para Comunidade Escolar:**
-            1. **Humanize os dados**: Conecte números com realidades locais
-            2. **Mostre exemplos**: Casos de sucesso em outras regiões
-            3. **Engaje stakeholders**: Envolva todos no processo de melhoria
-            """)
-        
+            # Analisar infraestrutura
+            infra_items = [
+                ('biblioteca', 'Biblioteca'),
+                ('lab_ciencias', 'Laboratório de Ciências'),
+                ('lab_informatica', 'Laboratório de Informática'),
+                ('internet', 'Internet'),
+                ('esgoto_rede_publica', 'Esgoto Tratado')
+            ]
+            
+            for key, label in infra_items:
+                rural_val = infra_rural.get(key, 0) if key in infra_rural else saneamento_rural.get(key, 0)
+                urbana_val = infra_urbana.get(key, 0) if key in infra_urbana else saneamento_urbana.get(key, 0)
+                
+                if rural_val < 50:
+                    gap = urbana_val - rural_val
+                    prioridades.append((label, gap, rural_val))
+            
+            # Ordenar por gap
+            prioridades.sort(key=lambda x: x[1], reverse=True)
+            
+            if prioridades:
+                st.markdown('<p class="p-destaque"">📈 Direcionamento de Investimentos</p>', unsafe_allow_html=True)
+                for i, (item, gap, atual) in enumerate(prioridades[:3]):
+                    st.success(f"{i+1}. **{item}**: {atual:.1f}% atual, GAP de {gap:.1f} pontos")
+
+            else:
+                st.info("Todos os indicadores estão acima de 50%. Foque em melhorias pontuais.")
+        else:
+            st.warning("Dados insuficientes para gerar insights completos.")
+
     except Exception as e:
         st.error(f"Erro ao carregar dados: {str(e)}")
