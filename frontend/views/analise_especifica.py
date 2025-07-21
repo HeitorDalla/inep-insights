@@ -8,7 +8,6 @@ from frontend.views.analise_especifica_past.saneamento_basico import saneamento_
 from frontend.views.analise_especifica_past.corpo_docente import corpo_docente
 from frontend.views.analise_especifica_past.infraestrutura import infraestrutura
 from frontend.views.analise_especifica_past.material import material
-from frontend.views.analise_especifica_past.matricula import matricula
 
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page(conn):
@@ -148,8 +147,3 @@ def show_analise_especifica_page(conn):
     with tab_corpo_docente:
         # Mantém a implementação original (não alterada nesta versão)
         corpo_docente(conn, nome_escola_marta, df_escolas)
-
-    # Conteúdo da aba "Matrícula"
-    with tab_matricula:
-        # Mantém a implementação original (não alterada nesta versão)
-        matricula(conn, nome_escola_marta, df_escolas)
