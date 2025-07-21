@@ -253,6 +253,10 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
     if not escolas_filtradas_trans.empty:
         st.markdown("<hr>", unsafe_allow_html=True)
         
+        st.markdown('<h1 class="h1-title-anal_espc">Transporte Escolar Público</h1>', unsafe_allow_html=True)
+
+        st.markdown("<h2>Quantidade de alunos que utilizam Transporte Escolar Público</h2><br>", unsafe_allow_html=True)
+
         # Divide em 3 colunas para os dados de transporte
         col_trans1, col_trans2, col_trans3 = st.columns(3)
         
@@ -261,10 +265,10 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
             qt_transporte_formatted = f"{em_qt_transporte:,.0f}".replace(",", "@").replace(".", ",").replace("@", ".")
             st.markdown(f"""
                 <div class="kpi-card anal-espc-kpi-card kpi-card-graph">
-                    <div class="kpi-label kpi-label-graph"> Escola de Marta</div>
-                    <div class="kpi-label kpi-sublabel-graph">Transporte Escolar Público (TEP)</div>
+                    <div class="kpi-label kpi-label-graph">Escola de Marta</div>
+                    <div class="kpi-label kpi-sublabel-graph"></div>
                     <div class="kpi-value anal-espc-kpi-value kpi-value-graph">{qt_transporte_formatted}</div>
-                    <div class="kpi-caption kpi-caption-graph">ⓘ Quantidade de alunos que utilizam Transporte Escolar Público</div>
+                    <div class="kpi-caption kpi-caption-graph"></div>
                 </div>
             """, unsafe_allow_html=True)
         
@@ -274,8 +278,8 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
                 escolas_filtradas_trans,
                 x='localizacao',
                 y='transporte',
-                title='Distribuição do TEP das Escolas Selecionadas',
-                labels={'localizacao': 'Localização', 'transporte': 'Quantidade de Transporte'},
+                title='Distribuição nas Escolas Filtradas',
+                labels={'localizacao': 'Localização', 'transporte': 'Quantidade de Alunos'},
                 color='localizacao',
                 color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
             )
@@ -287,7 +291,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
                 plot_bgcolor='white',
                 paper_bgcolor='white',
                 title={
-                    'text': 'Distribuição do TEP das Escolas Selecionadas',
+                    'text': 'Distribuição nas Escolas Filtradas',
                     'x': 0.5,
                     'xanchor': 'center',
                     'font': {
@@ -308,6 +312,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
             )
             
             st.plotly_chart(fig_box, use_container_width=True)
+
         
         with col_trans3:
             # Histograma - Melhor para mostrar frequência de distribuição
@@ -315,8 +320,8 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
                 escolas_filtradas_trans,
                 x='transporte',
                 color='localizacao',
-                title='Frequência da qtd. de TEP das Escolas Filtradas',
-                labels={'transporte': 'Quantidade de Transporte', 'count': 'Número de Escolas'},
+                title='Frequência das Escolas Filtradas',
+                labels={'transporte': 'Quantidade de Alunos'},
                 color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'},
                 nbins=15,
                 barmode='overlay',
@@ -329,7 +334,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
                 plot_bgcolor='white',
                 paper_bgcolor='white',
                 title={
-                    'text': 'Frequência da qtd. de TEP das Escolas Filtradas',
+                    'text': 'Frequência das Escolas Filtradas',
                     'x': 0.5,
                     'xanchor': 'center',
                     'font': {
@@ -343,6 +348,7 @@ def infraestrutura(conn, nome_escola_marta, df_escolas):
                     title_font=dict(size=12, color='#4a4a4a')
                 ),
                 yaxis=dict(
+                    title='Número de Escolas',
                     gridcolor='#f0f0f0',
                     linecolor='#d0d0d0',
                     title_font=dict(size=12, color='#4a4a4a')

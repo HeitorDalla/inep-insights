@@ -30,6 +30,13 @@
     font-family: var(--fonte) !important;
 }
 
+h2 {
+    font-size: 1.25em !important;
+    text-align: center !important;
+    color: #4a4a4a !important;
+    font-family: var(--fonte) !important;
+    filter: opacity(0.8);
+}
 
 /* Cards de KPI - Design Moderno */
 .kpi-card {
@@ -107,6 +114,7 @@
 
 .kpi-label-graph {
     font-weight: 700 !important;
+    font-size: 2em !important;
 }
 
 .kip-sublabel-graph {

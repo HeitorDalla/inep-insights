@@ -42,18 +42,18 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
 
     # Busca dados das escolas filtradas
     if not df_escolas.empty:
-        with st.expander("ⓘ Com dúvidas? Clique para abrir o glossário"):
+        with st.expander("ⓘ Com dúvidas? Clique para abrir a explicação"):
             st.markdown("""
             1. **Bibliotecário(a)** ─ Bibliotecário(a), auxiliar de biblioteca ou monitor(a) da sala de leitura;
             2. **Pedagogo(a)** ─ Profissionais de apoio e supervisão pedagógica: pedagogo(a), coordenador(a) pedagógico(a), orientador(a) educacional, supervisor(a) escolar e coordenador(a) de área de ensino;
             3. **Profissional da Saúde** ─ Bombeiro(a) brigadista, profissionais de assistência à saúde (urgência e emergência), enfermeiro(a), técnico(a) de enfermagem e socorrista;
-            4. **Psicólogo(a)** ─ Psicólogo(a) escolar;
+            4. **Psicólogo(a)** ─ Promove saúde mental e apoia alunos com dificuldades emocionais ou de aprendizagem;
             5. **Administrativo** ─ Auxiliares de secretaria ou auxiliares administrativos, atendentes;
             6. **Profissional de Serviços Gerais** ─ Auxiliar de serviços gerais, porteiro(a), zelador(a), faxineiro(a), jardineiro(a);
             7. **Segurança** ─ Segurança, guarda ou segurança patrimonial;
             8. **Gestor** ─ Vice-diretor(a) ou diretor(a) adjunto(a), profissionais responsáveis pela gestão administrativa e/ou financeira;
             9. **Assistente Social** ─ Orientador(a) comunitário(a) ou assistente social;
-            10. **Nutricionista** ─ Nutricionista.
+            10. **Nutricionista** ─ Planeja e garante alimentação saudável e adequada para os alunos
             """)
 
         placeholders = ", ".join(["%s"] * len(df_escolas))
@@ -223,19 +223,42 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
             dados_pizza = [(nomes_profissionais[k], v) for k, v in em_vals.items() if v > 0]
             if dados_pizza:
                 profs, vals = zip(*dados_pizza)
+
+                cores_oceanicas = [
+                        '#0B4D6A',  # Azul marinho profundo
+                        '#1E88E5',  # Azul oceano
+                        '#42A5F5',  # Azul claro
+                        '#66BB6A',  # Verde-mar
+                        '#26C6DA',  # Turquesa
+                        '#80DEEA',  # Azul aqua claro
+                        '#4FC3F7',  # Azul céu
+                        '#81C784',  # Verde água
+                        '#A5D6A7',  # Verde menta claro
+                        '#B39DDB'   # Azul lavanda
+                    ]
+
                 fig_pizza = px.pie(
                     values=vals,
                     names=profs,
-                    title="Distribuição de Profissionais da Escola de Marta"
+                    title="Distribuição de Profissionais da Escola de Marta",
+                    color_discrete_sequence=cores_oceanicas
                 )
                 fig_pizza.update_layout(
                     height=500,
                     margin=dict(l=20, r=20, t=70, b=20),
                     plot_bgcolor='white',
                     paper_bgcolor='white',
-                    title={'x': 0.5, 'xanchor': 'center', 'font': {'size': 18, 'color': '#4a4a4a'}}
+                    title={'x': 0.5, 'xanchor': 'center', 'font': {'size': 17, 'color': '#4a4a4a'}}
                 )
-                fig_pizza.update_traces(textposition='inside', textinfo='percent')
+                fig_pizza.update_traces(
+                    textposition='inside',          # Posição do texto dentro das fatias
+                    textinfo='percent',             # Mostrar percentuais nas fatias
+                    textfont_size=12,               # Tamanho da fonte dos percentuais
+                    marker_line_color='white',      # Cor branca para bordas das fatias
+                    marker_line_width=2,            # Largura das bordas (2 pixels)
+                    textfont_color='#ffffff'
+                )
+
                 st.plotly_chart(fig_pizza, use_container_width=True)
             else:
                 st.info("A escola de Marta não possui profissionais registrados.")
@@ -264,7 +287,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
                 margin=dict(l=20, r=20, t=70, b=20),
                 plot_bgcolor='white',
                 paper_bgcolor='white',
-                title={'x': 0.5, 'xanchor': 'center', 'font': {'size': 18, 'color': '#4a4a4a'}},
+                title={'x': 0.5, 'xanchor': 'center', 'font': {'size': 17, 'color': '#4a4a4a'}},
                 xaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0'),
                 yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0')
             )
@@ -278,10 +301,10 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
             x='seguranca',
             y='total_profissionais',
             color='localizacao',
-            size='pedagogia',
+            size='saude',
             hover_data=['NO_ENTIDADE'],
             title='Relação entre Segurança e Total de Profissionais',
-            labels={'seguranca': 'Profissionais de Segurança', 'total_profissionais': 'Total'},
+            labels={'seguranca': 'Profissionais de Segurança', 'total_profissionais': 'Total de Profissionais'},
             color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
         )
         fig_scatter.add_trace(go.Scatter(
@@ -303,6 +326,21 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
             yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0')
         )
         st.plotly_chart(fig_scatter, use_container_width=True)
+
+        with st.expander("ⓘ Clique para visualizar explicação do gráfico acima"):
+            st.markdown("""
+                Este **gráfico de dispersão** apresenta a relação entre o número de profissionais de segurança e o total de profissionais nas escolas, sendo que cada ponto representa uma escola:
+               
+                * **Eixo X**: Quantidade de profissionais de Segurança por escola.
+                
+                * **Eixo Y**: Total de profissionais por escola.
+
+                * **Tamanho do ponto**: Proporcional ao número de Profissionais de Saúde. Pontos maiores indicam mais profissionais de saúde.
+
+                * **Pontos mais à direita**: Escolas com mais profissionais de segurança
+                        
+                * **Pontos mais acima**: Escolas com maior número total de profissionais
+            """)
 
         # Heatmap de correlação
         st.markdown("<br>", unsafe_allow_html=True)
@@ -340,22 +378,24 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
                 * **Cores neutras** (valores próximos de 0): significam pouca ou nenhuma correlação.
             """)
 
-            st.caption("1 - O coeficiente de Pearson é uma medida estatística que quantifica a intensidade e a direção (positiva ou negativa) do relacionamento linear entre duas variáveis, variando de –1 a +1.\n2 - Uma correlação alta apenas mostra que duas variáveis variam juntas, mas não prova, necessariamente, uma causualidade³.\n3 - Causalidade é a relação de causa‑efeito, em que mudanças em A provocam mudanças em B.")
+            st.caption("1 - O coeficiente de Pearson é uma medida estatística que quantifica a intensidade e a direção (positiva ou negativa) do relacionamento linear entre duas variáveis, variando de –1 a +1.\n\n2 - Uma correlação alta apenas mostra que duas variáveis variam juntas, mas não prova, necessariamente, uma causalidade.\n\n3 - Causalidade é a relação de causa‑efeito, em que mudanças em A provocam mudanças em B.")
 
         # Box plot da distribuição do total de profissionais
         st.markdown("<br>", unsafe_allow_html=True)
+
+        # Mantém apenas Rural e Urbana
         dist = escolas_filtradas_docente[['localizacao', 'total_profissionais']].copy()
-        dist = pd.concat([
-            dist,
-            pd.DataFrame({'localizacao': ['Escola de Marta'], 'total_profissionais': [total_profissionais_marta]})
-        ], ignore_index=True)
+
         fig_box = px.box(
-            dist, x='localizacao', y='total_profissionais',
+            dist,
+            x='localizacao',
+            y='total_profissionais',
             title='Distribuição do Total de Profissionais por Localização',
             labels={'localizacao': 'Localização', 'total_profissionais': 'Total'},
             color='localizacao',
-            color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A', 'Escola de Marta': '#1b2d53'}
+            color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
         )
+
         fig_box.update_layout(
             height=500,
             margin=dict(l=20, r=20, t=70, b=20),
@@ -363,7 +403,9 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
             paper_bgcolor='white',
             title={'x': 0.5, 'xanchor': 'center', 'font': {'size': 24, 'color': '#4a4a4a'}}
         )
+
         st.plotly_chart(fig_box, use_container_width=True)
+
 
         with st.expander("ⓘ Clique para visualizar explicação do gráfico acima"):
             st.markdown("""
@@ -373,16 +415,18 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
 
                 * **Linha no meio da caixa** (mediana): Marca o valor central (50%) dos dados. Se a linha estiver mais perto de Q1 ou Q3, indica que a distribuição é assimétrica.
 
-                * **Bigodes**: São linhas que se estendem para os valores mínimos e máximos considerados "dentro do esperado".
+                * **Bigodes**:
+                        
+                    * São linhas que se estendem para os valores mínimos e máximos considerados "dentro do esperado".
 
-                Geralmente até 1,5× o intervalo interquartil³ além de Q1 e Q3.
+                    * Geralmente até 1,5× o intervalo interquartil³ além de Q1 e Q3.
 
-                Valores fora desse limite são plotados como pontos isolados (Outliers⁴).
+                    * Valores fora desse limite são plotados como pontos isolados (Outliers⁴).
 
                 * **Pontos fora da caixa** (outliers⁴): Indicam valores atípicos que podem merecer investigação.
             """)
 
-            st.caption('1 - É o valor que divide os 25% menores dos dados.\n2 - É o valor que separa os 75% menores dos 25% maiores.\n3 - É a "caixa" do gráfico de dispersão (Q3 - Q1). Mostra onde está concentrada a metade central dos dados.\n4 - É um ponto que foge muito do restante dos dados, ficando “além” dos bigodes do box plot. Pode indicar algo raro, um erro de registro ou simplesmente uma ocorrência extrema.')
+            st.caption('1 - É o valor que divide os 25% menores dos dados.\n\n2 - É o valor que separa os 75% menores dos 25% maiores.\n\n3 - É a "caixa" do gráfico de dispersão (IRQ = Q3 - Q1). Mostra onde está concentrada a metade central dos dados.\n\n4 - É um ponto que foge muito do restante dos dados, ficando “além” dos bigodes do box plot. Pode indicar algo raro, um erro de registro ou simplesmente uma ocorrência extrema.')
 
     elif not df_escolas.empty:
         st.info("Dados de corpo docente não disponíveis para as escolas filtradas.")

@@ -178,7 +178,8 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas):
                 yaxis=dict(
                     gridcolor='#f0f0f0',
                     linecolor='#d0d0d0',
-                    title_font=dict(size=12, color='#4a4a4a')
+                    title_font=dict(size=12, color='#4a4a4a'),
+                    range=[0, 100]
                 )
             )
             

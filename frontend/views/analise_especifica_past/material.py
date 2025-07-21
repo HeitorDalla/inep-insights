@@ -24,7 +24,7 @@ def material(conn, nome_escola_marta, df_escolas):
 
     # Processa os dados da escola de Marta
     if not em_mat.empty:
-        with st.expander("ⓘ Com dúvidas? Clique para abrir o glossário"):
+        with st.expander("ⓘ Com dúvidas? Clique para abrir o explicação"):
             st.markdown("""
             1. **Material Científico** ─ Instrumentos e materiais socioculturais e/ou pedagógicos em uso na escola;
             2. **Material Artístico** ─ Materiais para atividades culturais e artísticas;
@@ -151,72 +151,77 @@ def material(conn, nome_escola_marta, df_escolas):
         else:
             st.write("Por favor, ajuste os filtros na sidebar para visualizar os dados das escolas.")
 
-    # Seção de análise de Equipamentos Multimídia em três colunas
-    if not escolas_filtradas_mat.empty:
-        st.markdown("<hr>", unsafe_allow_html=True)
-        col_eq1, col_eq2, col_eq3 = st.columns(3)
+    # # Seção de análise de Equipamentos Multimídia em três colunas
+    # if not escolas_filtradas_mat.empty:
+    #     st.markdown("<hr>", unsafe_allow_html=True)
+    #     col_eq1, col_eq2, col_eq3 = st.columns(3)
 
-        with col_eq1:
-            equipamentos_formatados = f"{em_vals['equipamentos_multimidia']:,.0f}".replace(",", "@").replace(".", ",").replace("@", ".")
-            st.markdown(f"""
-                <div class="kpi-card anal-espc-kpi-card kpi-card-graph">
-                    <div class="kpi-label kpi-label-graph">Escola de Marta</div>
-                    <div class="kpi-label kpi-sublabel-graph">Equipamentos de Multimídia (EM)</div>
-                    <div class="kpi-value anal-espc-kpi-value kpi-value-graph">{equipamentos_formatados}</div>
-                </div>
-            """, unsafe_allow_html=True)
+    #     st.markdown('<h1 class="h1-title-anal_espc">Transporte Escolar Público</h1>', unsafe_allow_html=True)
 
-        with col_eq2:
-            equipamentos_stats = escolas_filtradas_mat.groupby('localizacao')['equipamentos_multimidia'].mean().reset_index()
-            fig_media = px.bar(
-                equipamentos_stats,
-                x='localizacao',
-                y='equipamentos_multimidia',
-                title='Média de EM das Escolas Filtradas',
-                labels={'localizacao': 'Localização', 'equipamentos_multimidia': 'Quantidade Média'},
-                color='localizacao',
-                color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
-            )
-            fig_media.update_layout(
-                showlegend=False,
-                height=400,
-                margin=dict(l=20, r=20, t=70, b=20),
-                plot_bgcolor='white',
-                paper_bgcolor='white',
-                title={'text': 'Média de EM das Escolas Filtradas', 'x': 0.5, 'xanchor': 'center',
-                       'font': {'size': 16, 'color': '#4a4a4a'}},
-                xaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a')),
-                yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a'))
-            )
-            fig_media.update_traces(texttemplate='%{y:.1f}', textposition='inside', textfont=dict(size=14, color='white'))
-            st.plotly_chart(fig_media, use_container_width=True)
+    #     st.markdown("<h2>Quantidade de alunos que utilizam Transporte Escolar Público</h2><br>", unsafe_allow_html=True)
 
-        with col_eq3:
-            fig_box = px.box(
-                escolas_filtradas_mat,
-                x='localizacao',
-                y='equipamentos_multimidia',
-                title='Distribuição de EM das Escolas Filtradas',
-                labels={'localizacao': 'Localização', 'equipamentos_multimidia': 'Quantidade'},
-                color='localizacao',
-                color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
-            )
-            fig_box.update_layout(
-                showlegend=False,
-                height=400,
-                margin=dict(l=20, r=20, t=70, b=20),
-                plot_bgcolor='white',
-                paper_bgcolor='white',
-                title={'text': 'Distribuição de EM das Escolas Filtradas', 'x': 0.5, 'xanchor': 'center',
-                       'font': {'size': 16, 'color': '#4a4a4a'}},
-                xaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a')),
-                yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a'))
-            )
-            st.plotly_chart(fig_box, use_container_width=True)
 
-    elif not df_escolas.empty:
-        st.markdown(
-            "<h2 style='color: #4a4a4a; margin-top: 40px;'>📊 Análise de Equipamentos Multimídia</h2>",
-            unsafe_allow_html=True
-        )
-        st.info("Dados de equipamentos multimídia não disponíveis para as escolas filtradas.")
+    #     with col_eq1:
+    #         equipamentos_formatados = f"{em_vals['equipamentos_multimidia']:,.0f}".replace(",", "@").replace(".", ",").replace("@", ".")
+    #         st.markdown(f"""
+    #             <div class="kpi-card anal-espc-kpi-card kpi-card-graph">
+    #                 <div class="kpi-label kpi-label-graph">Escola de Marta</div>
+    #                 <div class="kpi-label kpi-sublabel-graph">Equipamentos de Multimídia (EM)</div>
+    #                 <div class="kpi-value anal-espc-kpi-value kpi-value-graph">{equipamentos_formatados}</div>
+    #             </div>
+    #         """, unsafe_allow_html=True)
+
+    #     with col_eq2:
+    #         equipamentos_stats = escolas_filtradas_mat.groupby('localizacao')['equipamentos_multimidia'].mean().reset_index()
+    #         fig_media = px.bar(
+    #             equipamentos_stats,
+    #             x='localizacao',
+    #             y='equipamentos_multimidia',
+    #             title='Média de EM das Escolas Filtradas',
+    #             labels={'localizacao': 'Localização', 'equipamentos_multimidia': 'Quantidade Média'},
+    #             color='localizacao',
+    #             color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
+    #         )
+    #         fig_media.update_layout(
+    #             showlegend=False,
+    #             height=400,
+    #             margin=dict(l=20, r=20, t=70, b=20),
+    #             plot_bgcolor='white',
+    #             paper_bgcolor='white',
+    #             title={'text': 'Média de EM das Escolas Filtradas', 'x': 0.5, 'xanchor': 'center',
+    #                    'font': {'size': 16, 'color': '#4a4a4a'}},
+    #             xaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a')),
+    #             yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a'))
+    #         )
+    #         fig_media.update_traces(texttemplate='%{y:.1f}', textposition='inside', textfont=dict(size=14, color='white'))
+    #         st.plotly_chart(fig_media, use_container_width=True)
+
+    #     with col_eq3:
+    #         fig_box = px.box(
+    #             escolas_filtradas_mat,
+    #             x='localizacao',
+    #             y='equipamentos_multimidia',
+    #             title='Distribuição de EM das Escolas Filtradas',
+    #             labels={'localizacao': 'Localização', 'equipamentos_multimidia': 'Quantidade'},
+    #             color='localizacao',
+    #             color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
+    #         )
+    #         fig_box.update_layout(
+    #             showlegend=False,
+    #             height=400,
+    #             margin=dict(l=20, r=20, t=70, b=20),
+    #             plot_bgcolor='white',
+    #             paper_bgcolor='white',
+    #             title={'text': 'Distribuição de EM das Escolas Filtradas', 'x': 0.5, 'xanchor': 'center',
+    #                    'font': {'size': 16, 'color': '#4a4a4a'}},
+    #             xaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a')),
+    #             yaxis=dict(gridcolor='#f0f0f0', linecolor='#d0d0d0', title_font=dict(size=12, color='#4a4a4a'))
+    #         )
+    #         st.plotly_chart(fig_box, use_container_width=True)
+
+    # elif not df_escolas.empty:
+    #     st.markdown(
+    #         "<h2 style='color: #4a4a4a; margin-top: 40px;'>📊 Análise de Equipamentos Multimídia</h2>",
+    #         unsafe_allow_html=True
+    #     )
+    #     st.info("Dados de equipamentos multimídia não disponíveis para as escolas filtradas.")
