@@ -23,6 +23,38 @@ selected = option_menu(
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
+    styles = {
+        # Estilo do contêiner principal do menu (envolve todos os itens)
+        "container": {
+            "padding": "5px !important",            # Remove o espaçamento interno (padding)
+            "background-color": "#ffffff",        # Cor de fundo do menu
+            "border-radius": "18px"
+        },
+
+        # Estilo dos ícones ao lado dos nomes das opções
+        "icon": {
+            "color": "#ffffff",                # Cor dos ícones
+            "font-size": "20px"                  # Tamanho da fonte dos ícones
+        },
+
+        # Estilo das opções (links) que não estão selecionadas
+        "nav-link": {
+            "font-size": "18px",                 # Tamanho da fonte das opções
+            "text-align": "center",              # Alinhamento do texto no centro
+            "margin": "0px",                     # Remove margem ao redor das opções
+            "color": "#000000",                # Cor do texto das opções inativas
+            "hover-color": "#1b2d53",          # Cor ao passar o mouse sobre a opção
+            "border-radius": "18px"
+        },
+
+        # Estilo da opção atualmente selecionada
+        "nav-link-selected": {
+            "background-color": "#1b2d53",       # Cor de fundo da opção ativa (verde)
+            "color": "#ffffff",                  # Cor do texto da opção ativa
+            "font-weight": "400"
+        }
+    }
+
 )
 
 # Importação de Bibliotecas e Configuração

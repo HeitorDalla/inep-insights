@@ -622,6 +622,89 @@ def show_analise_geral_page(conn):
                     * **Pontos mais altos** → mais alunos por escola
                 """, unsafe_allow_html=True)
 
+        # Consulta SQL com filtros de região e UF já aplicados via where_clause e params
+        query_professores = f"""
+        SELECT 
+            tl.descricao 
+                AS localizacao,
+            cd.QT_PROF_BIBLIOTECARIO + 
+            cd.QT_PROF_PEDAGOGIA + 
+            cd.QT_PROF_SAUDE +
+            cd.QT_PROF_PSICOLOGO + 
+            cd.QT_PROF_ADMINISTRATIVOS + 
+            cd.QT_PROF_SERVICOS_GERAIS +
+            cd.QT_PROF_SEGURANCA + 
+            cd.QT_PROF_GESTAO + 
+            cd.QT_PROF_ASSIST_SOCIAL +
+            cd.QT_PROF_NUTRICIONISTA 
+                AS total_professores
+        FROM escola e
+        JOIN corpo_docente cd 
+            ON cd.escola_id = e.id
+        JOIN municipio m 
+            ON e.municipio_id = m.id
+        JOIN uf u 
+            ON m.uf_id = u.id
+        JOIN regiao r 
+            ON u.regiao_id = r.id
+        JOIN tipo_localizacao tl 
+            ON e.tp_localizacao_id = tl.id
+        WHERE 1=1 {where_clause}
+        """
+
+        # Executa a consulta
+        cursor.execute(query_professores, params)
+        dados_professores = cursor.fetchall()
+
+        # Converte para DataFrame
+        df_professores = pd.DataFrame(dados_professores, columns=['localizacao', 'total_professores'])
+
+        # Filtra apenas Rural e Urbana
+        df_professores = df_professores[df_professores['localizacao'].isin(['Rural', 'Urbana'])]
+
+        st.markdown('<br><h1 class="h1-title-anal_espc">Distribuição do Total de Professores por Localização</h1><br>', unsafe_allow_html=True)
+
+        # Gera o gráfico de boxplot
+        fig_box = px.box(
+            df_professores,
+            x='localizacao',
+            y='total_professores',
+            labels={'localizacao': 'Localização', 'total_professores': 'Total de Professores'},
+            color='localizacao',
+            color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
+        )
+
+        fig_box.update_layout(
+            height=500,
+            margin=dict(l=20, r=20, t=80, b=20),
+            plot_bgcolor='#fff',
+            paper_bgcolor='#fff'
+        )
+
+        st.plotly_chart(fig_box, use_container_width=True)
+
+        with st.expander("ⓘ Clique para visualizar explicação do gráfico acima"):
+            st.markdown("""
+                O gráfico é dividido emm um conjunto de estruturas: 
+                        
+                * **Caixa**: Representa o "meio" dos dados, indo do primeiro quartil¹ (Q1) ao terceiro quartil² (Q3).
+
+                * **Linha no meio da caixa** (mediana): Marca o valor central (50%) dos dados. Se a linha estiver mais perto de Q1 ou Q3, indica que a distribuição é assimétrica.
+
+                * **Bigodes**:
+                        
+                    * São linhas que se estendem para os valores mínimos e máximos considerados "dentro do esperado".
+
+                    * Geralmente até 1,5× o intervalo interquartil³ além de Q1 e Q3.
+
+                    * Valores fora desse limite são plotados como pontos isolados (Outliers⁴).
+
+                * **Pontos fora da caixa** (outliers⁴): Indicam valores atípicos que podem merecer investigação.
+            """)
+
+            st.caption('1 - É o valor que divide os 25% menores dos dados.\n\n2 - É o valor que separa os 75% menores dos 25% maiores.\n\n3 - É a "caixa" do gráfico de dispersão (IRQ = Q3 - Q1). Mostra onde está concentrada a metade central dos dados.\n\n4 - É um ponto que foge muito do restante dos dados, ficando “além” dos bigodes do box plot. Pode indicar algo raro, um erro de registro ou simplesmente uma ocorrência extrema.')
+
+
         # Insights baseados nos dados
         st.markdown('<hr><h1 class="h1-title-anal_espc">Insights Relevantes</h1><br>', unsafe_allow_html=True)
         
@@ -637,6 +720,8 @@ def show_analise_geral_page(conn):
                 st.info(f"🔵 **SCORE MODERADO ({score_rural:.1f} PONTOS).**")
             else:
                 st.success(f"✅ **SCORE ALTO ({score_rural:.1f} PONTOS)!**")
+
+            st.markdown("<br>", unsafe_allow_html=True)
 
             col1, col2, col3 = st.columns(3)
 
@@ -672,9 +757,10 @@ def show_analise_geral_page(conn):
             prioridades.sort(key=lambda x: x[1], reverse=True)
             
             if prioridades:
-                st.markdown('<p class="p-destaque"">📈 Direcionamento de Investimentos</p>', unsafe_allow_html=True)
+                st.markdown('<br><p class="p-destaque">📈 Direcionamento de Investimentos</p><br>', unsafe_allow_html=True)
                 for i, (item, gap, atual) in enumerate(prioridades[:3]):
                     st.success(f"{i+1}. **{item}**: {atual:.1f}% atual, GAP de {gap:.1f} pontos")
+                    st.markdown("<br>", unsafe_allow_html=True)
 
             else:
                 st.info("Todos os indicadores estão acima de 50%. Foque em melhorias pontuais.")

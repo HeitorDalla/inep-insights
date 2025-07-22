@@ -85,6 +85,7 @@ h2 {
     font-weight: 600;
     font-size: 1rem;
     font-family: var(--fonte);
+    color: #4a4a4a;
 }
 
 .kpi-caption {
