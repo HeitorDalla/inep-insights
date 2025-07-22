@@ -39,7 +39,7 @@ df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
 
 
 # Função principal: renderiza a página Home
-def show_home_page (conn):
+def show_analise_exploratoria_page (conn):
     # Pegar os filtros padrões
     filtros_selecionados = aplicar_filtros(conn)
 
@@ -137,12 +137,33 @@ def show_home_page (conn):
     tem_internet = safe_int(df_kpi['tem_internet'].iloc[0])
     tem_alimentacao = safe_int(df_kpi['tem_alimentacao'].iloc[0])
 
-    # Calcula porcentagens e médias de algumas variáveis de "df_kpi"
-    media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
-
-    st.write("""
-    Marta Oliveira, diretora de uma escola municipal em uma comunidade rural, com 20 anos dedicados à educação, enfrenta diariamente os desafios da falta de infraestrutura básica.
-    Estes indicadores buscam dar visibilidade a essa realidade e fortalecer o apelo por políticas públicas mais justas, atraindo parceiros comprometidos com uma educação de qualidade no campo, que considerem as desigualdades entre áreas urbanas e rurais""")
+    # Persona
+    st.markdown("""
+        <div class="persona-container">
+            <div class="persona-title">🎯 Persona</div>
+            <div class="persona-card">
+                <div class="persona-header">
+                    <div class="persona-avatar">M</div>
+                    <div class="persona-info">
+                        <h3>Marta Oliveira</h3>
+                        <div class="subtitle">
+                            Diretora de Escola Municipal<br>
+                            <span class="experience">20 anos de dedicação à educação</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="persona-description">
+                    Marta Oliveira lidera uma escola em comunidade rural, enfrentando os desafios da falta de infraestrutura com coragem e compromisso com a transformação social por meio da educação.
+                </div>
+                <div class="persona-mission">
+                    <div class="mission-label">📌 Missão dos Indicadores</div>
+                    <p>
+                        Os indicadores buscam dar visibilidade a essa realidade e fortalecer o apelo por políticas públicas mais justas, atraindo parceiros comprometidos com uma educação de qualidade no campo, considerando as desigualdades entre áreas urbanas e rurais.
+                    </p>
+                </div>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # Exibição de KPI cards
     col1, col2, col3 = st.columns(3)
@@ -160,6 +181,7 @@ def show_home_page (conn):
 
     with col2:
         formatted_matriculas = format_number(total_matriculas)
+
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-label">Total de Matrículas</div>
@@ -167,10 +189,10 @@ def show_home_page (conn):
             </div>
         """, unsafe_allow_html=True)
 
-        pct_agua = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else "0%"
-
     with col3:
+        media_equipe_escolar = total_equipe_escolar / total_escolas if total_escolas else 0
         formatted_equipe_escolar = f"{media_equipe_escolar:.1f}"
+
         st.markdown(f"""
             <div class="kpi-card">
                 <div class="kpi-label">Média de Prof. por Escolar</div>
@@ -178,7 +200,8 @@ def show_home_page (conn):
             </div>
         """, unsafe_allow_html=True)
 
-    with col4:        
+    with col4:
+        pct_agua = f"{(tem_agua_potavel / total_escolas) * 100:.1f}%" if total_escolas else "0%"
         formatted_agua_potavel = format_number(tem_agua_potavel)
 
         st.markdown(f"""
@@ -221,6 +244,12 @@ def show_home_page (conn):
     # Linha de separação visual
     st.markdown("<hr/>", unsafe_allow_html=True)
 
+    # Título do gráfico de correlação
+    st.markdown("""
+        ### Explorando relacionamentos entre variáveis
+        Para além dos números absolutos, é importante compreender como as variáveis interagem entre si. O mapa de correlação abaixo evidencia associações — por exemplo, se a presença de internet está ligada a maior número de matrículas.
+    """)
+
     # Heatmap
     # Filtro para seleção de tabelas
     tabelas_opcoes = {
@@ -246,9 +275,9 @@ def show_home_page (conn):
     }
 
     tabelas_escolhidas = st.multiselect(
-        "Escolha as tabelas que deseja analisar no Heatmap:",
+        "Escolha as tabelas que deseja analisar no Heatmap:", # título
         options=list(tabelas_opcoes.keys()),
-        default=['Infraestrutura', 'Saneamento']
+        default=['Infraestrutura', 'Saneamento'] # padrão
     )
 
     # Coletar variáveis selecionadas com base nas tabelas marcadas
