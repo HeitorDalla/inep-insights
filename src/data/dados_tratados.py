@@ -12,6 +12,12 @@ def dados_tratados ():
     # Remove os outliers
     df_limpo = df_limpo[~df_limpo.isin([88888.0]).any(axis=1)]
 
+    # Remover os dados duplicados
+    df_limpo = df_limpo.drop_duplicates(
+        subset=['NO_REGIAO', 'NO_UF', 'NO_MUNICIPIO', 'NO_ENTIDADE'],
+        keep='first'
+    )
+
     # Normalizar as colunas de texto
     colunas_para_normalizar = ['NO_REGIAO', 'NO_UF', 'NO_MUNICIPIO', 'NO_ENTIDADE']
     for coluna in colunas_para_normalizar:
