@@ -1,1 +1,186 @@
-# projeto-final
+<h1>Projeto Final ─ Analytics</h1>
+
+<p align="justify">Ipsum lorem</p>
+
+<hr>
+
+<h2>Tecnologias utilizadas</h2>
+<ul>
+  <li><strong>Python</strong>: Linguagem versátil que serve de base para todo o projeto, controlando fluxo e integração das bibliotecas.</li><br>
+  <li><strong>NumPy</strong>: Oferece arrays rápidos e funções matemáticas vetorizadas para cálculos numéricos.</li><br>
+  <li><strong>Pandas</strong>: Estrutura <i>DataFrame</i> que facilita carregar, limpar e explorar dados tabulares.</li><br>
+  <li><strong>Matplotlib</strong>: Cria gráficos estáticos simples para visualizar tendências e padrões.</li><br>
+  <li><strong>Plotly</strong>: Gera gráficos interativos que permitem explorar dados diretamente no navegador.</li><br>
+  <li><strong>Streamlit</strong>: Transforma scripts Python em <i>dashboards web</i>.</li><br>
+  <li><strong>streamlit-option-menu</strong>: Adiciona menus de navegação estilizados aos apps Streamlit.</li><br>
+  <li><strong>MySQL</strong>: Banco de dados relacional que armazena e gerencia as informações do projeto.</li><br>
+  <li><strong>mysql-connector-python</strong>: Conecta Python ao MySQL e executa consultas de forma direta.</li>
+</ul>
+
+
+<hr>
+
+<h2>Estrutura do projeto</h2>
+
+<pre>
+PROJETO-FINAL/
+├── .streamlit/
+│   └── config.toml                    # configurações internas do Streamlit
+├── csv/                      
+│   └── ...¹
+├── frontend/
+│   ├── assets/
+│   │   ├── css/
+│   │   │   └── style.css              # estilos globais da interface Streamlit
+│   │   └── img/                       # imagem(ns) da interface do Streamlit
+│   │       └── ...
+│   ├── utils/                         # editar!!!
+│   │   ├── filters.py
+│   │   ├── formatters.py
+│   │   ├── graficos.py
+│   │   └── load_css.py
+│   ├── views/
+│   │   ├── analise_especifica_past/    # módulo de dashboards comparativos interativos, modularizado
+│   │   │   ├── corpo_docente.py
+│   │   │   ├── infraestrutura.py
+│   │   │   ├── material.py
+│   │   │   └── saneamento_basico.py
+│   │   ├── analise_especifica.py       # seção de dashboards interativos para análise comparativa dos dados
+│   │   ├── analise_exploratoria.py     # integra submódulos de análise específica e apresenta dashboards comparativos em sua seção dedicada
+│   │   ├── analise_geral.py            # seção de dashboards interativos para análise exploratória dos dados
+│   └── app.py                          # script central que reúne e exibe todas as views modularizadas no Streamlit
+├── src/
+│   ├── data/
+│   │   ├── dados_tratados.py
+│   │   └── data.py
+│   └── database/
+│       ├── create_database.py
+│       ├── get_connection.py
+│       ├── inicializar_database.py
+│       └── populate_database.py
+└── main.py                             # script central que processa dados, gera e popula o banco de dados
+</pre>
+
+<p align="justify">Alguns arquivos e diretórios foram omitidos por não serem essenciais para entendimento da estrutura do projeto.</p>
+<p align="justify">1. O <em>dataset</em> não está disponível no <i>GitHub</i> devido ao seu tamanho elevado. Contudo, é possível baixá‑lo diretamente por meio do seguinte link: <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar</a>.</p>
+
+<hr>
+
+<h2>Funcionalidades</h2>
+<p>Pendente...</p>
+<!--<h3>[título da funcionalidade]</h3>
+<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<ul>
+  <li>[descrição da(s) funcionalidade(s)]</li>
+</ul>-->
+
+<hr>
+
+<h2>Como rodar esse projeto em seu ambiente</h2>
+
+<h3>Pré‑requisitos:</h3>
+<ul>
+  <li><strong>Python ≥ 3.8</strong> (recomendado 3.13.3)</li><br>
+  <li><strong>Git</strong> instalado</li><br>
+  <li><strong>pip</strong> (gerenciador de pacotes Python)</li><br>
+  <li><strong>MySQL</strong> instalado e em execução</li><br>
+  <li><strong>Navegador moderno</strong> (Chrome, Firefox, Edge etc.)</li>
+</ul>
+
+<h3>Passo a passo:</h3>
+<ol>
+  <li>
+    <strong>Instalar o Git</strong><br>
+    <ul>
+      <li><b>Windows:</b> baixe em <a href="https://git-scm.com/downloads" target="_blank">git-scm.com/downloads</a> e execute o instalador.</li>
+      <li><b>macOS:</b> abra o Terminal e rode <code>brew install git</code> (via Homebrew).</li>
+      <li><b>Linux:</b> use <code>sudo apt update && sudo apt install git</code> (Debian/Ubuntu) ou o gerenciador da sua distro.</li>
+    </ul>
+    Verifique com:  
+    <pre><code>git --version</code></pre>
+  </li><br>
+
+  <li>
+    <strong>Clonar o repositório</strong><br>
+    <pre><code>git clone https://github.com/HeitorDalla/projeto-final.git
+cd caminho/do/diretorio</code></pre>
+  </li><br>
+
+  <li>
+    <strong>Criar e ativar ambiente virtual</strong><br>
+    <pre><code>python -m venv venv</code></pre>
+    <strong>Linux/macOS:</strong>  
+    <pre><code>source venv/bin/activate</code></pre>
+    <strong>Windows (PowerShell):</strong>  
+    <pre><code>.\venv\Scripts\Activate.ps1</code></pre>
+  </li><br>
+
+  <li>
+    <strong>Instalar dependências</strong><br>
+    <pre><code>pip install -r requirements.txt</code></pre>
+    (Confira <code>requirements.txt</code> para mais detalhes.)  
+  </li><br>
+
+  <li>
+    <strong>Instalar e iniciar o MySQL</strong><br>
+    <ul>
+      <li><em>Windows:</em> baixe o MySQL Installer em <a href="https://dev.mysql.com/downloads/installer/" target="_blank">dev.mysql.com</a> e siga o assistente.</li>
+      <li><em>macOS:</em> instale via Homebrew: <code>brew install mysql</code> e depois <code>brew services start mysql</code>.</li>
+      <li><em>Linux:</em> em Debian/Ubuntu: <code>sudo apt update && sudo apt install mysql-server</code>, em seguida <code>sudo systemctl start mysql</code>.</li>
+    </ul>
+    Verifique com:  
+    <pre><code>mysql --version</code></pre>
+  </li><br>
+
+  <li>
+    <strong>Configurar credenciais no get_connection.py</strong><br>
+    Abra o arquivo <code>database/get_connection.py</code> e atualize as variáveis:
+    <pre><code>HOST = "localhost"
+USER = "seu_usuario"
+PASSWORD = "sua_senha"
+DATABASE = "nome_do_banco"</code></pre>
+  </li><br>
+
+  <li>
+    <strong>Inicializar e popular o banco de dados</strong><br>
+    Na raiz do projeto, execute:
+    <pre><code>python main.py</code></pre>
+    Este script criará o banco de dados local.
+  </li><br>
+
+  <li>
+    <strong>Executar o Streamlit</strong><br>
+    Ainda com o ambiente virtual ativado, rode:
+    <pre><code>streamlit run frontend/app.py</code></pre>
+  </li><br>
+
+  <li>
+    <strong>Acessar no navegador</strong><br>
+    O Streamlit abrirá automaticamente. Se não, visite:
+    <pre><code>http://localhost:8501</code></pre>
+  </li>
+</ol>
+
+<hr>
+
+<h2>⚠️ Importante</h2>
+
+<p align="justify">
+Este projeto utiliza dados públicos reais disponibilizados pelo <a href="https://www.gov.br/inep/pt-br" target="_blank">Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira</a> (INEP), provenientes de fontes oficiais como o <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">Censo Escolar</a>.<br>
+Ressaltamos que não são utilizados dados sensíveis, pessoais ou que possam ferir a privacidade, integridade ou reputação de indivíduos ou instituições. Todas as informações tratadas são de domínio público e foram utilizadas estritamente com fins educacionais, analíticos e de interesse coletivo.<br>
+Portanto, assegura-se que nenhuma informação apresentada representa risco à segurança física ou digital de qualquer pessoa ou organização.
+</p>
+
+<hr>
+
+<h2>Contribuições</h2>
+<p align="justify">Este projeto está aberto para contribuições via <i>issues</i>. Se você encontrou um <i>bug</i>, deseja sugerir uma melhoria ou tem dúvidas sobre o funcionamento, siga as instruções abaixo:</p>
+<ol>
+    <li>Verifique se já existe uma <i>issue</i> sobre o assunto. Caso sim, adicione um comentário nela.</li>
+    <li>Se não houver, abra uma nova <i>issue</i> com uma descrição clara e objetiva.</li>
+</ol>
+
+<hr>
+
+<h2>Licença e Autoria</h2>
+<p align="justify">Este projeto foi desenvolvido por <a href="https://github.com/MatheusVenturaNellessen">Matheus V. Nellessen</a>, <a href="#">Flávia ...</a> e <a href="#">Heitor ...</a>, e está licenciado sob a licença MIT. Veja o <a href="./LICENSE">documento</a> para mais detalhes.</p>
