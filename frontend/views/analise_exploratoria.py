@@ -187,8 +187,8 @@ def show_analise_exploratoria_page (conn):
 
     # Título do gráfico de correlação
     st.markdown("""
-        ### Explorando relacionamentos entre variáveis
-    """)
+        <h1 class="h1-title-anal_espc">Explorando Relacionamento entre Variáveis</h1>
+    """, unsafe_allow_html=True)
 
     # Heatmap
     # Filtro para seleção de tabelas
@@ -215,7 +215,7 @@ def show_analise_exploratoria_page (conn):
     }
 
     tabelas_escolhidas = st.multiselect(
-        "Escolha as tabelas que deseja analisar no Heatmap:", # título
+        "Escolha as tabelas que deseja analisar:", # título
         options=list(tabelas_opcoes.keys()),
         default=['Infraestrutura', 'Saneamento'] # padrão
     )
