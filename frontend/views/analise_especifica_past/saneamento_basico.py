@@ -97,8 +97,8 @@ def saneamento_basico(conn, nome_escola_marta, df_escolas, localizacoes_filtrada
         """, unsafe_allow_html=True)
 
         if not escolas_filtradas_df.empty:
-            qt_escolas_selecionas = f"{len(escolas_filtradas_df):,.0f}"
-            qt_escolas_selecionas_formatted = qt_escolas_selecionas.replace(",", "@").replace(".", ",").replace("@", ".")
+            qt_escolas_unicas = escolas_filtradas_df["NO_ENTIDADE"].nunique()
+            qt_escolas_selecionas_formatted = f'{qt_escolas_unicas:,.0f}'.replace(",", "@").replace(".", ",").replace("@", ".")
 
             st.markdown(f"""
                 <p class="p-title-anal_espc"><b>{qt_escolas_selecionas_formatted}</b> escolas filtradas</p>

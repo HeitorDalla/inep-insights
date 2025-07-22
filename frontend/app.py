@@ -1,3 +1,4 @@
+# Importar biblioteca do streamlit para criar o aplicativo web
 import streamlit as st
 
 # Configuração da página Streamlit
@@ -22,11 +23,10 @@ selected = option_menu(
     icons=["house", "bar-chart", "bar-chart"],
     menu_icon="cast",
     default_index=0,
-    orientation="horizontal",
+    orientation="horizontal"
 )
 
 # Importação de Bibliotecas e Configuração
-import pandas as pd
 import sys
 import os
 
