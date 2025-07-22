@@ -4,6 +4,8 @@ import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
+
+# Importar funções utilitárias
 from frontend.utils.formatters import format_number
 from frontend.utils.filters import aplicar_filtros
 

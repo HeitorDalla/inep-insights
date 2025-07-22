@@ -1,7 +1,6 @@
 # Importa bibliotecas necessárias
 import pandas as pd
 import streamlit as st
-import plotly.express as px
 
 # Importando funções utilitárias
 from frontend.utils.formatters import bool_to_text
