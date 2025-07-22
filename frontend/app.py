@@ -1,3 +1,4 @@
+# Importar biblioteca do streamlit para criar o aplicativo web
 import streamlit as st
 
 # Configuração da página Streamlit
@@ -58,7 +59,6 @@ selected = option_menu(
 )
 
 # Importação de Bibliotecas e Configuração
-import pandas as pd
 import sys
 import os
 
