@@ -20,7 +20,7 @@ from streamlit_option_menu import option_menu
 selected = option_menu(
     menu_title=None,
     options=["Anal. Exploratória", "Anal. Geral", "Anal. Específica"],
-    icons=["house", "bar-chart", "bar-chart"],
+    icons=["search", "bar-chart", "funnel"],
     menu_icon="cast",
     default_index=0,
     orientation="horizontal",
