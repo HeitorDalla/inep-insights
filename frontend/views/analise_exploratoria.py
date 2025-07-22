@@ -2,41 +2,10 @@
 import pandas as pd
 import streamlit as st
 import plotly.express as px
-from io import StringIO
-import requests
 
 # Importacão de funções utilitárias
 from frontend.utils.filters import aplicar_filtros, carregar_municipios, safe_int
 from frontend.utils.formatters import format_number
-
-# API externa: carregamento de coordenadas dos municípios
-
-@st.cache_data # memoriza o resultado para não recarregar a cada interação
-def load_municipios_data():
-    # Busca CSV remoto com coordenadas geográficas dos municípios e retorna um DataFrame
-    url = "https://raw.githubusercontent.com/kelvins/Municipios-Brasileiros/main/csv/municipios.csv"
-
-    response = requests.get(url) # realiza requisição HTTP
-
-    return pd.read_csv(StringIO(response.text)) # lê texto CSV em DataFrame
-
-# Executa o carregamento uma única vez e armazena no df_coordenadas
-df_coordenadas = load_municipios_data()
-
-# Mapeamento de código UF para um nome legível
-codigo_uf_para_nome = {
-    12: "Acre", 27: "Alagoas", 16: "Amapá", 13: "Amazonas", 29: "Bahia",
-    23: "Ceará", 53: "Distrito Federal", 32: "Espírito Santo", 52: "Goiás",
-    21: "Maranhão", 51: "Mato Grosso", 50: "Mato Grosso do Sul", 31: "Minas Gerais",
-    15: "Pará", 25: "Paraíba", 41: "Paraná", 26: "Pernambuco", 22: "Piauí",
-    33: "Rio de Janeiro", 24: "Rio Grande do Norte", 43: "Rio Grande do Sul",
-    11: "Rondônia", 14: "Roraima", 42: "Santa Catarina", 35: "São Paulo",
-    28: "Sergipe", 17: "Tocantins"
-}
-
-# Cria coluna "NO_UF" a partir do mapeamento de código
-df_coordenadas['NO_UF'] = df_coordenadas['codigo_uf'].map(codigo_uf_para_nome)
-
 
 # Função principal: renderiza a página Home
 def show_analise_exploratoria_page (conn):
@@ -137,34 +106,6 @@ def show_analise_exploratoria_page (conn):
     tem_internet = safe_int(df_kpi['tem_internet'].iloc[0])
     tem_alimentacao = safe_int(df_kpi['tem_alimentacao'].iloc[0])
 
-    # Persona
-    st.markdown("""
-        <div class="persona-container">
-            <div class="persona-title">🎯 Persona</div>
-            <div class="persona-card">
-                <div class="persona-header">
-                    <div class="persona-avatar">M</div>
-                    <div class="persona-info">
-                        <h3>Marta Oliveira</h3>
-                        <div class="subtitle">
-                            Diretora de Escola Municipal<br>
-                            <span class="experience">20 anos de dedicação à educação</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="persona-description">
-                    Marta Oliveira lidera uma escola em comunidade rural, enfrentando os desafios da falta de infraestrutura com coragem e compromisso com a transformação social por meio da educação.
-                </div>
-                <div class="persona-mission">
-                    <div class="mission-label">📌 Missão dos Indicadores</div>
-                    <p>
-                        Os indicadores buscam dar visibilidade a essa realidade e fortalecer o apelo por políticas públicas mais justas, atraindo parceiros comprometidos com uma educação de qualidade no campo, considerando as desigualdades entre áreas urbanas e rurais.
-                    </p>
-                </div>
-            </div>
-        </div>
-    """, unsafe_allow_html=True)
-
     # Exibição de KPI cards
     col1, col2, col3 = st.columns(3)
     col4, col5, col6 = st.columns(3)
@@ -247,7 +188,6 @@ def show_analise_exploratoria_page (conn):
     # Título do gráfico de correlação
     st.markdown("""
         ### Explorando relacionamentos entre variáveis
-        Para além dos números absolutos, é importante compreender como as variáveis interagem entre si. O mapa de correlação abaixo evidencia associações — por exemplo, se a presença de internet está ligada a maior número de matrículas.
     """)
 
     # Heatmap
@@ -288,22 +228,25 @@ def show_analise_exploratoria_page (conn):
         correlacao_query = f"""
         SELECT
             {', '.join(variaveis_selecionadas)}
-        FROM escola e
-        INNER JOIN municipio mun ON e.municipio_id = mun.id
-        INNER JOIN uf u ON mun.uf_id = u.id
-        INNER JOIN regiao r ON u.regiao_id = r.id
-        LEFT JOIN saneamento_basico sb ON sb.escola_id = e.id
-        LEFT JOIN corpo_docente cd ON cd.escola_id = e.id
-        LEFT JOIN matriculas mt ON mt.escola_id = e.id
-        LEFT JOIN materiais mat ON mat.escola_id = e.id
-        LEFT JOIN infraestrutura inf ON inf.escola_id = e.id
-        {where_consulta}
+            FROM escola e
+            INNER JOIN municipio mun ON e.municipio_id = mun.id
+            INNER JOIN uf u ON mun.uf_id = u.id
+            INNER JOIN regiao r ON u.regiao_id = r.id
+            LEFT JOIN saneamento_basico sb ON sb.escola_id = e.id
+            LEFT JOIN corpo_docente cd ON cd.escola_id = e.id
+            LEFT JOIN matriculas mt ON mt.escola_id = e.id
+            LEFT JOIN materiais mat ON mat.escola_id = e.id
+            LEFT JOIN infraestrutura inf ON inf.escola_id = e.id
+            {where_consulta}
         """
 
+        # Executa a consulta e armazena em um Dataframe
         df_corr = pd.read_sql(correlacao_query, conn, params=params)
 
+        # Remove as colunas que possuem apenas valores nulos
         df_corr = df_corr.dropna(axis=1, how='all')
 
+        # Verifica se o DataFrame não está vazio
         if not df_corr.empty:
             # Calcular matriz de correlação
             corr_matrix = df_corr.corr(method='pearson')
@@ -345,15 +288,17 @@ def show_analise_exploratoria_page (conn):
             corr_min = corr_matrix.min().min()
             corr_max = corr_matrix.max().max()
 
+            # Cria o gráfico de correlação
             fig_heatmap = px.imshow(
-                corr_matrix,
-                text_auto='.2f',
-                zmin=corr_min,
-                zmax=corr_max,
-                color_continuous_scale='RdBu_r',
-                title='Mapa de Correlação entre Variáveis Selecionadas'
+                corr_matrix, # coloca as variáveis selecionadas
+                text_auto='.2f', # arredonda os valores
+                zmin=corr_min, # valor mínimo da correlação
+                zmax=corr_max, # valor máximo da correlação
+                color_continuous_scale='RdBu_r', # escala de cores
+                title='Mapa de Correlação entre Variáveis Selecionadas' # título do gráfico
             )
 
+            # Configurações do layout do gráfico
             fig_heatmap.update_layout(
                 height=700,
                 margin=dict(l=20, r=20, t=70, b=20),
@@ -362,6 +307,7 @@ def show_analise_exploratoria_page (conn):
                 title={'x': 0.5, 'xanchor': 'center', 'font': {'size': 24, 'color': '#4a4a4a'}}
             )
 
+            # Exibe o gráfico na Streamlit
             st.plotly_chart(fig_heatmap, use_container_width=True)
         else:
             st.warning("Não há dados suficientes para gerar o Heatmap com os filtros selecionados.")
@@ -380,100 +326,3 @@ def show_analise_exploratoria_page (conn):
         """)
 
         st.caption("1 - O coeficiente de Pearson é uma medida estatística que quantifica a intensidade e a direção (positiva ou negativa) do relacionamento linear entre duas variáveis, variando de –1 a +1.\n\n2 - Uma correlação alta apenas mostra que duas variáveis variam juntas, mas não prova, necessariamente, uma causalidade.\n\n3 - Causalidade é a relação de causa‑efeito, em que mudanças em A provocam mudanças em B.")
-
-
-
-    # Linha de separação visual
-    st.markdown("<hr/>", unsafe_allow_html=True)
-
-
-    # Seção de mapa interativo dentro de expander
-    # Mostra no mapa, Escolas com base nas suas localizações, que possuem Infraestrutura básica
-
-    with st.expander("Clique para visualizar o mapa."):
-        # Consulta detalhada para scatter_mapbox
-        escolas_query = f'''
-            SELECT
-                e.NO_ENTIDADE           AS escola,
-                mun.NO_MUNICIPIO        AS municipio,
-                u.NO_UF                 AS uf,
-                e.DS_ENDERECO           AS endereco,
-                sb.IN_AGUA_POTAVEL      AS agua_potavel,
-                mat.IN_INTERNET         AS internet
-            FROM escola e
-            INNER JOIN municipio mun ON e.municipio_id = mun.id
-            INNER JOIN uf u ON mun.uf_id = u.id
-            INNER JOIN regiao r ON u.regiao_id = r.id
-            LEFT JOIN saneamento_basico sb ON sb.escola_id = e.id
-            LEFT JOIN materiais mat ON mat.escola_id = e.id
-            {where_consulta}
-        '''
-        
-        df_escolas = pd.read_sql(escolas_query, conn, params=params)
-        df_escolas.rename(columns={'uf': 'NO_UF'}, inplace=True) # Renomeia coluna para merge com coordenadas
-        
-        if not df_escolas.empty:
-            # Padroniza texto para maiúsculas sem acento para merge posterior
-            df_escolas['municipio_upper'] = (
-                df_escolas['municipio']
-                .str.upper()
-                .str.normalize('NFKD')
-                .str.encode('ascii', errors='ignore')
-                .str.decode('utf-8')
-            )
-
-            df_coordenadas['nome_upper'] = (
-                df_coordenadas['nome']
-                .str.upper()
-                .str.normalize('NFKD')
-                .str.encode('ascii', errors='ignore')
-                .str.decode('utf-8')
-            )
-            
-            # Faz merge para obter latitude/longitude
-            df_mapa = pd.merge(
-                df_escolas,
-                df_coordenadas,
-                left_on=['municipio_upper', 'NO_UF'],
-                right_on=['nome_upper', 'NO_UF'],
-                how='left'
-            ).dropna(subset=['latitude', 'longitude'])
-            
-            if not df_mapa.empty:
-                # Agrupa para evitar pontos sobrepostos
-                df_agrupado = (
-                    df_mapa
-                    .groupby(['municipio', 'latitude', 'longitude', 'NO_UF'])
-                    .agg({'escola': 'count','agua_potavel': 'mean','internet': 'mean'})
-                    .reset_index()
-                )
-                
-                # Plota scatter_mapbox com Plotly Express
-                fig = px.scatter_mapbox(
-                    df_agrupado,
-                    lat="latitude",
-                    lon="longitude",
-                    size="escola",
-                    color="NO_UF",
-                    hover_name="municipio",
-                    hover_data={
-                        "NO_UF": True,
-                        "escola": True,
-                        "agua_potavel": True,
-                        "internet": True
-                    },
-                    zoom=4,
-                    height=600
-                )
-                
-                fig.update_layout(
-                    mapbox_style="open-street-map",
-                    margin={"r":0,"t":0,"l":0,"b":0},
-                    legend=dict(orientation="h", yanchor="bottom", y=1.02)
-                )
-                
-                st.plotly_chart(fig, use_container_width=True)
-            else:
-                st.warning("Nenhuma correspondência encontrada entre seus municípios e a base de coordenadas.")
-        else:
-            st.warning("Nenhuma escola encontrada com os filtros selecionados.")
