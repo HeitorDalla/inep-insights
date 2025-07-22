@@ -55,7 +55,6 @@ selected = option_menu(
             "font-weight": "400"
         }
     }
-
 )
 
 # Importação de Bibliotecas e Configuração

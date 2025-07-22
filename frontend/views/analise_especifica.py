@@ -11,6 +11,14 @@ from frontend.views.analise_especifica_past.material import material
 
 # Função para mostrar a página de análise específica
 def show_analise_especifica_page(conn):
+    # Filtros
+    with st.sidebar:
+        st.markdown("""
+            <div class="sidebar-title">
+                <span style="font-size:1.1em;">Filtros de Pesquisa</span>
+            </div>
+        """, unsafe_allow_html=True)
+
     # SQL Query para ler as regiões únicas do banco de dados
     regiao_unique = pd.read_sql("""
         SELECT DISTINCT NO_REGIAO 
