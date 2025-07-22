@@ -19,7 +19,7 @@ from streamlit_option_menu import option_menu
 
 selected = option_menu(
     menu_title=None,
-    options=["Home", "Anal. Geral", "Anal. Específica"],
+    options=["Anal. Exploratória", "Anal. Geral", "Anal. Específica"],
     icons=["house", "bar-chart", "bar-chart"],
     menu_icon="cast",
     default_index=0,
@@ -72,7 +72,7 @@ if ROOT_DIR not in sys.path:
 from src.database.get_connection import get_connection
 
 # Importações das Páginas
-from frontend.views.home import show_home_page
+from frontend.views.analise_exploratoria import show_analise_exploratoria_page
 from frontend.views.analise_geral import show_analise_geral_page
 from frontend.views.analise_especifica import show_analise_especifica_page
 
@@ -92,9 +92,9 @@ with col2:
 conn, cursor = get_connection()
 
 # Roteamento das páginas com base na opção selecionada
-if (selected == "Home"):
-    show_home_page(conn)
-    # Chama a função "show_home_page" (importada do módulo "frontend.views.home")
+if (selected == "Anal. Exploratória"):
+    show_analise_exploratoria_page(conn)
+    # Chama a função "show_analise_exploratoria_page" (importada do módulo "frontend.views.analise_exploratoria")
     
 if selected == 'Anal. Geral':
     show_analise_geral_page(conn)
