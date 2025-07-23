@@ -3,10 +3,10 @@ import streamlit as st
 
 # Configuração da página Streamlit
 st.set_page_config(
-    page_title="INEP Insights",     # Título da aba do navegador
+    page_title="INEP Insights",             # Título da aba do navegador
     page_icon="🔍",                         # Ícone que aparece na aba e no header
     layout="wide",                          # Usa todo o espaço horizontal
-    initial_sidebar_state="expanded",      # Sidebar começa recolhida
+    initial_sidebar_state="expanded",       # Sidebar começa expandida
     menu_items={                            # Itens do menu de contexto (canto superior direito)
         'Get help': 'https://github.com/HeitorDalla/projeto-final',
         'Report a bug': 'https://github.com/HeitorDalla/projeto-final/issues',
@@ -19,7 +19,7 @@ from streamlit_option_menu import option_menu
 
 selected = option_menu(
     menu_title=None,
-    options=["Anal. Exploratória", "Anal. Geral", "Anal. Específica"],
+    options=["Análise Exploratória", "Análise Geral", "Análise Específica"],
     icons=["search", "bar-chart", "funnel"],
     menu_icon="cast",
     default_index=0,
@@ -91,14 +91,14 @@ with col2:
 conn, cursor = get_connection()
 
 # Roteamento das páginas com base na opção selecionada
-if (selected == "Anal. Exploratória"):
+if (selected == "Análise Exploratória"):
     show_analise_exploratoria_page(conn)
     # Chama a função "show_analise_exploratoria_page" (importada do módulo "frontend.views.analise_exploratoria")
     
-if selected == 'Anal. Geral':
+if selected == 'Análise Geral':
     show_analise_geral_page(conn)
     # Chama a função "show_analise_geral_page" (importada do módulo "frontend.views.analise_geral")
 
-if (selected == "Anal. Específica"):
+if (selected == "Análise Específica"):
     show_analise_especifica_page (conn)
     # Chama a função "show_analise_especifica_page" (importada do módulo "frontend.views.analise_especifica")

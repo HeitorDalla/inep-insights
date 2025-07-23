@@ -542,89 +542,6 @@ def show_analise_geral_page(conn):
             )
             
             st.plotly_chart(fig_matriculas, use_container_width=True)
-        
-        # Gráfico de correlação: matrículas vs infraestrutura
-        st.markdown('<hr><h1 class="h1-title-anal_espc">Relacionamento entre Infraestrutura e Matrículas</h1><br>', unsafe_allow_html=True)
-        
-        if not df_matriculas.empty and not df_infra.empty:
-            # Juntar dados de matrículas e infraestrutura
-            df_correlacao = pd.merge(
-                df_matriculas.groupby('localizacao').sum().reset_index(),
-                df_infra.groupby('localizacao').mean().reset_index(),
-                on='localizacao'
-            )
-            
-            # Calcular matrículas por escola
-            df_escolas_grouped = df_escolas.groupby('localizacao')['total_escolas'].sum().reset_index()
-            df_correlacao = pd.merge(df_correlacao, df_escolas_grouped, on='localizacao')
-            
-            # Calcular matrículas por escola para cada nível
-            for col in ['educacao_infantil', 'ensino_fundamental', 'ensino_medio', 'eja', 'educacao_especial']:
-                if col in df_correlacao.columns:
-                    df_correlacao[f'matriculas_{col}_por_escola'] = df_correlacao[col] / df_correlacao['total_escolas']
-            
-            # Selecionar colunas de interesse
-            infra_cols = [col for col in df_infra.columns if col != 'localizacao']
-            
-            # Criar gráfico de correlação
-            fig_correlacao = go.Figure()
-            
-            for idx, row in df_correlacao.iterrows():
-                color = '#8BC34A' if row['localizacao'] == 'Rural' else '#757575'
-                
-                fig_correlacao.add_trace(go.Scatter(
-                    x=[row[col] for col in infra_cols],
-                    y=[row[f'matriculas_{col}_por_escola'] for col in ['educacao_infantil', 'ensino_fundamental', 'ensino_medio'] if f'matriculas_{col}_por_escola' in df_correlacao.columns],
-                    mode='markers',
-                    marker=dict(
-                        size=12,
-                        color=color
-                    ),
-                    name=row['localizacao'],
-                    text=infra_cols,
-                    hoverinfo='text'
-                ))
-            
-            fig_correlacao.update_layout(
-                title={
-                    'text': '',
-                    'x': 0.5,
-                    'xanchor': 'center',
-                    'font': {'color': '#4a4a4a', 'size': 20}
-                },
-                xaxis_title='Percentual de Escolas com Infraestrutura (%)',
-                yaxis_title='Matrículas por Escola',
-                height=500,
-                showlegend=True,
-                xaxis={
-                    'title': {'font': {'color': '#4a4a4a'}},
-                    'tickfont': {'color': '#4a4a4a'}
-                },
-                yaxis={
-                    'title': {'font': {'color': '#4a4a4a'}},
-                    'tickfont': {'color': '#4a4a4a'}
-                },
-                paper_bgcolor='#fff',
-                plot_bgcolor='#fff',
-                font={'color': '#4a4a4a'},
-                legend={'font': {'color': '#4a4a4a'}},
-                margin=dict(l=50, r=50, t=80, b=50)
-            )
-            
-            st.plotly_chart(fig_correlacao, use_container_width=True)
-            
-            with st.expander("ⓘ Com dúvidas? Clique para abrir a explicação"):
-                st.markdown("""
-                    Este gráfico compara a relação entre infraestrutura das escolas e a densidade de alunos por escola nas áreas rurais e urbanas.
-
-                    * **Eixo X**: Percentual de escolas com infraestrutura (quanto mais à direita, melhor a infraestrutura)
-                    * **Eixo Y**: Número de matrículas por escola
-                    
-                    **Interpretação rápida**:
-                            
-                    * **Pontos mais à direita** → melhor infraestrutura
-                    * **Pontos mais altos** → mais alunos por escola
-                """, unsafe_allow_html=True)
 
         # Consulta SQL com filtros de região e UF já aplicados via where_clause e params
         query_professores = f"""
@@ -666,14 +583,14 @@ def show_analise_geral_page(conn):
         # Filtra apenas Rural e Urbana
         df_professores = df_professores[df_professores['localizacao'].isin(['Rural', 'Urbana'])]
 
-        st.markdown('<br><h1 class="h1-title-anal_espc">Distribuição do Total de Professores por Localização</h1><br>', unsafe_allow_html=True)
+        st.markdown('<br><h1 class="h1-title-anal_espc">Distribuição do Total de Profissionais por Localização</h1><br>', unsafe_allow_html=True)
 
         # Gera o gráfico de boxplot
         fig_box = px.box(
             df_professores,
             x='localizacao',
             y='total_professores',
-            labels={'localizacao': 'Localização', 'total_professores': 'Total de Professores'},
+            labels={'localizacao': 'Localização', 'total_professores': 'Total de Profissionais'},
             color='localizacao',
             color_discrete_map={'Urbana': '#757575', 'Rural': '#8BC34A'}
         )
