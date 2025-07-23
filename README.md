@@ -187,7 +187,7 @@ PROJETO-FINAL/
 
   <li>
     <strong>Clonar o repositório</strong><br>
-    <pre><code>git clone https://github.com/HeitorDalla/projeto-final.git
+    <pre><code>git clone https://github.com/HeitorDalla/inep-insights.git
 cd caminho/do/diretorio</code></pre>
   </li><br>
 
