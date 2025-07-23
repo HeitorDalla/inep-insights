@@ -12,14 +12,14 @@
 
 <h2>Tecnologias utilizadas</h2>
 <ul>
-  <li><strong>Python</strong>: Linguagem versátil que serve de base para todo o projeto, controlando fluxo e integração das bibliotecas.</li>
-  <li><strong>NumPy</strong>: Oferece arrays rápidos e funções matemáticas vetorizadas para cálculos numéricos.</li>
-  <li><strong>Pandas</strong>: Estrutura <i>DataFrame</i> que facilita carregar, limpar e explorar dados tabulares.</li>
-  <li><strong>Plotly</strong>: Gera gráficos interativos que permitem explorar dados diretamente no navegador.</li>
-  <li><strong>Streamlit</strong>: Transforma scripts Python em <i>dashboards web</i>.</li>
-  <li><strong>streamlit-option-menu</strong>: Adiciona menus de navegação estilizados aos apps Streamlit.</li>
-  <li><strong>MySQL</strong>: Banco de dados relacional que armazena e gerencia as informações do projeto.</li>
-  <li><strong>mysql-connector-python</strong>: Conecta Python ao MySQL e executa consultas de forma direta.</li>
+  <li><strong>Python</strong> v3.13.5: Linguagem versátil que serve de base para todo o projeto, controlando fluxo e integração das bibliotecas.</li>
+  <li><strong>NumPy</strong> v2.3.1: Oferece arrays rápidos e funções matemáticas vetorizadas para cálculos numéricos.</li>
+  <li><strong>Pandas</strong> v2.3.1: Estrutura <i>DataFrame</i> que facilita carregar, limpar e explorar dados tabulares.</li>
+  <li><strong>Plotly</strong> v6.2.0: Gera gráficos interativos que permitem explorar dados diretamente no navegador.</li>
+  <li><strong>Streamlit</strong> v1.46.1: Transforma scripts Python em <i>dashboards web</i>.</li>
+  <li><strong>streamlit-option-menu</strong> v0.4.0: Adiciona menus de navegação estilizados aos apps Streamlit.</li>
+  <li><strong>MySQL</strong> v8.0.43: Banco de dados relacional que armazena e gerencia as informações do projeto.</li>
+  <li><strong>mysql-connector-python</strong> v9.3.0: Conecta Python ao MySQL e executa consultas de forma direta.</li>
 </ul>
 
 
