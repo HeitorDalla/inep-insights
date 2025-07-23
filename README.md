@@ -74,7 +74,15 @@ PROJETO-FINAL/
 <h2>Funcionalidades</h2>
 
 <h3>Análise Exploratória</h3>
-<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<img src="./frontend/assets/img/menu.gif" alt="texto alternativo"/>
+<ul>
+  <li><strong>About</strong>: Exibe a lista dos desenvolvedores da aplicação e o link para o site oficial do Streamlit.</li>
+  <li><strong>Get Help</strong>: Redireciona o usuário para a documentação do projeto (GitHub correspondente).</li>
+  <li><strong>Report a Bug</strong>: Envia o usuário diretamente à seção de “Issues” do GitHub.</li>
+</ul>
+
+<h3>Análise Exploratória</h3>
+<img src="./frontend/assets/img/anal-exploratoria.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado e município, com opção “Todos”.</li>
   <li><strong>KPIs dinâmicos</strong>: total de escolas, matrículas, média de profissionais por escola e número de escolas com água potável, alimentação e internet.</li>
@@ -84,7 +92,7 @@ PROJETO-FINAL/
 
 
 <h3>Análise Geral</h3>
-<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<img src="./frontend/assets/img/anal-geral.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>Filtros em cascata</strong>: seleção hierárquica de regiãoe e estado, com opção “Todos”.</li>
   <li><strong>Gráfico de velocímetro:</strong> compara score (infraestrutura + saneamento) rural vs urbano, com zonas de criticidade e indicador de gap coloridas.</li>
@@ -99,7 +107,7 @@ PROJETO-FINAL/
 
 
 <h3>Análise Específica ─ Saneamento Básico</h3>
-<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<img src="./frontend/assets/img/anal-espc-saneamento.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
   <li><strong>Indicador da Escola de Marta:</strong> KPI "Sim"/"Não" para o saneamento selecionado via dropdown.</li>
@@ -107,7 +115,7 @@ PROJETO-FINAL/
 </ul>
 
 <h3>Análise Específica ─ Infraestrutura</h3>
-<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<img src="./frontend/assets/img/anal-espc-infraestrutura.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
   <li><strong>Indicador da Escola de Marta:</strong> KPI "Sim"/"Não" para a infraestrutura selecionada via dropdown.</li>
@@ -122,7 +130,7 @@ PROJETO-FINAL/
 </ul>
 
 <h3>Análise Específica ─ Materiais</h3>
-<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<img src="./frontend/assets/img/anal-espc-material.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
   <li><strong>Explicação interativa:</strong> expander ao início da página descrevendo quais materiais estão avaliados.</li>
@@ -131,7 +139,7 @@ PROJETO-FINAL/
 </ul>
 
 <h3>Análise Específica ─ Corpo Docente</h3>
-<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<img src="./frontend/assets/img/anal-espc-corpo-docente.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
   <li><strong>Visão geral dos profissionais:</strong> expander inicial com detalhes dos profissionais selecionados.</li>
