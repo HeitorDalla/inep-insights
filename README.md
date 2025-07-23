@@ -59,10 +59,10 @@ PROJETO-FINAL/
 │   │   ├── dados_tratados.py
 │   │   └── data.py
 │   └── database/                       # módulo de scripts que conecta, cria e popula o banco de dados
-│       ├── create_database.py
-│       ├── get_connection.py
-│       ├── inicializar_database.py
-│       └── populate_database.py
+│       ├── create_database.py          # módulo de criação de todas as dimensões do banco de dados
+│       ├── get_connection.py           # módulo que faz a conexão com o banco de dados
+│       ├── inicializar_database.py     # módulo que faz a conexão, criação e população dos dados
+│       └── populate_database.py        # módulo que faz a população dos dados
 └── main.py                             # script central que processa dados, gera e popula o banco de dados
 </pre>
 
