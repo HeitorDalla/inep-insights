@@ -56,10 +56,10 @@ PROJETO-FINAL/
 │   │   ├── analise_geral.py            # seção de dashboards interativos para análise exploratória dos dados
 │   └── app.py                          # script central que reúne e exibe todas as views modularizadas no Streamlit
 ├── src/
-│   ├── data/
+│   ├── data/                           # editar!!!
 │   │   ├── dados_tratados.py
 │   │   └── data.py
-│   └── database/
+│   └── database/                       # módulos de scripts que conecta, cria e popula o banco de dados
 │       ├── create_database.py
 │       ├── get_connection.py
 │       ├── inicializar_database.py
