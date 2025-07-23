@@ -1,9 +1,7 @@
-matplotlib
-mysql-connector-python
-numpy
 pandas
-plotly
-requests
 streamlit
-streamlit-option-menu
 unidecode
+streamlit-option-menu
+plotly
+numpy
+mysql-connector-python

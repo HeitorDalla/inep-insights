@@ -1,7 +1,6 @@
 # Importar bibliotecas
 import streamlit as st
 import pandas as pd
-import matplotlib.pyplot as plt
 
 # Importando Páginas de visualização
 from frontend.views.analise_especifica_past.saneamento_basico import saneamento_basico
