@@ -1,9 +1,11 @@
 <h1>Projeto Final ─ Analytics</h1>
 
-<p align="justify">Este projeto visa utilizar dados do <code>Censo Escolar INEP</code> para demonstrar como a falta de infraestrutura básica  pode impactar o desempenho dos alunos em escolas rurais, comparando-as com escolas urbanas.</p>
+<p align="justify">Este projeto teve como propósito consolidar e aplicar os conhecimentos adquiridos na capacitação em <b>Analytics</b> oferecida pela <code>Tata Consultancy Services</code>. Por meio da construção de pipelines de dados, da modularização do banco e do desenvolvimento de dashboards interativos, buscamos evidenciar as habilidades técnicas e a evolução profissional da equipe de desenvolvedores.</p>
 
 <details>
-  <summary>Entenda a persona</summary>
+    <summary>Entenda a persona</summary><br>
+        <p align="justify"><b>Marta Oliveira</b>, 47 anos, é diretora de uma escola municipal em comunidade rural no município de Londrina-PR, com 20 anos de experiência na educação (8 deles como diretora) e formação em Pedagogia com especialização em Gestão Escolar.</p>
+        <p align="justify">Ela enfrenta infraestrutura precária, baixo investimento público e, por consequência, desempenho comprometido de alunos e professores. Seu objetivo é construir, por meio de dashboards claros e comparativos (rural × urbano), uma narrativa baseada em dados oficiais do Censo Escolar para sensibilizar secretarias, ONGs e parceiros sobre a necessidade de políticas mais justas.</p>
 </details>
 
 <hr>
