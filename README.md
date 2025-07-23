@@ -15,7 +15,6 @@
   <li><strong>Python</strong>: Linguagem versátil que serve de base para todo o projeto, controlando fluxo e integração das bibliotecas.</li>
   <li><strong>NumPy</strong>: Oferece arrays rápidos e funções matemáticas vetorizadas para cálculos numéricos.</li>
   <li><strong>Pandas</strong>: Estrutura <i>DataFrame</i> que facilita carregar, limpar e explorar dados tabulares.</li>
-  <li><strong>Matplotlib</strong>: Cria gráficos estáticos simples para visualizar tendências e padrões.</li>
   <li><strong>Plotly</strong>: Gera gráficos interativos que permitem explorar dados diretamente no navegador.</li>
   <li><strong>Streamlit</strong>: Transforma scripts Python em <i>dashboards web</i>.</li>
   <li><strong>streamlit-option-menu</strong>: Adiciona menus de navegação estilizados aos apps Streamlit.</li>
