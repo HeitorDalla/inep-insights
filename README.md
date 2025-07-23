@@ -1,6 +1,6 @@
-<h1>Inep Insights ─ Analytics</h1>
+<h1>INEP Insights ─ Analytics</h1>
 
-<p align="justify">Este projeto teve como propósito consolidar e aplicar os conhecimentos adquiridos na capacitação em <b>Analytics</b> oferecida pela <code>Tata Consultancy Services</code>. Por meio da construção de pipelines de dados, da modularização do banco e do desenvolvimento de dashboards interativos, buscamos evidenciar as habilidades técnicas e a evolução profissional da equipe de desenvolvedores.</p>
+<p align="justify">Este projeto teve como propósito consolidar e aplicar os conhecimentos adquiridos na capacitação em <b>Analytics</b> oferecida pela <code>Tata Consultancy Services (TCS)</code>. Por meio da construção de pipelines de dados, da modularização do banco e do desenvolvimento de dashboards interativos, buscamos evidenciar as habilidades técnicas e a evolução profissional da equipe de desenvolvedores.</p>
 
 <details>
     <summary>Entenda a persona</summary><br>
@@ -25,14 +25,14 @@
 
 <hr>
 
-<h2>Estrutura do projeto</h2>
+<h2>Estrutura do projeto¹</h2>
 
 <pre>
-PROJETO-FINAL/
+INEP-INSIGHTS/
 ├── .streamlit/
 │   └── config.toml                     # configurações internas do Streamlit
 ├── csv/                      
-│   └── ...¹
+│   └── ...²
 ├── frontend/
 │   ├── assets/
 │   │   ├── css/
@@ -66,8 +66,8 @@ PROJETO-FINAL/
 └── main.py                             # script central que processa dados, gera e popula o banco de dados
 </pre>
 
-<p align="justify">Alguns arquivos e diretórios foram omitidos por não serem essenciais para entendimento da estrutura do projeto.</p>
-<p align="justify">1 ─ O <em>dataset</em> não está disponível no <i>GitHub</i> devido ao seu tamanho elevado. Contudo, é possível baixá‑lo diretamente por meio do seguinte link: <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar</a>.</p>
+<p align="justify">1 ─ Alguns arquivos e diretórios foram omitidos por não serem essenciais para entendimento da estrutura do projeto.</p>
+<p align="justify">2 ─ O <em>dataset</em> não está disponível no GitHub devido ao seu tamanho elevado. Contudo, é possível baixá‑lo diretamente por meio do seguinte link: <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar</a>.</p>
 
 <hr>
 
@@ -251,7 +251,7 @@ DATABASE = "nome_do_banco"</code></pre>
 <h2>⚠️ Importante</h2>
 
 <p align="justify">
-Este projeto utiliza dados públicos reais disponibilizados pelo <a href="https://www.gov.br/inep/pt-br" target="_blank">Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira</a> (INEP), provenientes de fontes oficiais como o <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">Censo Escolar</a>.<br><br>
+Este projeto utiliza dados públicos reais disponibilizados pelo <a href="https://www.gov.br/inep/pt-br" target="_blank">Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira (INEP)</a>, provenientes de fontes oficiais como o <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">Censo Escolar</a>.<br><br>
 Ressaltamos que não são utilizados dados sensíveis, pessoais ou que possam ferir a privacidade, integridade ou reputação de indivíduos ou instituições. Todas as informações tratadas são de domínio público e foram utilizadas estritamente com fins educacionais, analíticos e de interesse coletivo.<br><br>
 Portanto, assegura-se que nenhuma informação apresentada representa risco à segurança física ou digital de qualquer pessoa ou organização.
 </p>
