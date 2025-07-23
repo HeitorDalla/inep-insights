@@ -59,7 +59,7 @@ PROJETO-FINAL/
 │   ├── data/                           # editar!!!
 │   │   ├── dados_tratados.py
 │   │   └── data.py
-│   └── database/                       # módulos de scripts que conecta, cria e popula o banco de dados
+│   └── database/                       # módulo de scripts que conecta, cria e popula o banco de dados
 │       ├── create_database.py
 │       ├── get_connection.py
 │       ├── inicializar_database.py
@@ -68,7 +68,7 @@ PROJETO-FINAL/
 </pre>
 
 <p align="justify">Alguns arquivos e diretórios foram omitidos por não serem essenciais para entendimento da estrutura do projeto.</p>
-<p align="justify">1. O <em>dataset</em> não está disponível no <i>GitHub</i> devido ao seu tamanho elevado. Contudo, é possível baixá‑lo diretamente por meio do seguinte link: <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar</a>.</p>
+<p align="justify">1 ─ O <em>dataset</em> não está disponível no <i>GitHub</i> devido ao seu tamanho elevado. Contudo, é possível baixá‑lo diretamente por meio do seguinte link: <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar</a>.</p>
 
 <hr>
 
