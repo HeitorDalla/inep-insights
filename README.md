@@ -1,19 +1,23 @@
 <h1>Projeto Final ─ Analytics</h1>
 
-<p align="justify">Ipsum lorem</p>
+<p align="justify">Este projeto visa utilizar dados do <code>Censo Escolar INEP</code> para demonstrar como a falta de infraestrutura básica  pode impactar o desempenho dos alunos em escolas rurais, comparando-as com escolas urbanas.</p>
+
+<details>
+  <summary>Entenda a persona</summary>
+</details>
 
 <hr>
 
 <h2>Tecnologias utilizadas</h2>
 <ul>
-  <li><strong>Python</strong>: Linguagem versátil que serve de base para todo o projeto, controlando fluxo e integração das bibliotecas.</li><br>
-  <li><strong>NumPy</strong>: Oferece arrays rápidos e funções matemáticas vetorizadas para cálculos numéricos.</li><br>
-  <li><strong>Pandas</strong>: Estrutura <i>DataFrame</i> que facilita carregar, limpar e explorar dados tabulares.</li><br>
-  <li><strong>Matplotlib</strong>: Cria gráficos estáticos simples para visualizar tendências e padrões.</li><br>
-  <li><strong>Plotly</strong>: Gera gráficos interativos que permitem explorar dados diretamente no navegador.</li><br>
-  <li><strong>Streamlit</strong>: Transforma scripts Python em <i>dashboards web</i>.</li><br>
-  <li><strong>streamlit-option-menu</strong>: Adiciona menus de navegação estilizados aos apps Streamlit.</li><br>
-  <li><strong>MySQL</strong>: Banco de dados relacional que armazena e gerencia as informações do projeto.</li><br>
+  <li><strong>Python</strong>: Linguagem versátil que serve de base para todo o projeto, controlando fluxo e integração das bibliotecas.</li>
+  <li><strong>NumPy</strong>: Oferece arrays rápidos e funções matemáticas vetorizadas para cálculos numéricos.</li>
+  <li><strong>Pandas</strong>: Estrutura <i>DataFrame</i> que facilita carregar, limpar e explorar dados tabulares.</li>
+  <li><strong>Matplotlib</strong>: Cria gráficos estáticos simples para visualizar tendências e padrões.</li>
+  <li><strong>Plotly</strong>: Gera gráficos interativos que permitem explorar dados diretamente no navegador.</li>
+  <li><strong>Streamlit</strong>: Transforma scripts Python em <i>dashboards web</i>.</li>
+  <li><strong>streamlit-option-menu</strong>: Adiciona menus de navegação estilizados aos apps Streamlit.</li>
+  <li><strong>MySQL</strong>: Banco de dados relacional que armazena e gerencia as informações do projeto.</li>
   <li><strong>mysql-connector-python</strong>: Conecta Python ao MySQL e executa consultas de forma direta.</li>
 </ul>
 
@@ -40,7 +44,7 @@ PROJETO-FINAL/
 │   │   ├── graficos.py
 │   │   └── load_css.py
 │   ├── views/
-│   │   ├── analise_especifica_past/    # módulo de dashboards comparativos interativos, modularizado
+│   │   ├── analise_especifica_past/    # módulo de dashboards comparativos interativos
 │   │   │   ├── corpo_docente.py
 │   │   │   ├── infraestrutura.py
 │   │   │   ├── material.py
@@ -67,12 +71,84 @@ PROJETO-FINAL/
 <hr>
 
 <h2>Funcionalidades</h2>
-<p>Pendente...</p>
-<!--<h3>[título da funcionalidade]</h3>
+
+<h3>Análise Exploratória</h3>
 <img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
 <ul>
-  <li>[descrição da(s) funcionalidade(s)]</li>
-</ul>-->
+  <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado e município, com opção “Todos”.</li>
+  <li><strong>KPIs dinâmicos</strong>: total de escolas, matrículas, média de profissionais por escola e número de escolas com água potável, alimentação e internet.</li>
+  <li><strong>Heatmap de correlação</strong>: mostra o coeficiente de Pearson entre as principais variáveis.</li>
+  <li><strong>Guia interativo</strong>: painel expansível que orienta sobre a interpretação do heatmap.</li>
+</ul>
+
+
+<h3>Análise Geral</h3>
+<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<ul>
+  <li><strong>Filtros em cascata</strong>: seleção hierárquica de regiãoe e estado, com opção “Todos”.</li>
+  <li><strong>Gráfico de velocímetro:</strong> compara score (infraestrutura + saneamento) rural vs urbano, com zonas de criticidade e indicador de gap coloridas.</li>
+  <li><strong>KPIs dinâmicos:</strong> quantidades e percentuais de escolas e matrículas rurais e urbanas;</li>
+  <li><strong>Gráficos de barras lado a lado:</strong> percentuais de escolas com infraestrutura e saneamento por localização.</li>
+  <li><strong>Distribuição de matrículas:</strong> gráfico de barras comparando níveis de ensino (educação infantil, fundamental, médio, etc.) entre rural e urbano;</li>
+  <li><strong>Dispersão entre infraestrutura e densidade de matrículas:</strong> scatter plot mostrando relação entre infraestrutura e número de matrículas por localização.</li>
+  <li><strong>Boxplot de profissionais:</strong> distribuição do total de profissionais em áreas rurais e urbanas;</li>
+  <li><strong>Insights dinâmicos:</strong> observações geradas conforme filtros aplicados;</li>
+  <li><strong>Explicações interativas:</strong> expanders embaixo de cada gráfico detalhando interpretação.</li>
+</ul>
+
+
+<h3>Análise Específica ─ Saneamento Básico</h3>
+<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<ul>
+  <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
+  <li><strong>Indicador da Escola de Marta:</strong> KPI "Sim"/"Não" para o saneamento selecionado via dropdown.</li>
+  <li><strong>Comparativo Rural vs Urbano:</strong> gráfico de barras lado a lado usando o mesmo filtro de saneamento.</li>
+</ul>
+
+<h3>Análise Específica ─ Infraestrutura</h3>
+<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<ul>
+  <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
+  <li><strong>Indicador da Escola de Marta:</strong> KPI "Sim"/"Não" para a infraestrutura selecionada via dropdown.</li>
+  <li><strong>Comparativo Rural vs Urbano:</strong> gráfico de barras lado a lado usando o mesmo filtro de infraestrutura.</li>
+  <li><strong>Gráficos de transporte escolar público (infraestrutura):</strong>
+    <ul>
+      <li><strong>Escola de Marta:</strong> número de alunos usando transporte escolar público.</li>
+      <li><strong>Boxplot:</strong> dispersão do uso de transporte entre rural e urbano.</li>
+      <li><strong>Histograma de frequência:</strong> quantidade de escolas por número de alunos usuários, comparando rural e urbano.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3>Análise Específica ─ Materiais</h3>
+<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<ul>
+  <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
+  <li><strong>Explicação interativa:</strong> expander ao início da página descrevendo quais materiais estão avaliados.</li>
+  <li><strong>Indicador da Escola de Marta:</strong> KPI "Sim"/"Não" para o material selecionado via dropdown.</li>
+  <li><strong>Comparativo Rural vs Urbano:</strong> gráfico de barras lado a lado usando o mesmo filtro de material.</li>
+</ul>
+
+<h3>Análise Específica ─ Corpo Docente</h3>
+<img src="caminho/relativo/do/arquivo.gif" alt="texto alternativo"/>
+<ul>
+  <li><strong>Filtros em cascata</strong>: seleção hierárquica de região, estado, município e tipo de localização (Rural/Urbana).</li>
+  <li><strong>Visão geral dos profissionais:</strong> expander inicial com detalhes dos profissionais selecionados.</li>
+  <li><strong>Comparativo por profissional:</strong>
+    <ul>
+      <li><strong>Gráfico de barras esquerdo:</strong> número na Escola de Marta e média em áreas rural e urbana, conforme o profissional escolhido.</li>
+      <li><strong>Gráfico de barras direito:</strong> média de profissionais nas três localizações (escola de Marta exibe valor total).</li>
+    </ul>
+  </li>
+  <li><strong>Distribuição e médias gerais:</strong>
+    <ul>
+      <li><strong>Gráfico de pizza:</strong> distribuição percentual de profissionais na Escola de Marta.</li>
+      <li><strong>Gráfico de barras:</strong> média de profissionais em rural vs. urbano.</li>
+    </ul>
+  </li>
+  <li><strong>Relação segurança vs. total de profissionais:</strong> gráfico de disperção mostrando correlação entre número de profissionais de segurança e o total nas três localizações.</li>
+  <li><strong>Explicação interativa:</strong> expander ao final, orientando a interpretação do gráfico de relação.</li>
+</ul>
 
 <hr>
 
