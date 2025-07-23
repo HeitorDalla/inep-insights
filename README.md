@@ -30,20 +30,20 @@
 <pre>
 PROJETO-FINAL/
 ├── .streamlit/
-│   └── config.toml                    # configurações internas do Streamlit
+│   └── config.toml                     # configurações internas do Streamlit
 ├── csv/                      
 │   └── ...¹
 ├── frontend/
 │   ├── assets/
 │   │   ├── css/
-│   │   │   └── style.css              # estilos globais da interface Streamlit
-│   │   └── img/                       # imagem(ns) da interface do Streamlit
+│   │   │   └── style.css               # estilos globais da interface Streamlit
+│   │   └── img/                        # imagem(ns) da interface do Streamlit
 │   │       └── ...
-│   ├── utils/                         # editar!!!
-│   │   ├── filters.py
-│   │   ├── formatters.py
-│   │   ├── graficos.py
-│   │   └── load_css.py
+│   ├── utils/                          # módulo de funções:
+│   │   ├── filters.py                  # SQL para criação de filtros          
+│   │   ├── formatters.py               # formata números em suas unidades de medidas (mil, milhões, etc.)
+│   │   ├── graficos.py                 # plota gráficos
+│   │   └── load_css.py                 # carrega o style.css
 │   ├── views/
 │   │   ├── analise_especifica_past/    # módulo de dashboards comparativos interativos
 │   │   │   ├── corpo_docente.py
@@ -55,7 +55,7 @@ PROJETO-FINAL/
 │   │   ├── analise_geral.py            # seção de dashboards interativos para análise exploratória dos dados
 │   └── app.py                          # script central que reúne e exibe todas as views modularizadas no Streamlit
 ├── src/
-│   ├── data/                           # editar!!!
+│   ├── data/                           # módulo de scripts resposável pelo ETL
 │   │   ├── dados_tratados.py
 │   │   └── data.py
 │   └── database/                       # módulo de scripts que conecta, cria e popula o banco de dados
@@ -73,7 +73,7 @@ PROJETO-FINAL/
 
 <h2>Funcionalidades</h2>
 
-<h3>Análise Exploratória</h3>
+<h3>Streamlit Menu</h3>
 <img src="./frontend/assets/img/menu.gif" alt="texto alternativo"/>
 <ul>
   <li><strong>About</strong>: Exibe a lista dos desenvolvedores da aplicação e o link para o site oficial do Streamlit.</li>
