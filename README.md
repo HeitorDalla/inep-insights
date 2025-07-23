@@ -268,4 +268,4 @@ Portanto, assegura-se que nenhuma informação apresentada representa risco à s
 <hr>
 
 <h2>Licença e Autoria</h2>
-<p align="justify">Este projeto foi desenvolvido por <a href="https://github.com/MatheusVenturaNellessen">Matheus V. Nellessen</a>, <a href="#">Flávia ...</a> e <a href="#">Heitor ...</a>, e está licenciado sob a licença MIT. Veja o <a href="./LICENSE">documento</a> para mais detalhes.</p>
+<p align="justify">Este projeto foi desenvolvido por <a href="https://www.linkedin.com/in/dev-matheusvn/">Matheus Nellessen</a>, <a href="https://www.linkedin.com/in/fl%C3%A1vialuisa/">Flávia Luisa</a> e <a href="https://www.linkedin.com/in/heitordallavilla/">Heitor Dalla</a>, e está licenciado sob a licença MIT. Veja o <a href="./LICENSE">documento</a> para mais detalhes.</p>
