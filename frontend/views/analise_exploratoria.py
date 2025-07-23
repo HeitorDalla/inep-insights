@@ -136,7 +136,7 @@ def show_analise_exploratoria_page (conn):
 
         st.markdown(f"""
             <div class="kpi-card">
-                <div class="kpi-label">Média de Prof. por Escolar</div>
+                <div class="kpi-label">Média de Prof. por Escola</div>
                 <div class="kpi-value">{formatted_equipe_escolar}</div>
             </div>
         """, unsafe_allow_html=True)

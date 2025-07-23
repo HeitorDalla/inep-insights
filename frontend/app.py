@@ -3,14 +3,14 @@ import streamlit as st
 
 # Configuração da página Streamlit
 st.set_page_config(
-    page_title="Painel de Indicadores",     # Título da aba do navegador
-    page_icon="📊",                         # Ícone que aparece na aba e no header
+    page_title="INEP Insights",     # Título da aba do navegador
+    page_icon="🔍",                         # Ícone que aparece na aba e no header
     layout="wide",                          # Usa todo o espaço horizontal
-    initial_sidebar_state="collapsed",      # Sidebar começa recolhida
+    initial_sidebar_state="expanded",      # Sidebar começa recolhida
     menu_items={                            # Itens do menu de contexto (canto superior direito)
         'Get help': 'https://github.com/HeitorDalla/projeto-final',
         'Report a bug': 'https://github.com/HeitorDalla/projeto-final/issues',
-        'About': "Aplicativo desenvolvido por Matheus V. Nellessen, Flávia ... e Heitor Villa"
+        'About': "Aplicativo desenvolvido por Matheus Nellessen, Flávia Luisa e Heitor Dalla"
     }
 )
 

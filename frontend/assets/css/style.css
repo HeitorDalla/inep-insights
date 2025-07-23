@@ -31,6 +31,7 @@
 }
 
 .p-destaque {
+    padding: 10px !important;
     font-size: 1.8em !important;
     text-align: center !important;
     color: #4a4a4a !important;

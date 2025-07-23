@@ -51,7 +51,7 @@ def corpo_docente(conn, nome_escola_marta, df_escolas):
             7. **Segurança** ─ Segurança, guarda ou segurança patrimonial;
             8. **Gestor** ─ Vice-diretor(a) ou diretor(a) adjunto(a), profissionais responsáveis pela gestão administrativa e/ou financeira;
             9. **Assistente Social** ─ Orientador(a) comunitário(a) ou assistente social;
-            10. **Nutricionista** ─ Planeja e garante alimentação saudável e adequada para os alunos
+            10. **Nutricionista** ─ Planeja e garante alimentação saudável e adequada para os alunos.
             """)
 
         placeholders = ", ".join(["%s"] * len(df_escolas))

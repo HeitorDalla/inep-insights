@@ -44,13 +44,15 @@ def show_analise_geral_page(conn):
         AVG(i.IN_LABORATORIO_INFORMATICA) * 100 AS lab_informatica,
         AVG(i.IN_QUADRA_ESPORTES) * 100 AS quadra_esportes,
         AVG(i.IN_REFEITORIO) * 100 AS refeitorio,
-        AVG(i.IN_PATIO_COBERTO) * 100 AS patio_coberto
+        AVG(i.IN_PATIO_COBERTO) * 100 AS patio_coberto,
+        AVG(mt.IN_INTERNET) * 100 AS internet
     FROM escola e
     JOIN municipio m ON e.municipio_id = m.id
     JOIN uf u ON m.uf_id = u.id
     JOIN regiao r ON u.regiao_id = r.id
     JOIN tipo_localizacao tl ON e.tp_localizacao_id = tl.id
     JOIN infraestrutura i ON e.id = i.escola_id
+    JOIN materiais mt ON e.id = mt.escola_id
     WHERE 1=1 {where_clause}
     GROUP BY tl.descricao
     """
@@ -542,7 +544,7 @@ def show_analise_geral_page(conn):
             st.plotly_chart(fig_matriculas, use_container_width=True)
         
         # Gráfico de correlação: matrículas vs infraestrutura
-        st.markdown('<hr><h1 class="h1-title-anal_espc">Relação entre Infraestrutura e Densidade de Matrículas</h1><br>', unsafe_allow_html=True)
+        st.markdown('<hr><h1 class="h1-title-anal_espc">Relacionamento entre Infraestrutura e Matrículas</h1><br>', unsafe_allow_html=True)
         
         if not df_matriculas.empty and not df_infra.empty:
             # Juntar dados de matrículas e infraestrutura
@@ -723,7 +725,7 @@ def show_analise_geral_page(conn):
             else:
                 st.success(f"✅ **SCORE ALTO ({score_rural:.1f} PONTOS)!**")
 
-            st.markdown("<br>", unsafe_allow_html=True)
+            # st.markdown("<br>", unsafe_allow_html=True)
 
             col1, col2, col3 = st.columns(3)
 
@@ -759,10 +761,10 @@ def show_analise_geral_page(conn):
             prioridades.sort(key=lambda x: x[1], reverse=True)
             
             if prioridades:
-                st.markdown('<br><p class="p-destaque">📈 Direcionamento de Investimentos</p><br>', unsafe_allow_html=True)
+                st.markdown('<p class="p-destaque">📈 Direcionamento de Investimentos</p>', unsafe_allow_html=True)
                 for i, (item, gap, atual) in enumerate(prioridades[:3]):
-                    st.success(f"{i+1}. **{item}**: {atual:.1f}% atual, GAP de {gap:.1f} pontos")
-                    st.markdown("<br>", unsafe_allow_html=True)
+                    st.success(f"**{i+1}.** **{item}**: Das escolas rurais, **{atual:.1f}%** apresentam esse índice, ficando **{gap:.1f} pontos** abaixo do score urbano")
+                    # st.markdown("<br>", unsafe_allow_html=True)
 
             else:
                 st.info("Todos os indicadores estão acima de 50%. Foque em melhorias pontuais.")
