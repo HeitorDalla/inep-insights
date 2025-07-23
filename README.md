@@ -156,10 +156,10 @@ PROJETO-FINAL/
 
 <h3>Pré‑requisitos:</h3>
 <ul>
-  <li><strong>Python ≥ 3.8</strong> (recomendado 3.13.3)</li><br>
-  <li><strong>Git</strong> instalado</li><br>
-  <li><strong>pip</strong> (gerenciador de pacotes Python)</li><br>
-  <li><strong>MySQL</strong> instalado e em execução</li><br>
+  <li><strong>Python ≥ 3.8</strong> (recomendado 3.13.3)</li>
+  <li><strong>Git</strong> instalado</li>
+  <li><strong>pip</strong> (gerenciador de pacotes Python)</li>
+  <li><strong>MySQL</strong> instalado e em execução</li>
   <li><strong>Navegador moderno</strong> (Chrome, Firefox, Edge etc.)</li>
 </ul>
 
@@ -242,8 +242,8 @@ DATABASE = "nome_do_banco"</code></pre>
 <h2>⚠️ Importante</h2>
 
 <p align="justify">
-Este projeto utiliza dados públicos reais disponibilizados pelo <a href="https://www.gov.br/inep/pt-br" target="_blank">Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira</a> (INEP), provenientes de fontes oficiais como o <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">Censo Escolar</a>.<br>
-Ressaltamos que não são utilizados dados sensíveis, pessoais ou que possam ferir a privacidade, integridade ou reputação de indivíduos ou instituições. Todas as informações tratadas são de domínio público e foram utilizadas estritamente com fins educacionais, analíticos e de interesse coletivo.<br>
+Este projeto utiliza dados públicos reais disponibilizados pelo <a href="https://www.gov.br/inep/pt-br" target="_blank">Instituto Nacional de Estudos e Pesquisas Educacionais Anísio Teixeira</a> (INEP), provenientes de fontes oficiais como o <a href="https://www.gov.br/inep/pt-br/acesso-a-informacao/dados-abertos/microdados/censo-escolar" target="_blank">Censo Escolar</a>.<br><br>
+Ressaltamos que não são utilizados dados sensíveis, pessoais ou que possam ferir a privacidade, integridade ou reputação de indivíduos ou instituições. Todas as informações tratadas são de domínio público e foram utilizadas estritamente com fins educacionais, analíticos e de interesse coletivo.<br><br>
 Portanto, assegura-se que nenhuma informação apresentada representa risco à segurança física ou digital de qualquer pessoa ou organização.
 </p>
 
